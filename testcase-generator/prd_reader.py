@@ -10,15 +10,85 @@ PRD Reader - PRD / PRD/MD 文件内容提取器
     python prd_reader.py ./requirements/prd.pdf --output extracted_content.txt
 
 依赖安装:
-    pip install pdfplumber  # PDF 支持
+    pip install pdfplumber  # PDF 支持（脚本会自动检测并提示安装）
     # Markdown 无需额外依赖
 """
 
 import argparse
 import sys
 import os
+import subprocess
 from pathlib import Path
 from typing import Optional, Dict, Any
+
+
+# ============================================================================
+# 依赖自动安装模块
+# ============================================================================
+
+def check_and_install_dependencies():
+    """
+    检测并自动安装缺失的依赖。
+    仅在需要时进行检测，避免不必要的导入延迟。
+    """
+    missing_deps = []
+
+    # 检测 pdfplumber
+    try:
+        import pdfplumber
+    except ImportError:
+        missing_deps.append(("pdfplumber", "pdfplumber"))
+
+    if not missing_deps:
+        return  # 所有依赖都已安装
+
+    print("=" * 60)
+    print("[INFO] 检测到缺失的依赖，正在尝试自动安装...")
+    print("=" * 60)
+
+    for package_name, install_name in missing_deps:
+        print(f"\n正在安装 {package_name}...")
+        try:
+            result = subprocess.run(
+                [sys.executable, "-m", "pip", "install", install_name],
+                capture_output=True,
+                text=True,
+                timeout=120  # 2分钟超时
+            )
+
+            if result.returncode == 0:
+                print(f"[OK] {package_name} 安装成功!")
+            else:
+                print(f"[ERROR] {package_name} 安装失败!")
+                print(f"错误信息: {result.stderr}")
+                print(f"\n请手动运行以下命令安装:")
+                print(f"    pip install {install_name}")
+        except subprocess.TimeoutExpired:
+            print(f"[ERROR] {package_name} 安装超时（超过2分钟）")
+            print(f"请手动运行以下命令安装:")
+            print(f"    pip install {install_name}")
+        except Exception as e:
+            print(f"[ERROR] {package_name} 安装时发生错误: {str(e)}")
+            print(f"请手动运行以下命令安装:")
+            print(f"    pip install {install_name}")
+
+    print("\n" + "=" * 60)
+
+
+# 在首次需要 PDF 功能时调用此函数
+def ensure_pdf_dependency():
+    """确保 pdfplumber 已安装，如缺失则自动安装"""
+    try:
+        import pdfplumber
+        return True
+    except ImportError:
+        check_and_install_dependencies()
+        # 再次尝试导入
+        try:
+            import pdfplumber
+            return True
+        except ImportError:
+            return False
 
 
 # ============================================================================
@@ -36,16 +106,17 @@ def extract_pdf(file_path: str, encoding: str = "utf-8") -> Dict[str, Any]:
     Returns:
         包含提取结果的字典
     """
-    try:
-        import pdfplumber
-    except ImportError:
+    # 确保依赖已安装
+    if not ensure_pdf_dependency():
         return {
             "success": False,
-            "error": "pdfplumber 未安装。请运行: pip install pdfplumber",
+            "error": "pdfplumber 未安装且自动安装失败。请运行: pip install pdfplumber",
             "content": "",
             "pages": 0,
             "file_type": "pdf"
         }
+
+    import pdfplumber
 
     content_parts = []
     total_pages = 0
