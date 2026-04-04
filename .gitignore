@@ -1,0 +1,17 @@
+# IDE
+.idea/
+.vscode/
+
+# WorkBuddy tool
+.workbuddy/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
