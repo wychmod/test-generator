@@ -78,14 +78,70 @@ metadata:
 # 基本用法
 /testcase 为用户登录模块生成测试用例
 
-# 基于文件
+# 基于文件（支持 PDF 和 Markdown）
 /testcase ./requirements/user-auth.md
+/testcase ./requirements/prd.pdf
 
 # 指定选项
 /testcase --format=gherkin --priority=P0,P1 --depth=full 支付模块API测试
 
 # 完整配置模式
 /testcase --config=./test-config.json 订单管理系统
+```
+
+### 文件输入协议 (File Input Protocol)
+
+**支持的文件格式：**
+
+| 格式 | 扩展名 | 说明 | 依赖 |
+|------|--------|------|------|
+| Markdown | `.md`, `.markdown` | 直接读取文本内容 | 无 |
+| PDF | `.pdf` | 通过 pdfplumber 提取文本 | `pip install pdfplumber` |
+
+**文件路径处理规则：**
+
+```yaml
+file_input_handling:
+  path_resolution:
+    - 支持绝对路径: `D:\docs\prd.pdf`
+    - 支持相对路径: `./requirements/prd.md`
+    - 支持空格和中文路径: `./需求文档/产品需求.pdf`
+
+  extraction_priority:
+    1. 如果是 .pdf 文件 → 调用 prd_reader.py 的 PDF 提取逻辑
+    2. 如果是 .md 文件 → 直接读取内容
+    3. 其他文件 → 尝试作为文本读取
+
+  content_preprocessing:
+    - 移除 PDF 页眉页脚（如果可识别）
+    - 规范化换行符
+    - 识别并保留文档结构（标题/列表/表格/代码块）
+    - 记录原始文件元信息（文件名/页数/大小）
+
+  error_handling:
+    file_not_found:
+      action: "提示用户检查文件路径"
+      example: "错误: 文件不存在 ./prd.pdf，请确认路径是否正确"
+    pdf_parse_error:
+      action: "提示安装依赖或使用 OCR"
+      example: "pdfplumber 未安装，请运行: pip install pdfplumber"
+    encoding_error:
+      action: "尝试 GBK/GB2312 编码回退"
+      example: "自动尝试使用 GBK 编码读取"
+```
+
+**工作流程：**
+
+```
+用户输入: /testcase ./requirements/prd.pdf
+                    ↓
+         prd_reader.py 识别文件类型 (.pdf)
+                    ↓
+         调用 pdfplumber 提取文本内容
+                    ↓
+         提取结果传入 Phase 1 需求预处理
+                    ↓
+         后续流程不变
 ```
 
 ### 命令参数
@@ -99,6 +155,7 @@ metadata:
 | `--config` | `-c` | 配置文件路径 | 无 | JSON 文件 |
 | `--lang` | `-l` | 输出语言 | `auto` | `zh`,`en`,`ja` |
 | `--traceability` | `-t` | 可追溯性级别 | `full` | `minimal`,`standard`,`full` |
+| `--file` | 无 | PRD文件路径 | 无 | PDF/MD 文件路径 |
 
 ---
 
@@ -578,3 +635,50 @@ dependencies: [依赖的阶段产物列表]
 ---
 
 *此 Skill 遵循 ISTQB MBT（Model-Based Testing）最佳实践，结合 AI 能力进行了增强扩展。*
+
+---
+
+## 附录：prd_reader.py 使用说明
+
+`prd_reader.py` 是本 Skill 的文件预处理器，用于从 PDF 和 Markdown 文件中提取内容。
+
+### 安装依赖
+
+```bash
+# PDF 支持（必需）
+pip install pdfplumber
+
+# Markdown 无需额外依赖
+```
+
+### 命令行使用
+
+```bash
+# 基本用法
+python prd_reader.py ./requirements/prd.pdf
+python prd_reader.py ./requirements/prd.md
+
+# 输出到文件
+python prd_reader.py ./prd.pdf --output extracted.txt
+
+# 指定编码
+python prd_reader.py ./prd.md --encoding gbk
+
+# 静默模式（适用于管道）
+python prd_reader.py ./prd.pdf -q
+```
+
+### Python API 使用
+
+```python
+from prd_reader import identify_and_extract
+
+result = identify_and_extract("./requirements/prd.pdf")
+
+if result["success"]:
+    print(f"内容长度: {len(result['content'])} 字符")
+    print(f"文件类型: {result['file_type']}")
+    print(result["content"][:500])  # 预览前 500 字
+else:
+    print(f"错误: {result['error']}")
+```
