@@ -212,7 +212,7 @@ def print_result(result: Dict[str, Any], output_file: Optional[str] = None, quie
         quiet: 静默模式（仅输出内容）
     """
     if not result["success"]:
-        print(f"错误: {result.get('error', '未知错误')}", file=sys.stderr)
+        print(f"[ERROR] {result.get('error', '未知错误')}", file=sys.stderr)
         sys.exit(1)
 
     if quiet:
@@ -220,38 +220,70 @@ def print_result(result: Dict[str, Any], output_file: Optional[str] = None, quie
         print(result["content"])
         return
 
+    # 检测 Windows 终端
+    is_windows = sys.platform == 'win32'
+
     # 格式化输出
     print("=" * 60)
-    print(f"文件读取成功")
+    print(f"[OK] 文件读取成功")
     print("=" * 60)
-    print(f"📄 文件名: {result['input_filename']}")
-    print(f"📁 路径:   {result['input_path']}")
-    print(f"📊 类型:   {result['file_type'].upper()}")
 
-    if result["file_type"] == "pdf":
-        print(f"📑 页数:   {result['pages']} 页")
+    if is_windows:
+        # Windows 终端使用 ASCII 符号
+        print(f"[FILE] 文件名: {result['input_filename']}")
+        print(f"[PATH] 路径:   {result['input_path']}")
+        print(f"[TYPE] 类型:   {result['file_type'].upper()}")
 
-    print(f"📏 大小:   {result['file_size']} bytes")
-    if "encoding" in result:
-        print(f"🔤 编码:   {result['encoding']}")
-    if "note" in result:
-        print(f"💡 注意:   {result['note']}")
+        if result["file_type"] == "pdf":
+            print(f"[PAGES] 页数:   {result['pages']} 页")
 
-    print("-" * 60)
-    print(f"内容预览 (前 500 字符):")
-    print("-" * 60)
+        print(f"[SIZE] 大小:   {result['file_size']} bytes")
+        if "encoding" in result:
+            print(f"[ENCODING] 编码:   {result['encoding']}")
+        if "note" in result:
+            print(f"[NOTE] 注意:   {result['note']}")
+
+        print("-" * 60)
+        print(f"内容预览 (前 500 字符):")
+        print("-" * 60)
+    else:
+        # 非 Windows 终端使用 emoji
+        print(f"📄 文件名: {result['input_filename']}")
+        print(f"📁 路径:   {result['input_path']}")
+        print(f"📊 类型:   {result['file_type'].upper()}")
+
+        if result["file_type"] == "pdf":
+            print(f"📑 页数:   {result['pages']} 页")
+
+        print(f"📏 大小:   {result['file_size']} bytes")
+        if "encoding" in result:
+            print(f"🔤 编码:   {result['encoding']}")
+        if "note" in result:
+            print(f"💡 注意:   {result['note']}")
+
+        print("-" * 60)
+        print(f"内容预览 (前 500 字符):")
+        print("-" * 60)
+
     preview = result["content"][:500]
     if len(result["content"]) > 500:
         preview += "\n... [内容已截断]"
     print(preview)
     print("-" * 60)
-    print(f"✅ 总字符数: {len(result['content'])}")
+
+    if is_windows:
+        print(f"[DONE] 总字符数: {len(result['content'])}")
+    else:
+        print(f"✅ 总字符数: {len(result['content'])}")
 
     # 输出到文件
     if output_file:
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(result["content"])
-        print(f"\n💾 内容已保存到: {output_file}")
+        if is_windows:
+            print(f"\n[SAVE] 内容已保存到: {output_file}")
+        else:
+            print(f"\n💾 内容已保存到: {output_file}")
 
 
 # ============================================================================
