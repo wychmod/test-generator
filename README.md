@@ -1,5 +1,10 @@
 # TestCase Generator Skill v2.0
 
+<!--
+GitHub Topics: testing testcase-generation mbt model-based-testing
+test-automation quality-assurance automation claude-code skill ai-driven testing-tool
+-->
+
 <p align="center">
   <strong>🔬 AI 驱动的生产级测试用例生成器</strong><br>
   <em>基于 MBT（Model-Based Testing）方法论的五阶段智能流水线</em>
@@ -7,6 +12,7 @@
 
 <p align="center">
   <a href="#特性">特性</a> •
+  <a href="#安装">安装</a> •
   <a href="#快速开始">快速开始</a> •
   <a href="#架构">架构</a> •
   <a href="#使用指南">使用指南</a> •
@@ -15,6 +21,25 @@
   •
   <a href="#质量保障">质量保障</a>
 </p>
+
+---
+
+## 📦 安装
+
+```bash
+# 方式一：Vercel skills CLI（推荐）
+npm install -g skills
+npx skills add <your-username>/testcase-generator -y
+
+# 方式二：OpenSkills CLI
+npm install -g openskills
+npx openskills install <your-username>/testcase-generator
+
+# 方式三：手动安装
+# 下载 testcase-generator.zip，解压到 ~/.claude/skills/ 或 ./.workbuddy/skills/
+```
+
+> 将项目推送至 GitHub 后，以上命令即可正常工作。
 
 ---
 
