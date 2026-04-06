@@ -254,13 +254,23 @@ test-output/
 testcase-generator/
 ├── SKILL.md                              # 🔑 Skill 主文件 (核心入口)
 ├── README.md                             # 📖 本文件
+├── run_package.bat                       # 🛠️ Windows 打包脚本
+│
+├── config/                               # ⚙️ 配置文件
+│   ├── example-config.json               #   配置示例
+│   └── testcase-config-schema.json       #   JSON Schema 校验定义
 │
 ├── prompts/                              # 📝 各阶段提示词 (AI 执行指令)
+│   ├── phase0_input_preprocessing_prompt.md
 │   ├── phase1_requirements_prompt.md     #   阶段1: 需求预处理引擎
 │   ├── phase2_code_analysis_prompt.md    #   阶段2: 代码分析引擎
 │   ├── phase3_domain_analysis_prompt.md  #   阶段3: 领域建模引擎
 │   ├── phase4_mbt_design_prompt.md      #   阶段4: MBT 设计引擎
 │   └── phase5_testcase_generation_prompt.md # 阶段5: 用例生成引擎
+│
+├── scripts/                              # 🐍 Python 工具脚本
+│   ├── prd_reader.py                    #   PRD 文件读取与解析
+│   └── _do_package.py                   #   打包脚本（生成 ZIP）
 │
 ├── templates/                            # 📋 输出模板 (产物格式规范)
 │   ├── requirements_template.md          #   需求规格说明书模板 v2.0

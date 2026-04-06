@@ -3,20 +3,23 @@
 ## 快速打包
 
 ```bash
-cd D:/pycharm/test-generator
-python _do_package.py
+# 方式一：直接运行 Python 脚本
+python scripts/_do_package.py
+
+# 方式二：Windows 用户双击运行
+run_package.bat
 ```
 
-打包产物：`testcase-generator.zip`
+打包产物：`testcase-generator.zip`（生成在项目根目录）
 
 ## 打包脚本说明
 
-`_do_package.py` 会排除以下文件和目录：
+`scripts/_do_package.py` 会排除以下文件和目录：
 
 | 类别 | 排除项 |
 |------|--------|
 | 临时文件 | `_pkg_log.txt`、`_pkg_result.txt`、`package_log.txt`、`PACKAGING.md` |
-| 打包脚本 | `package_skill.py`（旧）、`_do_package.py`、`run_package.bat` |
+| 打包脚本 | `scripts/_do_package.py`、`run_package.bat` |
 | 输出目录 | `test-output/` |
 | Python 环境 | `.venv/`、`.git/`、`.idea/`、`.workbuddy/` |
 | 其他 | `__pycache__`、`.DS_Store`、`testcase-generator.zip` |
@@ -45,10 +48,10 @@ python -c "import zipfile; [print(n) for n in sorted(zipfile.ZipFile('testcase-g
 npm install -g skills
 
 # 从 GitHub 安装（需先将项目推送到 GitHub）
-npx skills add <your-username>/testcase-generator -y
+npx skills add <owner>/testcase-generator -y
 
 # 或安装指定分支
-npx skills add <your-username>/testcase-generator#main -y
+npx skills add <owner>/testcase-generator#main -y
 ```
 
 > **前提**：将项目上传至 GitHub 仓库。
@@ -60,7 +63,7 @@ npx skills add <your-username>/testcase-generator#main -y
 npm install -g openskills
 
 # 从 GitHub 安装
-npx openskills install <your-username>/testcase-generator
+npx openskills install <owner>/testcase-generator
 ```
 
 ### 方式三：手动下载 ZIP
