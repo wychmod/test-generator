@@ -29,17 +29,20 @@ test-automation quality-assurance automation claude-code skill ai-driven testing
 ```bash
 # 方式一：Vercel skills CLI（推荐）
 npm install -g skills
-npx skills add <your-username>/testcase-generator -y
+npx skills add <owner>/testcase-generator -y   # 将 <owner> 替换为仓库所属用户/组织
 
 # 方式二：OpenSkills CLI
 npm install -g openskills
-npx openskills install <your-username>/testcase-generator
+npx openskills install <owner>/testcase-generator
 
-# 方式三：手动安装
-# 下载 testcase-generator.zip，解压到 ~/.claude/skills/ 或 ./.workbuddy/skills/
+# 方式三：本地 ZIP 安装
+npx skills add ./testcase-generator.zip
+
+# 方式四：手动安装
+# 下载 ZIP 并解压到对应工具的 skills 目录
+# - Claude Code: ~/.claude/skills/<skill-name>/
+# - 其他兼容工具: ./.workbuddy/skills/<skill-name>/
 ```
-
-> 将项目推送至 GitHub 后，以上命令即可正常工作。
 
 ---
 
@@ -73,16 +76,6 @@ npx openskills install <your-username>/testcase-generator
 ---
 
 ## 🚀 快速开始
-
-### 安装
-
-```bash
-# 复制 skill 到全局目录
-cp -r testcase-generator ~/.workbuddy/skills/
-
-# 或复制到项目级目录
-cp -r testcase-generator ./.workbuddy/skills/
-```
 
 ### 基本用法
 
