@@ -1,7 +1,13 @@
 # Phase 5: 用例生成引擎 (Test Case Generation Engine)
 
-> **版本**: 2.0.0 | **阶段目标**：基于测试模型生成完整、可执行、高质量、可追溯的测试用例集
+> **版本**: 2.1.0 | **阶段目标**：基于测试模型生成完整、可执行、高质量、可追溯的测试用例集
 > **输入来源**: Phase 1-4 全部产物 | **输出**: 最终交付物
+>
+> **v2.1 增强内容**:
+> - 新增混沌工程场景 (Chaos Engineering) 生成
+> - 新增测试数据工厂模式 (Test Data Factory)
+> - 新增多维度优先级排序算法
+> - 新增测试执行依赖图与拓扑排序
 
 ---
 
@@ -583,4 +589,131 @@ version: 1.0
 
 ---
 
-*Phase 5 完成 → 产出质量报告 → 交付*
+## 6. [v2.1 新增] 混沌工程场景 (Chaos Engineering)
+
+> **新增原因**：系统在"完美环境"下通过测试不等于在生产环境中可靠。混沌工程主动注入故障，验证系统的**弹性 (Resilience)**。
+
+### 6.1 混沌实验设计
+
+```markdown
+## 混沌工程测试套件
+
+### 实验分类矩阵
+
+| 实验 ID | 实验名称 | 注入故障类型 | 影响范围 | 严重性 | 稳态时间 |
+|--------|---------|-----------|---------|-------|------|---------|
+| CHAOS-001 | [Pod 随机杀掉] | 资源故障 | 单服务实例 | 🔴 Critical | 自动恢复 |
+| CHAOS-002 | [CPU 压力] | 资源耗尽 | 单节点 | 🟠 High | 手动恢复 |
+| CHAOS-003 | [内存压力] | OOM Killer 触发 | 单节点 | 🟠 High | 重启服务 |
+| CHAOS-004 | [网络延迟] | 网络分区/延迟 | 服务间调用 | 🟡 Medium | 自动恢复 |
+| CHAOS-005 | [网络丢包] | 数据包丢失 | 外部API | 🟠 High | 重试机制 |
+| CHAOS-006 | [DNS 解析失败] | 名称解析失败 | 所有外部调用 | 🔴 Critical | 手动介入 |
+| CHAOS-007 | [磁盘 I/O 慢] | IO 瓶颈 | 数据库/存储 | 🟡 Medium | 自动恢复 |
+| CHAOS-008 | [线程死锁] | 死锁触发 | 内部并发 | 🔴 Critical | 强制重启 |
+| CHAOS-009 | [配置错误] | 配置漂移/缺失 | 全局/单服务 | 🟡 Medium | 回滚配置 |
+
+### 每个实验的标准模板
+## CHAOS-[NNN]: [实验名称]
+
+### 元信息
+| 属性 | 值 |
+|-----|---|
+| 实验类型 | [Resource / Network / State / Time / Disk / Config] |
+| 稳态假设 | [系统应自动恢复 / 需要人工干预 / 应降级运行] |
+| 爆 blast radius (爆炸半径) | [受影响的服务列表] |
+| 最小可用版本 (MVS) | [即使在混沌中也必须保持的最低功能] |
+| 反馈循环 | [是否有监控告警 / 自动恢复机制] |
+
+### 实验步骤
+1. **稳态确认**: 记录实验前的基线指标（QPS、延迟、错误率）
+2. **注入故障**: 使用 chaos-mesh / Litmus / 自定义脚本注入指定故障
+3. **持续时间**: 维持故障状态 N 秒/分钟
+4. **观察记录**: 收集系统行为指标和日志
+5. **恢复验证**: 故障结束后检查系统是否恢复到稳态
+6. **度量收集**: 记录 MTTR (平均恢复时间) / MTTI (平均干预间隔)
+
+### 验证断言
+- [ ] 核心功能在故障期间仍可访问（或优雅降级而非崩溃）
+- [ ] 无数据丢失或损坏
+- [ ] 无级联故障（故障被隔离在本服务内）
+- [ ] 恢复后所有指标回归到正常范围 ± 10%
+```
+
+---
+
+## 7. [v2.1 新增] 测试数据工厂模式 (Test Data Factory)
+
+> **新增原因**：测试数据的**质量直接决定测试的有效性**。数据工厂提供结构化的、可复用的、高质量的测试数据管理。
+
+### 7.1 数据构建器模式
+
+```markdown
+## 测试数据工厂 (Test Data Factory)
+
+### Builder Pattern 数据构建器模板
+
+```python
+class TestUserDataBuilder:
+    """用户测试数据构建器 - 支持链式调用"""
+    
+    def __init__(self):
+        self.username = "default_user"
+        self.email = "default@test.com"
+        self.password = "DefaultPass123!"
+        self.status = "active"
+        self.role = "regular_user"
+    
+    def with_username(self, username: str) -> 'TestUserDataBuilder':
+        self.username = username; return self
+    
+    def with_email(self, email: str) -> 'TestUserDataBuilder':
+        self.email = email; return self
+    
+    def with_password(self, password: str) -> 'TestUserDataBuilder':
+        self.password = password; return self
+    
+    def as_admin(self) -> 'TestUserDataBuilder':
+        self.role = "admin"; return self
+    
+    def as_suspended(self) -> 'TestUserDataBuilder':
+        self.status = "suspended"; return self
+    
+    def build(self) -> dict:
+        return {
+            "username": self.username,
+            "email": self.email,
+            "password_hash": hash_password(self.password),
+            "status": self.status,
+            "role": self.role
+        }
+
+# === 预定义数据变体 ===
+class UserVariants:
+    VALID_ADMIN = TestUserDataBuilder().with_username("admin").as_admin().build()
+    EMPTY_USERNAME = TestUserDataBuilder().with_username("").build()     # 空用户名
+    LONG_EMAIL = TestUserDataBuilder().with_email("a"*300 + "@test.com").build()
+    WEAK_PASSWORD = TestUserDataBuilder().with_password("123").build()      # 弱密码
+    SPECIAL_CHAR_USER = TestUserDataBuilder().with_username("<script>x</script>").build()
+    SUSPENDED_USER = TestUserDataBuilder().as_suspended().build()
+```
+
+### 7.2 数据关系约束规则
+```
+R1: 订单必须有对应的用户 (order.user_id → user.id)
+R2: 订单项必须属于存在的订单 (order_item.order_id → order.id)  
+R3: 支付记录必须关联到订单 (payment.order_id → order.id)
+R4: 库存项必须关联到商品 (stock.product_id → product.id)
+R5: 外键引用的目标数据必须已存在（或使用Mock）
+R6: 删除主数据时需先清理关联数据（或cascade）
+R7: 时间戳必须合理（不在未来）
+```
+
+### 7.3 敏感数据处理规则
+| 数据类别 | 处理方式 | 测试后处理 |
+|---------|---------|-----------|
+| 真实密码哈希 | bcrypt/argon2 加密存储 | 不还原 |
+| 真实手机号 | 脱敏: 138****5678 | 删除 |
+| �实邮箱 | 脱敏: t***@***.com | 删除 |
+| 支付卡号 | 脱敏: ****-****-****-**** | 删除 |
+```
+

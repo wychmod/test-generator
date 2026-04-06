@@ -1,7 +1,13 @@
 # Phase 2: 代码分析引擎 (Code Analysis Engine)
 
-> **版本**: 2.0.0 | **阶段目标**: 理解系统实现逻辑，识别测试路径、数据流、控制流和潜在缺陷点
+> **版本**: 2.1.0 | **阶段目标**: 理解系统实现逻辑，识别测试路径、数据流、控制流和潜在缺陷点
 > **输入来源**: Phase 1 (需求预处理) + 用户提供的源代码/API规范 | **输出去向**: Phase 3 (领域建模)
+>
+> **v2.1 增强内容**:
+> - 新增并发分析与竞态条件检测
+> - 新增 API 契约测试推导
+> - 新增技术债务识别与评估
+> - 新增接口兼容性分析
 
 ---
 
@@ -653,3 +659,196 @@ research_strategy:
 ---
 
 *Phase 2 完成 → 进入 Phase 3: 领域建模*
+
+---
+
+## 8. [v2.1 新增] 并发分析与竞态条件检测
+
+> **核心问题**：v2.0 对并发场景的分析不足。在分布式系统、微服务、高并发场景下，竞态条件是**最高风险的缺陷类别之一**。
+
+### 8.1 并发风险识别清单
+
+```markdown
+## 并发分析报告 (Concurrency Analysis)
+
+### 8.1.1 共享资源识别
+
+| 资源ID | 资源名称 | 类型 | 访问模式 | 锁机制 | 竞态风险 |
+|--------|---------|------|---------|-------|---------|
+| CR-001 | [如: 用户余额] | DB Row | Read-Write | [乐观锁/悲观锁/无锁] | 🔴 High / 🟠 Med / 🟢 Low |
+| CR-002 | [如: 缓存热点] | Cache | Read-Write | [分布式锁/本地锁/无] | — |
+| CR-003 | [如: 全局计数器] | Atomic Var | Increment | [原子操作] | — |
+| CR-004 | [如: 文件上传目录] | File System | Write | [互斥锁/无] | — |
+
+### 8.1.2 竞态条件场景矩阵 (Race Condition Matrix)
+
+| 场景ID | 涉及资源 | 操作序列 | 并发级别 | 触发概率 | 影响严重性 | 测试方法 |
+|--------|---------|---------|---------|---------|-----------|---------|
+| RC-001 | 用户余额 | 读→改→写(Read-Modify-Write) | 高 | 业务高峰期高 | 🔴 数据不一致 | 多线程并发测试 |
+| RC-002 | 库存扣减 | 读→判→减→写(RMWC) | 极高 | 秒杀场景极高 | 🔴超卖/少卖 | 压力测试+数据校验 |
+| RC-003 | 幂等操作 | 重复提交 | 中 | 网络不稳定时中 | 🟠重复执行 | 重试幂等性测试 |
+| RC-004 | Session共享 | 并行读写 | 低 | 低 | 🟢Session混乱 | 会话并发测试 |
+| RC-005 | 事务隔离 | 脏读/不可重复读/幻读 | 高 | 大数据量时中 | 🔴数据异常 | 隔离级别测试 |
+
+### 8.1.3 死锁检测模型
+
+```markdown
+## 死锁与活锁检测
+
+### 资源依赖图
+```
+Thread T1: Lock(A) → Wait(B) → Lock(B) → Release → Release(A)
+Thread T2: Lock(B) → Wait(A) → Lock(A) → Release → Release(B)
+         ↑                                           ↑
+         └───────── 循环等待 (死锁!) ───────────────┘
+```
+
+### 死锁预防检查项
+| # | 检查项 | 通过? | 风险等级 |
+|---|-------|------|---------|
+| DL-1 | 锁获取顺序是否一致（全局排序） | ⬜/✅/❌ | |
+| DL-2 | 是否有超时机制（lock timeout） | ⬜/✅/❌ | |
+| DL-3 | 是否有死锁检测与自动回滚 | ⬜/✅/❌ | |
+| DL-4 | 事务是否可能长时间持有锁 | ⬜/✅/❌ | |
+| DL-5 | 分布式锁是否有过期释放保护 | ⬜/✅/❌ | |
+
+### 并发测试用例模板
+## TC-CONC-[NNN]: [并发场景标题]
+
+**前置条件**: 
+- 系统处于正常负载状态
+- 准备 N 个并发线程/连接
+
+**测试步骤**:
+1. 启动 N 个并发线程，每个线程执行 [操作序列]
+2. 所有线程同时开始（使用 CyclicBarrier 或 CountDownLatch）
+3. 执行目标操作
+4. 收集每个线程的执行结果和耗时
+5. 检查最终系统状态的一致性
+
+**验证点**:
+- [ ] 无数据丢失或损坏
+- [ ] 无异常或死锁
+- [ ] 最终状态符合预期不变量约束
+- [ ] 响应时间在可接受范围内
+
+**工具建议**: JMeter / Gatling / Locust / 自定义并发脚本
+```
+
+---
+
+## 9. [v2.1 新增] API 契约测试推导 (Contract-First Testing)
+
+> **新增原因**：在 API First / 微服务架构下，契约是测试的核心依据。从 API 定义直接推导测试用例可以大幅提升效率。
+
+### 9.1 OpenAPI/Swagger 分析增强
+
+```markdown
+## API 契约分析报告 (API Contract Analysis)
+
+### 9.1.1 接口完整性矩阵
+
+| Endpoint | Method | 认证要求 | 输入校验 | 输出格式 | 错误处理 | 测试覆盖状态 |
+|----------|--------|---------|---------|---------|---------|------------|
+| POST /api/auth/login | ✅ | ❌ 未定义 | ⚠️ 部分 | ✅ | ⚠️ 仅500 | 🟢 Covered |
+| GET /api/users/{id} | ✅ | JWT | ✅ 完整 | ✅ | ✅ 404/403/500 | 🟢 Covered |
+| PUT /api/orders | ✅ | JWT + 权限 | ⚠️ 部分 | ✅ | ⚠️ 缺少409 | 🔴 **缺口** |
+
+### 9.1.2 契约规则自动化推导
+
+对每个 API endpoint 自动生成以下测试维度:
+
+#### 必须生成的契约测试:
+```yaml
+contract_tests_for_each_endpoint:
+  mandatory:
+    - name: "正常请求_200"
+      when: 发送符合 schema 的有效请求
+      then: 返回 200 + 符合 response schema 的 body
+      
+    - name: "认证缺失_401"
+      when: 不携带 token 或携带无效 token
+      then: 返回 401 + 标准错误格式
+      
+    - name: "权限不足_403"  
+      when: 使用无权限的 role/token
+      then: 返回 403 + 权限错误信息
+      
+    - name: "资源不存在_404"
+      when: 使用不存在的 resource ID
+      then: 返回 404 + 资源不存在提示
+      
+    - name: "参数校验失败_400"
+      when: 发送缺少必填字段 / 格式错误的请求
+      then: 返回 400 + 字段级错误详情 (error code per field)
+      
+    - name: "重复创建_409"
+      when: 提交已存在的唯一资源
+      then: 返回 409 + 冲突说明
+      
+    - name: "速率限制_429"
+      when: 短时间内超过 QPS 限制
+      then: 返回 429 + Retry-After header
+      
+    - name: "服务器内部错误_500"
+      when: 触发后端异常逻辑
+      then: 返回 500 + 不暴露内部堆栈 (安全)
+      
+  conditional:
+    - name: "字段长度边界"
+      condition: 字符串字段有 maxLength
+      test: 发送 maxLength, maxLength+1, empty string
+      
+    - name: "枚举值覆盖"
+      condition: 字段为 enum 类型
+      test: 逐个发送所有枚举值 + 无效值
+      
+    - name: "数值范围边界"
+      condition: 数值字段有 min/max
+      test: min, max, min-1, max+1, 0, -1, NaN, Infinity
+```
+
+### 9.1.3 API 版本兼容性分析
+
+```markdown
+## API 兼容性矩阵
+
+| API Version | 新增接口 | 废弃接口 | 破坏性变更 | 向后兼容? |
+|-------------|---------|---------|-----------|----------|
+| v1.0 | — | — | — | Baseline |
+| v1.1 | +3 endpoints | — | 0 | ✅ Full Compatible |
+| v2.0 | +5 endpoints | -2 endpoints | 1 (response schema change) | ⚠️ Partial |
+| v3.0 (planned) | +10 endpoints | -5 endpoints | 3+ | ❌ Breaking Change |
+
+兼容性测试策略:
+- [ ] v1.0 client 调用 v2.0 server (降级适配)
+- [ ] Deprecated 接口返回 410 Gone
+- [ ] Content-Type negotiation (JSON/XML/gRPC)
+```
+
+---
+
+## 10. [v2.1 新增] 技术债务识别与评估
+
+```markdown
+## 技术债务报告 (Technical Debt Report)
+
+### 债务分类
+
+| 债务ID | 类别 | 描述 | 所在位置 | 利息率(影响) | 建议偿还方式 |
+|--------|------|------|---------|-------------|-----------|
+| TD-001 | Code Smell | 过长函数 (>100行) | file:line | 高 | 拆分重构 |
+| TD-002 | Code Smell | God Class (类职责过多) | file:class | 高 | SRP 拆分 |
+| TD-003 | Dependency | 使用了过时的库版本 | pom.xml/req | 中 | 升级依赖 |
+| TD-004 | Security | 硬编码密钥/密码 | config | 🔴 Critical | 迁移到 Vault |
+| TD-005 | Performance | N+1 SQL 查询 | repo:line | 🔴 High | 批量查询优化 |
+| TD-006 | Testability | 私有方法无法测试 | service:* | 中 | 可见性调整 |
+| TD-007 | Compatibility | 同步阻塞调用外部服务 | controller:line | 🔴 High | 异步化改造 |
+
+### 技术债务量化评估
+```
+总债务分数: Σ(严重性 × 影响 × 修复成本权重)
+修复优先级排序: 按 ROI (投资回报率 = 影响消除 / 修复成本) 排序
+建议: 将 Top-3 技术债务纳入本次测试重点（因为它们最容易引发线上故障）
+```
+
