@@ -29,16 +29,12 @@ test-automation quality-assurance automation claude-code skill ai-driven testing
 ```bash
 # 方式一：Vercel skills CLI（推荐）
 npm install -g skills
-npx skills add <owner>/testcase-generator -y   # 将 <owner> 替换为仓库所属用户/组织
+npx skills add https://github.com/wychmod/test-generator -y
 
-# 方式二：OpenSkills CLI
-npm install -g openskills
-npx openskills install <owner>/testcase-generator
-
-# 方式三：本地 ZIP 安装
+# 方式二：本地 ZIP 安装
 npx skills add ./testcase-generator.zip
 
-# 方式四：手动安装
+# 方式三：手动安装
 # 下载 ZIP 并解压到对应工具的 skills 目录
 # - Claude Code: ~/.claude/skills/<skill-name>/
 # - 其他兼容工具: ./.workbuddy/skills/<skill-name>/
@@ -81,16 +77,16 @@ npx skills add ./testcase-generator.zip
 
 ```bash
 # 最简方式 — 一句话描述
-/testcase 为用户登录功能生成测试用例
+/testcase-generator 为用户登录功能生成测试用例
 
 # 基于文件
-/testcase ./requirements/order-system.md
+/testcase-generator ./requirements/order-system.md
 
 # 指定选项
-/testcase --format=gherkin --priority=P0,P1 支付模块完整测试
+/testcase-generator --format=gherkin --priority=P0,P1 支付模块完整测试
 
 # 完整配置
-/testcase --config=./test-config.json 订单管理系统全量测试
+/testcase-generator --config=./test-config.json 订单管理系统全量测试
 ```
 
 ### 输出示例
@@ -156,11 +152,11 @@ test-output/
 
 | 场景 | 推荐命令 | 配置建议 |
 |------|---------|---------|
-| 新功能首次测试 | `/testcase [功能描述]` | `--depth=full` |
-| 迭代回归测试 | `/testcase --format=json [变更描述]` | `--priority=P0,P1` |
-| API 契约测试 | `/testcase openapi.yaml` | 自动检测 API Spec 模式 |
-| 安全审计 | `/testcase [模块] --depth=exploratory` | 关注 Phase 2 安全检查和 DEF- radar |
-| 合规交付 | `/testcase [需求文档] --traceability=full` | 确保追溯矩阵完整 |
+| 新功能首次测试 | `/testcase-generator [功能描述]` | `--depth=full` |
+| 迭代回归测试 | `/testcase-generator --format=json [变更描述]` | `--priority=P0,P1` |
+| API 契约测试 | `/testcase-generator openapi.yaml` | 自动检测 API Spec 模式 |
+| 安全审计 | `/testcase-generator [模块] --depth=exploratory` | 关注 Phase 2 安全检查和 DEF- radar |
+| 合规交付 | `/testcase-generator [需求文档] --traceability=full` | 确保追溯矩阵完整 |
 
 ### 输出格式选择
 

@@ -15,3 +15,7 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+/.agents/
+/.claude/
+/.qoder/
+/.trae/

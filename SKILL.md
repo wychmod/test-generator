@@ -88,17 +88,17 @@ metadata:
 
 ```bash
 # 基本用法
-/testcase 为用户登录模块生成测试用例
+/testcase-generator 为用户登录模块生成测试用例
 
 # 基于文件（支持 PDF 和 Markdown）
-/testcase ./requirements/user-auth.md
-/testcase ./requirements/prd.pdf
+/testcase-generator ./requirements/user-auth.md
+/testcase-generator ./requirements/prd.pdf
 
 # 指定选项
-/testcase --format=gherkin --priority=P0,P1 --depth=full 支付模块API测试
+/testcase-generator --format=gherkin --priority=P0,P1 --depth=full 支付模块API测试
 
 # 完整配置模式
-/testcase --config=./test-config.json 订单管理系统
+/testcase-generator --config=./test-config.json 订单管理系统
 ```
 
 ### 文件输入协议 (File Input Protocol)
@@ -145,7 +145,7 @@ file_input_handling:
 **工作流程：**
 
 ```
-用户输入: /testcase ./requirements/prd.pdf
+用户输入: /testcase-generator ./requirements/prd.pdf
                     ↓
          prd_reader.py 识别文件类型 (.pdf)
                     ↓
