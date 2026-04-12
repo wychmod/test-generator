@@ -1,1 +1,504 @@
-{"$schema": "http://json-schema.org/draft-07/schema#", "$id": "testcase-config-schema-v2.json", "title": "TestCase Generator Configuration Schema", "description": "测试用例生成器 v2.1 配置文件的 JSON Schema 校验定义", "type": "object", "required": ["project"], "properties": {"project": {"type": "object", "description": "项目基本信息", "required": ["name"], "properties": {"name": {"type": "string", "minLength": 1, "maxLength": 200, "description": "项目名称"}, "code": {"type": "string", "maxLength": 50, "description": "项目代号"}, "auto_detect": {"type": "boolean", "default": true, "description": "是否自动检测项目特征"}, "default_language": {"type": "string", "enum": ["zh-CN", "en", "ja", "mixed"], "default": "zh-CN", "description": "默认输出语言"}, "domain": {"type": "string", "enum": ["e-commerce", "fin-tech", "healthcare", "education", "iot", "gaming", "social", "enterprise", "government", "other"], "default": "other", "description": "业务领域（影响安全检查和合规规则选择）"}}}, "pipeline": {"type": "object", "description": "流水线控制", "properties": {"phases": {"type": "array", "items": {"type": "string", "enum": ["input_preprocessing", "requirements", "code_analysis", "domain_modeling", "mbt_design", "testcase_generation"]}, "uniqueItems": true, "description": "启用的阶段列表"}, "gate_strategy": {"type": "string", "enum": ["strict", "standard", "lenient"], "default": "standard", "description": "门禁策略: strict(全部必须通过)/standard(警告可继续)/lenient(仅记录)"}, "continue_on_warning": {"type": "boolean", "default": true, "description": "有警告时是否继续下一阶段"}, "stop_on_error": {"type": "boolean", "default": false, "description": "遇到错误是否立即停止"}, "skip_phases": {"type": "array", "items": {"type": "integer", "minimum": 0, "maximum": 5}, "description": "跳过的阶段编号列表"}, "max_retries_per_phase": {"type": "integer", "minimum": 1, "maximum": 5, "default": 2, "description": "每个阶段失败后的最大重试次数"}}}, "generation": {"type": "object", "description": "用例生成配置", "required": ["output_format"], "properties": {"output_format": {"type": "string", "enum": ["markdown", "gherkin", "json", "mixed"], "default": "markdown", "description": "主输出格式"}, "testcase_naming": {"type": "string", "pattern": "^[a-zA-Z\\-{}\\[\\]:.]{10,80}$", "default": "TC-{phase}-{module}-{sequence:03d}", "description": "用例命名模板，支持 {phase}/{module}/{sequence:N} 占位符"}, "priority_distribution": {"type": "object", "description": "优先级分布比例（总和应为 1.0）", "properties": {"P0": {"type": "number", "minimum": 0, "maximum": 0.5, "default": 0.15, "description": "阻塞级 (P0) 比例"}, "P1": {"type": "number", "minimum": 0, "maximum": 0.5, "default": 0.25, "description": "严重级 (P1) 比例"}, "P2": {"type": "number", "minimum": 0, "maximum": 0.6, "default": 0.35, "description": "一般级 (P2) 比例"}, "P3": {"type": "number", "minimum": 0, "maximum": 0.5, "default": 0.25, "description": "低优先级 (P3) 比例"}}, "additionalProperties": false}, "boundary_analysis": {"type": "object", "properties": {"method": {"type": "string", "enum": ["robust", "standard", "extreme"], "default": "robust", "description": "边界值分析方法: robust(含null/empty/special)/standard(标准7值)/extreme(极端+异常)"}, "include_null": {"type": "boolean", "default": true}, "include_empty": {"type": "boolean", "default": true}, "include_special_chars": {"type": "boolean", "default": true}, "include_unicode": {"type": "boolean", "default": true}}, "deduplication": {"type": "object", "properties": {"enabled": {"type": "boolean", "default": true}, "similarity_threshold": {"type": "number", "minimum": 0.5, "maximum": 1.0, "default": 0.85}, "method": {"type": "string", "enum": ["semantic", "lexical", "hybrid"], "default": "semantic"}}, "max_testcases_per_module": {"type": "integer", "minimum": 10, "maximum": 10000, "default": 500, "description": "每个模块最大生成用例数"}}, "coverage": {"type": "object", "description": "覆盖目标", "properties": {"requirements_coverage_target": {"type": "integer", "minimum": 70, "maximum": 100, "default": 100, "description": "需求覆盖率目标 (%)"}, "path_coverage_target": {"type": "string", "enum": ["critical", "critical+normal", "all", "custom"], "default": "critical+normal", "description": "路径覆盖目标"}, "state_coverage_target": {"type": "integer", "minimum": 50, "maximum": 100, "default": 100}, "transition_coverage_target": {"type": "integer", "minimum": 50, "maximum": 100, "default": 90}, "boundary_coverage_target": {"type": "integer", "minimum": 50, "maximum": 100, "default": 100}, "defect_coverage_target": {"type": "string", "enum": ["all_critical_major", "all", "none"], "default": "all_critical_major"}}}, "quality": {"type": "object", "properties": {"enable_gate_check": {"type": "boolean", "default": true}, "strict_mode": {"type": "boolean", "default": false, "description": "严格模式：任何 Warning 都视为不通过"}, "max_warnings_per_phase": {"type": "integer", "minimum": 0, "maximum": 50, "default": 5}, "hallucination_detection": {"type": "boolean", "default": true}, "quality_thresholds": {"type": "object", "description": "自定义质量阈值（覆盖默认值）", "properties": {"phase_pass_score": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0, "maximum": 100}}}}}, "output": {"type": "object", "properties": {"directory": {"type": "string", "default": "./test-output/", "pattern": "^.*/.*$", "description": "输出根目录"}, "include_metadata": {"type": "boolean", "default": true}, "include_traceability": {"type": "boolean", "default": true}, "include_change_log": {"type": "boolean", "default": true}, "compression": {"type": "boolean", "default": false}, "separate_files_by_type": {"type": "boolean", "default": false, "description": "按用例类型分文件输出"}, "include_executable_code": {"type": "boolean", "default": true, "description": "是否包含自动化代码骨架"}}, "advanced": {"type": "object", "properties": {"research_enabled": {"type": "boolean", "default": true, "description": "是否启用网络知识检索增强"}, "research_queries_per_phase": {"type": "integer", "minimum": 0, "maximum": 10, "default": 3}, "model_optimization": {"type": "object", "properties": {"state_merging_threshold": {"type": "number", "minimum": 0.5, "maximum": 1.0, "default": 0.9}, "max_states_before_merge": {"type": "integer", "minimum": 10, "maximum": 100, "default": 20}, "abstraction_level": {"type": "string", "enum": ["low", "balanced", "high"], "default": "balanced"}}, "chaos_engineering": {"type": "object", "description": "混沌工程场景配置 (v2.1 新增)", "properties": {"enabled": {"type": "boolean", "default": false}, "scenarios": {"type": "array", "items": {"type": "string", "enum": ["network_delay", "network_loss", "resource_exhaustion", "process_crash", "disk_full", "memory_pressure", "cpu_saturation", "dns_failure", "service_timeout"]}}, "injection_probability": {"type": "number", "minimum": 0.01, "maximum": 0.5, "default": 0.1}}, "mutation_testing": {"type": "object", "description": "变异测试配置 (v2.1 新增)", "properties": {"enabled": {"type": "boolean", "default": false}, "operators": {"type": "array", "items": {"type": "string"}}, "mutation_score_threshold": {"type": "number", "minimum": 0, "maximum": 1, "default": 0.8}}, "error_guessing": {"type": "object", "description": "错误猜测法配置 (v2.1 新增)", "properties": {"enabled": {"type": "boolean", "default": true}, "categories": {"type": "array", "items": {"type": "string", "enum": ["input_invalid", "boundary_violation", "timing_error", "resource_unavailable", "concurrency_issue", "permission_denied", "configuration_error", "external_dependency"]}}}}}, "additionalProperties": false}
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "testcase-config-schema-v2.json",
+  "title": "TestCase Generator Configuration Schema",
+  "description": "测试用例生成器 v2.1 配置文件 JSON Schema。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "project"
+  ],
+  "properties": {
+    "project": {
+      "type": "object",
+      "description": "项目基本信息。",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "项目名称。"
+        },
+        "code": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "项目代号。"
+        },
+        "auto_detect": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否自动识别项目特征。"
+        },
+        "default_language": {
+          "type": "string",
+          "enum": [
+            "zh-CN",
+            "en",
+            "ja",
+            "mixed"
+          ],
+          "default": "zh-CN",
+          "description": "默认输出语言。"
+        },
+        "domain": {
+          "type": "string",
+          "enum": [
+            "e-commerce",
+            "fin-tech",
+            "healthcare",
+            "education",
+            "iot",
+            "gaming",
+            "social",
+            "enterprise",
+            "government",
+            "other"
+          ],
+          "default": "other",
+          "description": "业务领域。"
+        }
+      }
+    },
+    "pipeline": {
+      "type": "object",
+      "description": "流水线控制。",
+      "additionalProperties": false,
+      "properties": {
+        "phases": {
+          "type": "array",
+          "description": "启用的阶段列表。",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "input_preprocessing",
+              "requirements",
+              "code_analysis",
+              "domain_modeling",
+              "mbt_design",
+              "testcase_generation"
+            ]
+          }
+        },
+        "gate_strategy": {
+          "type": "string",
+          "enum": [
+            "strict",
+            "standard",
+            "lenient"
+          ],
+          "default": "standard",
+          "description": "质量门禁策略。"
+        },
+        "continue_on_warning": {
+          "type": "boolean",
+          "default": true,
+          "description": "出现告警时是否继续。"
+        },
+        "stop_on_error": {
+          "type": "boolean",
+          "default": false,
+          "description": "出现错误时是否停止。"
+        },
+        "skip_phases": {
+          "type": "array",
+          "description": "跳过的阶段编号列表。",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5
+          }
+        },
+        "max_retries_per_phase": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "default": 2,
+          "description": "单阶段最大重试次数。"
+        }
+      }
+    },
+    "generation": {
+      "type": "object",
+      "description": "测试用例生成配置。",
+      "additionalProperties": false,
+      "required": [
+        "output_format"
+      ],
+      "properties": {
+        "output_format": {
+          "type": "string",
+          "enum": [
+            "markdown",
+            "gherkin",
+            "json",
+            "mixed"
+          ],
+          "default": "markdown",
+          "description": "主输出格式。"
+        },
+        "testcase_naming": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-{}\\[\\]:.]{10,80}$",
+          "default": "TC-{phase}-{module}-{sequence:03d}",
+          "description": "用例命名模板。"
+        },
+        "priority_distribution": {
+          "type": "object",
+          "description": "优先级分布比例。",
+          "additionalProperties": false,
+          "properties": {
+            "P0": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.5,
+              "default": 0.15
+            },
+            "P1": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.5,
+              "default": 0.25
+            },
+            "P2": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.6,
+              "default": 0.35
+            },
+            "P3": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.5,
+              "default": 0.25
+            }
+          }
+        },
+        "boundary_analysis": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "method": {
+              "type": "string",
+              "enum": [
+                "robust",
+                "standard",
+                "extreme"
+              ],
+              "default": "robust",
+              "description": "边界值分析方法。"
+            },
+            "include_null": {
+              "type": "boolean",
+              "default": true
+            },
+            "include_empty": {
+              "type": "boolean",
+              "default": true
+            },
+            "include_special_chars": {
+              "type": "boolean",
+              "default": true
+            },
+            "include_unicode": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
+        "deduplication": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "similarity_threshold": {
+              "type": "number",
+              "minimum": 0.5,
+              "maximum": 1.0,
+              "default": 0.85
+            },
+            "method": {
+              "type": "string",
+              "enum": [
+                "semantic",
+                "lexical",
+                "hybrid"
+              ],
+              "default": "semantic"
+            }
+          }
+        },
+        "max_testcases_per_module": {
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 10000,
+          "default": 500,
+          "description": "每个模块最大生成用例数。"
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "description": "覆盖率目标。",
+      "additionalProperties": false,
+      "properties": {
+        "requirements_coverage_target": {
+          "type": "integer",
+          "minimum": 70,
+          "maximum": 100,
+          "default": 100
+        },
+        "path_coverage_target": {
+          "type": "string",
+          "enum": [
+            "critical",
+            "critical+normal",
+            "all",
+            "custom"
+          ],
+          "default": "critical+normal"
+        },
+        "state_coverage_target": {
+          "type": "integer",
+          "minimum": 50,
+          "maximum": 100,
+          "default": 100
+        },
+        "transition_coverage_target": {
+          "type": "integer",
+          "minimum": 50,
+          "maximum": 100,
+          "default": 90
+        },
+        "boundary_coverage_target": {
+          "type": "integer",
+          "minimum": 50,
+          "maximum": 100,
+          "default": 100
+        },
+        "defect_coverage_target": {
+          "type": "string",
+          "enum": [
+            "all_critical_major",
+            "all",
+            "none"
+          ],
+          "default": "all_critical_major"
+        }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "description": "质量控制。",
+      "additionalProperties": false,
+      "properties": {
+        "enable_gate_check": {
+          "type": "boolean",
+          "default": true
+        },
+        "strict_mode": {
+          "type": "boolean",
+          "default": false,
+          "description": "严格模式。"
+        },
+        "max_warnings_per_phase": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50,
+          "default": 5
+        },
+        "hallucination_detection": {
+          "type": "boolean",
+          "default": true
+        },
+        "quality_thresholds": {
+          "type": "object",
+          "description": "自定义质量阈值。",
+          "additionalProperties": false,
+          "properties": {
+            "phase_pass_score": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              }
+            }
+          }
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "description": "输出配置。",
+      "additionalProperties": false,
+      "properties": {
+        "directory": {
+          "type": "string",
+          "default": "./test-output/",
+          "minLength": 1,
+          "description": "输出目录。"
+        },
+        "include_metadata": {
+          "type": "boolean",
+          "default": true
+        },
+        "include_traceability": {
+          "type": "boolean",
+          "default": true
+        },
+        "include_change_log": {
+          "type": "boolean",
+          "default": true
+        },
+        "compression": {
+          "type": "boolean",
+          "default": false
+        },
+        "separate_files_by_type": {
+          "type": "boolean",
+          "default": false
+        },
+        "include_executable_code": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "advanced": {
+      "type": "object",
+      "description": "高级配置。",
+      "additionalProperties": false,
+      "properties": {
+        "research_enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "research_queries_per_phase": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10,
+          "default": 3
+        },
+        "model_optimization": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "state_merging_threshold": {
+              "type": "number",
+              "minimum": 0.5,
+              "maximum": 1.0,
+              "default": 0.9
+            },
+            "max_states_before_merge": {
+              "type": "integer",
+              "minimum": 10,
+              "maximum": 100,
+              "default": 20
+            },
+            "abstraction_level": {
+              "type": "string",
+              "enum": [
+                "low",
+                "balanced",
+                "high"
+              ],
+              "default": "balanced"
+            }
+          }
+        },
+        "chaos_engineering": {
+          "type": "object",
+          "description": "混沌工程场景配置。",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "scenarios": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "network_delay",
+                  "network_loss",
+                  "resource_exhaustion",
+                  "process_crash",
+                  "disk_full",
+                  "memory_pressure",
+                  "cpu_saturation",
+                  "dns_failure",
+                  "service_timeout"
+                ]
+              }
+            },
+            "injection_probability": {
+              "type": "number",
+              "minimum": 0.01,
+              "maximum": 0.5,
+              "default": 0.1
+            }
+          }
+        },
+        "mutation_testing": {
+          "type": "object",
+          "description": "变异测试配置。",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "operators": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "mutation_score_threshold": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0.8
+            }
+          }
+        },
+        "error_guessing": {
+          "type": "object",
+          "description": "错误猜测法配置。",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "categories": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "input_invalid",
+                  "boundary_violation",
+                  "timing_error",
+                  "resource_unavailable",
+                  "concurrency_issue",
+                  "permission_denied",
+                  "configuration_error",
+                  "external_dependency"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

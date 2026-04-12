@@ -19,3 +19,8 @@ Thumbs.db
 /.claude/
 /.qoder/
 /.trae/
+
+# Skills (local lock file, environment-specific)
+/skills-lock.json
+/skills
+/test-output
