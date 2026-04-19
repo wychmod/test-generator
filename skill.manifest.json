@@ -1,0 +1,97 @@
+{
+  "名称": {
+    "zh-CN": "testcase-generator",
+    "en-US": "testcase-generator"
+  },
+  "显示名称": {
+    "zh-CN": "测试用例生成器",
+    "en-US": "Testcase Generator"
+  },
+  "版本": "2.1.0",
+  "语言": [
+    "zh-CN",
+    "en-US"
+  ],
+  "入口文件": "SKILL.md",
+  "说明": {
+    "zh-CN": "从需求文档、PRD、API 规范、源代码、缺陷修复上下文或功能描述中生成结构化、可追溯、可执行的软件测试用例与测试设计产物。",
+    "en-US": "Generate structured, traceable, and executable software test cases and test design outputs from requirements, PRDs, API specifications, source code, bugfix context, or feature descriptions."
+  },
+  "适用场景": {
+    "zh-CN": [
+      "根据需求或 PRD 生成测试用例",
+      "根据 API 规范生成接口测试场景",
+      "根据源代码或补丁上下文补充测试路径",
+      "为状态流转复杂的业务流程生成 MBT 导向测试设计",
+      "评审、扩展、标准化或审计已有测试用例"
+    ],
+    "en-US": [
+      "Generate test cases from requirements or PRDs",
+      "Derive API test scenarios from interface specifications",
+      "Expand testing paths from source code or patch context",
+      "Produce MBT-oriented test design for stateful workflows",
+      "Review, expand, standardize, or audit existing test cases"
+    ]
+  },
+  "核心能力": {
+    "zh-CN": [
+      "输入质量预处理",
+      "可测试需求抽取",
+      "代码与接口契约辅助分析",
+      "领域模型与状态模型构建",
+      "MBT 导向测试设计",
+      "结构化测试用例生成",
+      "追溯矩阵与质量门禁"
+    ],
+    "en-US": [
+      "Input quality preprocessing",
+      "Testable requirement extraction",
+      "Code and API contract assisted analysis",
+      "Domain and state model construction",
+      "MBT-oriented test design",
+      "Structured testcase generation",
+      "Traceability matrix and quality gates"
+    ]
+  },
+  "运行时文件": [
+    "SKILL.md",
+    "README.md",
+    "HOST_COMPATIBILITY.md",
+    "adapters/**",
+    "config/**",
+    "prompts/**",
+    "resources/**",
+    "templates/**",
+    "scripts/prd_reader.py"
+  ],
+  "宿主适配入口": {
+    "claude": "adapters/claude/SKILL.md",
+    "qoder": "adapters/qoder/SKILL.md",
+    "codex": "adapters/codex/AGENTS.md",
+    "openclaw": "adapters/openclaw/skill.md"
+  },
+  "分发排除": [
+    "test-output/**",
+    "skills/**",
+    ".claude/**",
+    ".agents/**",
+    ".qoder/**",
+    ".trae/**",
+    ".workbuddy/**",
+    ".git/**",
+    ".idea/**",
+    ".venv/**",
+    "__pycache__/**",
+    "devtools/**",
+    "run_package.bat",
+    "PACKAGING.md",
+    "_pkg_log.txt",
+    "_pkg_result.txt",
+    "package_log.txt",
+    "skills-lock.json",
+    "testcase-generator.zip",
+    "testcase-generator.skill"
+  ],
+  "推荐打包产物": "testcase-generator.skill",
+  "兼容打包产物": "testcase-generator.zip"
+}

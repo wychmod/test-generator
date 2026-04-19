@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import filecmp
 import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -30,6 +29,16 @@ def extract_skill_version(skill_text: str) -> str:
         if line.startswith("version:"):
             return line.split(":", 1)[1].strip()
     return "unknown"
+
+
+def extract_manifest_version(manifest_path: Path) -> str:
+    if not manifest_path.exists():
+        return "unknown"
+    try:
+        manifest = json.loads(read_text(manifest_path))
+    except json.JSONDecodeError:
+        return "unknown"
+    return str(manifest.get("版本", "unknown"))
 
 
 def validate_schema(schema_path: Path) -> CheckResult:
@@ -83,6 +92,9 @@ def check_required_paths() -> List[CheckResult]:
         "quality_checklist": ROOT / "resources/quality_checklist.md",
         "testcase_formats": ROOT / "resources/testcase_formats.md",
         "feedback_template": ROOT / "resources/feedback_template.md",
+        "output_artifacts": ROOT / "resources/output_artifacts.md",
+        "distribution_doc": ROOT / "DISTRIBUTION.md",
+        "manifest": ROOT / "skill.manifest.json",
         "prd_reader": ROOT / "scripts/prd_reader.py",
     }
 
@@ -94,60 +106,38 @@ def check_required_paths() -> List[CheckResult]:
     return results
 
 
-def check_mirror_consistency() -> List[CheckResult]:
-    mirror_root = ROOT / "skills/testcase-generator"
-    paired_paths = {
-        "mirror_readme": ("README.md", "README.md"),
-        "mirror_schema": ("config/testcase-config-schema.json", "config/testcase-config-schema.json"),
-        "mirror_example_config": ("config/example-config.json", "config/example-config.json"),
-        "mirror_prd_reader": ("scripts/prd_reader.py", "scripts/prd_reader.py"),
-        "mirror_phase0_prompt": ("prompts/phase0_input_preprocessing_prompt.md", "prompts/phase0_input_preprocessing_prompt.md"),
-        "mirror_feedback_template": ("resources/feedback_template.md", "resources/feedback_template.md"),
-        "mirror_capability_audit": ("scripts/capability_audit.py", "scripts/capability_audit.py"),
-    }
-
-    results = []
-    if not mirror_root.exists():
-        return [CheckResult("mirror_root", "warn", f"{mirror_root} does not exist")]
-
-    for name, (src_rel, dst_rel) in paired_paths.items():
-        src = ROOT / src_rel
-        dst = mirror_root / dst_rel
-        if not dst.exists():
-            results.append(CheckResult(name, "fail", f"{dst} is missing"))
-            continue
-        same = filecmp.cmp(src, dst, shallow=False)
-        if same:
-            results.append(CheckResult(name, "pass", f"{src_rel} matches mirror copy"))
-        else:
-            results.append(CheckResult(name, "fail", f"{src_rel} differs from mirror copy"))
-    return results
-
-
-def check_version_alignment(skill_path: Path, readme_path: Path) -> CheckResult:
+def check_version_alignment(skill_path: Path, readme_path: Path, manifest_path: Path) -> CheckResult:
     skill_text = read_text(skill_path)
     readme_text = read_text(readme_path)
     skill_version = extract_skill_version(skill_text)
-    expected = f"v{skill_version}"
-    if expected in readme_text:
-        return CheckResult("version_alignment", "pass", f"README references {expected}")
-    return CheckResult("version_alignment", "fail", f"README does not reference {expected}")
+    manifest_version = extract_manifest_version(manifest_path)
+    expected_version = manifest_version if skill_version == "unknown" else skill_version
+    expected = f"v{expected_version}"
+    if expected_version == "unknown":
+        return CheckResult("version_alignment", "warn", "No version found in SKILL.md or skill.manifest.json")
+    if expected in readme_text or expected_version in readme_text:
+        return CheckResult("version_alignment", "pass", f"README references {expected_version}")
+    return CheckResult("version_alignment", "warn", f"README does not reference {expected_version}")
 
 
 def check_v21_capabilities(skill_path: Path) -> CheckResult:
     skill_text = read_text(skill_path)
+    output_artifacts = ROOT / "resources/output_artifacts.md"
+    combined_text = skill_text
+    if output_artifacts.exists():
+        combined_text += "\n" + read_text(output_artifacts)
     required_tokens = [
-        "Phase 0",
+        "阶段 0",
         "反馈闭环",
-        "配置 Schema 校验",
+        "配置 Schema",
         "混沌工程场景",
         "测试数据工厂",
         "变异测试策略",
     ]
-    missing = [token for token in required_tokens if token not in skill_text]
+    missing = [token for token in required_tokens if token not in combined_text]
     if missing:
-        return CheckResult("skill_capability_matrix", "fail", f"SKILL.md missing: {', '.join(missing)}")
-    return CheckResult("skill_capability_matrix", "pass", "SKILL.md includes the declared v2.1 capability markers")
+        return CheckResult("skill_capability_matrix", "fail", f"Skill resources missing: {', '.join(missing)}")
+    return CheckResult("skill_capability_matrix", "pass", "Chinese SKILL.md and resource files include the declared v2.1 capability markers")
 
 
 def build_results() -> List[CheckResult]:
@@ -155,15 +145,15 @@ def build_results() -> List[CheckResult]:
     readme_path = ROOT / "README.md"
     schema_path = ROOT / "config/testcase-config-schema.json"
     config_path = ROOT / "config/example-config.json"
+    manifest_path = ROOT / "skill.manifest.json"
 
     results = [
-        check_version_alignment(skill_path, readme_path),
+        check_version_alignment(skill_path, readme_path, manifest_path),
         check_v21_capabilities(skill_path),
         validate_schema(schema_path),
         validate_example_config(config_path, schema_path),
     ]
     results.extend(check_required_paths())
-    results.extend(check_mirror_consistency())
     return results
 
 

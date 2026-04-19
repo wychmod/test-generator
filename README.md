@@ -20,9 +20,14 @@ AI 驱动的生产级测试用例生成 Skill，基于 MBT（Model-Based Testing
 test-generator/
 ├── SKILL.md
 ├── README.md
+├── DISTRIBUTION.md
+├── skill.manifest.json
 ├── config/
 │   ├── example-config.json
 │   └── testcase-config-schema.json
+├── devtools/
+│   ├── capability_audit.py
+│   └── package_skill.py
 ├── prompts/
 │   ├── phase0_input_preprocessing_prompt.md
 │   ├── phase1_requirements_prompt.md
@@ -32,11 +37,10 @@ test-generator/
 │   └── phase5_testcase_generation_prompt.md
 ├── resources/
 │   ├── feedback_template.md
+│   ├── output_artifacts.md
 │   ├── quality_checklist.md
 │   └── testcase_formats.md
 ├── scripts/
-│   ├── _do_package.py
-│   ├── capability_audit.py
 │   └── prd_reader.py
 └── templates/
     ├── requirements_template.md
@@ -80,22 +84,37 @@ v2.1 增加了反馈闭环机制，建议在真实执行后回填：
 新增审计脚本用于检查能力矩阵是否落地：
 
 ```bash
-python scripts/capability_audit.py
-python scripts/capability_audit.py --format json
+python devtools/capability_audit.py
+python devtools/capability_audit.py --format json
 ```
 
 审计会检查：
 
-- `SKILL.md` 版本与 `README.md` 是否一致
+- `SKILL.md` / `README.md` / `skill.manifest.json` 的版本与能力声明是否一致
 - Prompt、模板、资源文件是否齐全
 - Schema 是否有效
 - 示例配置是否能被 Schema 验证
-- 反馈闭环模板是否存在
+- 反馈闭环与阶段产物资源是否存在
+- 分发层关键文件是否齐全
 
 ## 打包
 
 ```bash
-python scripts/_do_package.py
+python devtools/package_skill.py
 ```
 
-输出文件为根目录下的 `testcase-generator.zip`。
+打包规则以 `skill.manifest.json` 为单一来源，构建后会自动校验：
+
+- `.skill` 与 `.zip` 产物内容完全一致
+- 必需文件已入包
+- 禁止项未入包
+
+输出文件位于根目录：
+
+- 推荐标准分发产物：`testcase-generator.skill`
+- 兼容分发产物：`testcase-generator.zip`
+
+详细分发边界见：
+
+- `DISTRIBUTION.md`
+- `skill.manifest.json`
