@@ -90,7 +90,7 @@ metadata:
   version: "1.0"
   status: "Draft"  # Draft / Reviewed / Approved / Deprecated
   created: "{date}"
-  author: "AI Generator v2.0"
+  author: "AI Generator v2.1"
   reviewer: ""
   last_modified: ""
   automation_ready: Yes / Partial / No / N/A
@@ -239,7 +239,7 @@ reverse_traceability:  # 从需求追溯到用例（在最终矩阵中体现）
 **变更记录**
 | 版本 | 日期 | 作者 | 变更内容 |
 |------|------|------|---------|
-| 1.0 | {date} | AI Generator v2.0 | 初始创建 |
+| 1.0 | {date} | AI Generator v2.1 | 初始创建 |
 ```
 
 ---
@@ -532,7 +532,7 @@ def test_tc_auth_login_001_valid_credentials():
 
 ```markdown
 ---
-generated_by: testcase-generator v2.0.0
+generated_by: testcase-generator v2.1.0
 phase: 5
 timestamp: {ISO8601}
 total_testcases: N
@@ -716,4 +716,3 @@ R7: 时间戳必须合理（不在未来）
 | �实邮箱 | 脱敏: t***@***.com | 删除 |
 | 支付卡号 | 脱敏: ****-****-****-**** | 删除 |
 ```
-

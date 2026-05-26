@@ -576,7 +576,7 @@ pie title 缺陷按严重性分布
 
 ```markdown
 ---
-generated_by: testcase-generator v2.0.0
+generated_by: testcase-generator v2.1.0
 phase: 2
 timestamp: {ISO8601}
 analysis_mode: actual_analysis / contract_analysis / logical_modeling / hybrid_analysis
@@ -664,7 +664,7 @@ research_strategy:
 
 ## 8. [v2.1 新增] 并发分析与竞态条件检测
 
-> **核心问题**：v2.0 对并发场景的分析不足。在分布式系统、微服务、高并发场景下，竞态条件是**最高风险的缺陷类别之一**。
+> **核心问题**：早期版本对并发场景的分析不足。在分布式系统、微服务、高并发场景下，竞态条件是**最高风险的缺陷类别之一**。
 
 ### 8.1 并发风险识别清单
 
@@ -851,4 +851,3 @@ contract_tests_for_each_endpoint:
 修复优先级排序: 按 ROI (投资回报率 = 影响消除 / 修复成本) 排序
 建议: 将 Top-3 技术债务纳入本次测试重点（因为它们最容易引发线上故障）
 ```
-

@@ -39,9 +39,17 @@ npx skills add ./testcase-generator.zip
 # 在支持 .skill 的宿主平台中导入
 ./testcase-generator.skill
 ./testcase-generator.zip
+
+# 方式四：Node.js/npm 安装并激活到宿主环境
+npm install -g testcase-generator-skill
+test-generator activate claude
+test-generator activate codex
+test-generator activate qoder
+test-generator activate openclaw
 ```
 
 > 推荐优先使用 `testcase-generator.skill`；仅在宿主平台暂不支持 `.skill` 时再使用 `testcase-generator.zip`。
+> npm 方式不会改变 `.skill` / `.zip` 产物，只是提供 `test-generator activate <environment>` 将 Skill 运行时文件复制到对应宿主目录。
 
 ---
 
@@ -308,6 +316,7 @@ testcase-generator/
 │
 ├── devtools/                             # 🧪 开发与发布工具
 │   ├── capability_audit.py               #   能力矩阵与资产一致性审计
+│   ├── skill_quality_audit.py            #   Skill 标准字段与质量门禁审计
 │   └── package_skill.py                  #   Skill 打包脚本
 │
 ├── templates/                            # 📋 输出模板（产物格式规范）
@@ -360,7 +369,7 @@ MIT License © 2024-2026 Test Generator Team
 ## 🙏 致谢
 
 - **ISTQB**: 国际软件测试认证委员会 — MBT 标准方法论
-- **IEEE 829**: 软件测试文档标准
+- **ISO/IEC/IEEE 29119-3:2021**: 当前测试文档标准；IEEE 829 仅作为历史兼容参考
 - **INCOSE**: 国际系统工程学会 — 需求工程实践
 - **OWASP**: 开放 Web 应用安全项目 — 安全测试指南
 

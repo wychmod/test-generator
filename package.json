@@ -1,0 +1,30 @@
+{
+  "name": "testcase-generator-skill",
+  "version": "2.1.0",
+  "description": "Testcase generator skill package with host activation CLI.",
+  "license": "MIT",
+  "bin": {
+    "test-generator": "./bin/test-generator.js"
+  },
+  "files": [
+    "SKILL.md",
+    "README.md",
+    "DISTRIBUTION.md",
+    "HOST_COMPATIBILITY.md",
+    "adapters",
+    "bin",
+    "config",
+    "lib",
+    "prompts",
+    "resources",
+    "scripts",
+    "skill.manifest.json",
+    "templates"
+  ],
+  "scripts": {
+    "test": "node --test test"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

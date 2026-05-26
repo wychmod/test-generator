@@ -29,6 +29,20 @@
 | Codex / 工程 CLI 类宿主 | `adapters/codex/AGENTS.md` | 英文主说明 + 中文补充 | 中 |
 | OpenClaw / 兼容型宿主 | `adapters/openclaw/skill.md` | 简化英文入口 + 中文补充 | 中 |
 
+## Node.js 激活入口
+
+通过 npm 安装后，可使用 `test-generator activate <environment>` 将 Skill 运行时文件复制到对应宿主目录。
+
+| 环境名 | 默认本地目标目录 | 额外入口 |
+|---|---|---|
+| `claude` | `.claude/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `qoder` | `.qoder/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `codex` | `.agents/skills/testcase-generator` | 根目录 `AGENTS.md` |
+| `openclaw` | `skills/testcase-generator` | 根目录 `skill.md` |
+| `trae` | `.trae/skills/testcase-generator` | 根目录 `SKILL.md` |
+
+可通过 `-g` 安装到用户本地目录，或通过 `--target <path>` 指定目标目录。`--global` 仍作为兼容写法保留。
+
 ## 能力差异与降级策略
 
 不同宿主对 Skill 的支持能力不同，必须允许优雅降级。
@@ -117,7 +131,6 @@
 
 当前已经具备 canonical source + host adapters 的基础结构。后续可以继续推进：
 
-1. 为每个宿主增加自动导出脚本
-2. 在打包阶段按宿主生成专用分发包
-3. 为 Codex / OpenClaw 增加更严格的英文 trigger phrase 测试
-4. 为 Claude / Qoder 增加多文件路由自测用例
+1. 在打包阶段按宿主生成专用分发包
+2. 为 Codex / OpenClaw 增加更严格的英文 trigger phrase 测试
+3. 为 Claude / Qoder 增加多文件路由自测用例

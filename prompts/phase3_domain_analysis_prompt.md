@@ -415,7 +415,7 @@ PARAM-A 的取值影响 PARAM-B:
 ### Step 4: 业务规则形式化
 
 ```markdown
-### 业务规则库 v2.0 (增强版)
+### 业务规则库 v2.1 (增强版)
 
 ## BR-[NNN]: [RuleName]
 
@@ -467,7 +467,7 @@ ENDWHEN
 
 ```markdown
 ---
-generated_by: testcase-generator v2.0.0
+generated_by: testcase-generator v2.1.0
 phase: 3
 timestamp: {ISO8601}
 total_entities: N
@@ -693,4 +693,3 @@ sequenceDiagram
 
 推荐: 默认执行 L1 + L2; 发布前执行 L3; 定期执行 L4
 ```
-

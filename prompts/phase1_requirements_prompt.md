@@ -430,7 +430,7 @@ graph TD
 
 ```markdown
 ---
-generated_by: testcase-generator v2.0.0
+generated_by: testcase-generator v2.1.0
 phase: 1
 timestamp: {ISO8601}
 source_input_summary: "{输入摘要，50字以内}"
@@ -539,7 +539,7 @@ research_strategy:
 
 ## 8. [v2.1 新增] 非功能需求 (NFR) 完整提取与可测试化
 
-> **核心问题**：v2.0 对非功能需求的处理过于简单——只有列表，缺少可测试化转换。NFR 是性能测试、安全测试、兼容性测试的**直接输入源**。
+> **核心问题**：早期版本对非功能需求的处理过于简单——只有列表，缺少可测试化转换。NFR 是性能测试、安全测试、兼容性测试的**直接输入源**。
 
 ### 8.1 NFR 分类体系
 

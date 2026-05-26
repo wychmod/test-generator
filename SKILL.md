@@ -222,6 +222,16 @@ description: 从需求文档、PRD、API 规范、源代码、缺陷修复上下
 - `resources/feedback_template.md`
 - `resources/output_artifacts.md`
 
+### 格式选择准则
+
+根据交付目标选择输出格式，避免所有场景都套用最重模板：
+
+- 正式交付、审计、跨团队评审：使用 `templates/testcase_template.md` 的标准完整格式，并保留追溯、前置条件、测试数据、步骤和可二元判定的预期结果。
+- 快速评审、Smoke 清单、早期需求讨论：使用简洁表格或测试点清单，但必须标记为“测试草稿”或“测试点清单”，不得声称为正式测试用例。
+- BDD/业务协作场景：使用 Gherkin，至少包含 Feature、Scenario、Given、When、Then；Then 必须描述可观测结果。
+- API/契约测试：使用 API 测试格式，明确 Request、Expected Response、状态码、响应 Schema、错误矩阵和鉴权/权限分支。
+- 大量参数组合：使用数据驱动格式，分离测试逻辑和测试数据，并说明边界值、等价类和组合策略。
+
 ### 配置文件
 当用户提供配置或要求定制输出行为时，读取：
 

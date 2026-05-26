@@ -93,5 +93,19 @@
     "testcase-generator.skill"
   ],
   "推荐打包产物": "testcase-generator.skill",
-  "兼容打包产物": "testcase-generator.zip"
+  "兼容打包产物": "testcase-generator.zip",
+  "Node.js安装入口": {
+    "npm包名": "testcase-generator-skill",
+    "命令": "test-generator",
+    "安装示例": "npm install -g testcase-generator-skill",
+    "激活示例": "test-generator activate claude",
+    "支持环境": [
+      "claude",
+      "codex",
+      "qoder",
+      "openclaw",
+      "trae"
+    ],
+    "说明": "npm 入口用于将 Skill 运行时文件激活到对应宿主目录，不改变 testcase-generator.skill 与 testcase-generator.zip 的分发边界。"
+  }
 }

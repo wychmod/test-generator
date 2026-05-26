@@ -18,7 +18,14 @@ testcase-generator.skill
 testcase-generator.zip
 ```
 
+Node.js/npm 产物名：
+
+```text
+testcase-generator-skill
+```
+
 > 如果宿主平台支持标准 Skill 包，优先使用 `.skill`；仅在宿主平台只接受 ZIP 时再使用 `.zip`。
+> npm 产物用于提供 `test-generator activate <environment>` 激活命令，不改变 `.skill` / `.zip` 的入包边界。
 
 ## 必须入包
 
@@ -34,6 +41,16 @@ testcase-generator.zip
 | `templates/` | 需求、状态图、测试用例等标准输出模板 |
 | `scripts/prd_reader.py` | 本地 PRD / Markdown / PDF 文件读取辅助工具 |
 | `skill.manifest.json` | 中文分发元数据与入包边界说明 |
+
+## npm 分发必须入包
+
+以下文件属于 Node.js/npm 安装入口，必须进入 npm 包，但不进入标准 `.skill` / `.zip` 运行时分发包。
+
+| 路径 | 用途 |
+|---|---|
+| `package.json` | npm 元数据、`bin` 命令入口与发布文件清单 |
+| `bin/test-generator.js` | `test-generator` 命令行入口 |
+| `lib/activation.js` | 宿主环境激活、运行时文件复制与目标目录解析 |
 
 ## 建议排除
 
@@ -67,6 +84,8 @@ testcase-generator.zip
 |---|---|---|
 | `devtools/package_skill.py` | `devtools/package_skill.py` | 打包工具，不属于 Skill 运行时能力 |
 | `devtools/capability_audit.py` | `devtools/capability_audit.py` | 审计工具，不属于普通使用场景 |
+| `bin/test-generator.js` | `bin/test-generator.js` | npm CLI 入口，只进入 npm 包，不进入 `.skill` / `.zip` |
+| `lib/activation.js` | `lib/activation.js` | npm 激活逻辑，只进入 npm 包，不进入 `.skill` / `.zip` |
 | `run_package.bat` | `devtools/run_package.bat` | Windows 打包入口，不属于运行时资产 |
 | `PACKAGING.md` | `docs/PACKAGING.md` 或保留根目录 | 发布维护说明，不属于 Skill 执行资产 |
 
@@ -116,6 +135,8 @@ testcase-generator/
 - [ ] 本地工作记忆 `.workbuddy/` 未入包。
 - [ ] 分发包内不存在 `skills-lock.json`、旧 ZIP 或包中包。
 - [ ] 同时生成 `.skill` 与 `.zip` 两种产物，且内容一致。
+- [ ] npm 包包含 `package.json`、`bin/`、`lib/` 和 Skill 运行时资产。
+- [ ] `test-generator activate <environment> --dry-run` 可显示正确目标目录。
 - [ ] 抽样打开包内 Markdown，确认中文内容未乱码。
 
 ## 后续建议

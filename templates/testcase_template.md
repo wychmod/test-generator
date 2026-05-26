@@ -1,21 +1,21 @@
-# 测试用例模板 v2.0 (生产级)
+﻿# 测试用例模板 v2.1 (生产级)
 
-> **模板版本**: 2.0.0 | **标准**: IEEE 829 + ISTQB + Agile hybrid | **用途**: Phase 5 用例生成输出
+> **模板版本**: 2.1.0 | **标准**: ISO/IEC/IEEE 29119-3:2021 + ISTQB + Agile hybrid | **用途**: Phase 5 用例生成输出
 
 ---
 
 ```markdown
 ---
 document_type: "testcase"
-template_version: "2.0.0"
-generated_by: "testcase-generator v2.0.0"
+template_version: "2.1.0"
+generated_by: "testcase-generator v2.1.0"
 metadata:
   testcase_id: "TC-[PHASE]-[MOD]-[NNN]"
   version: "1.0"
   status: "Draft"  # Draft / Reviewed / Approved / Deprecated / Obsolete
   created: "{YYYY-MM-DDTHH:mm:ssZ}"
   last_modified: "{YYYY-MM-DDTHH:mm:ssZ}"
-  author: "AI Generator v2.0"
+  author: "AI Generator v2.1"
   reviewer: ""
   approver: ""
   automation:
@@ -39,7 +39,7 @@ traceability:
 change_history:
   - version: "1.0"
     date: "{date}"
-    author: "AI Generator v2.0"
+    author: "AI Generator v2.1"
     change: "Initial creation from Phase 4 test model"
 ---
 
@@ -71,7 +71,7 @@ Tags: [module-name], [feature], [priority-P0], [type-functional],
 
 | 角色 | 姓名/团队 | 联系方式 |
 |------|---------|---------|
-| 用例设计者 | AI Generator v2.0 | — |
+| 用例设计者 | AI Generator v2.1 | — |
 | 用例审核人 | [待分配] | — |
 | 自动化实现者 | [待分配] | — |
 | 测试执行者 | [待分配] | — |
@@ -509,21 +509,37 @@ jobs:
 
 ---
 
-## 11. 历史记录
+## 11. 执行结果记录 (Actual Result)
 
-### 11.1 执行历史
+> 本节用于测试执行后的结果记录，不属于设计态用例的必填字段。生成测试设计时可保留为空；执行测试或导入测试管理平台后再填写。
+
+| 字段 | 记录 |
+|---|---|
+| 执行轮次 | Run-[YYYYMMDD]-[NNN] |
+| 执行环境 | [Staging / UAT / Production-like / Local] |
+| 实际结果 (Actual Result) | [实际观察到的 UI/API/DB/日志结果] |
+| 判定 | Pass / Fail / Blocked / Skipped |
+| 失败证据 | [截图、日志、请求响应、缺陷链接] |
+| 关联缺陷 | BUG-[NNN] / N/A |
+| 复测结论 | Not Retested / Pass / Fail |
+
+---
+
+## 12. 历史记录
+
+### 12.1 执行历史
 
 | 执行日期 | 执行者 | 环境 | 结果 | 耗时 | 缺陷发现 | 备注 |
 |---------|-------|------|------|------|---------|------|
 | — | — | — | — | — | — | — |
 
-### 11.2 版本变更历史
+### 12.2 版本变更历史
 
 | 版本 | 日期 | 作者 | 变更类型 | 变更描述 | 影响评估 | 审批 |
 |------|------|------|---------|---------|---------|------|
-| 1.0 | YYYY-MM-DD | AI Generator v2.0 | Creation | Initial creation | — | — |
+| 1.0 | YYYY-MM-DD | AI Generator v2.1 | Creation | Initial creation | — | — |
 
 ---
 
-*本模板由 testcase-generator v2.0 生成。*
-*遵循 IEEE 829 / ISTQB 标准。*
+*本模板由 testcase-generator v2.1 生成。*
+*遵循 ISO/IEC/IEEE 29119-3:2021 / ISTQB 标准。*

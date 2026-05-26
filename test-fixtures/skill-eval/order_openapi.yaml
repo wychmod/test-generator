@@ -1,0 +1,43 @@
+openapi: 3.0.3
+info:
+  title: Order API
+  version: 1.0.0
+paths:
+  /api/orders:
+    post:
+      summary: Create order
+      operationId: createOrder
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sku, quantity, addressId]
+              properties:
+                sku:
+                  type: string
+                  minLength: 1
+                quantity:
+                  type: integer
+                  minimum: 1
+                  maximum: 99
+                addressId:
+                  type: string
+      responses:
+        "201":
+          description: Order created
+        "400":
+          description: Invalid request
+        "401":
+          description: Unauthorized
+        "409":
+          description: Stock conflict
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

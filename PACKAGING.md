@@ -117,6 +117,30 @@ npx skills add ./testcase-generator.skill
 npx skills add ./testcase-generator.zip
 ```
 
+### 方式六：Node.js/npm 安装并激活
+
+发布 npm 包后，可通过全局安装获得 `test-generator` 命令：
+
+```bash
+npm install -g testcase-generator-skill
+
+# 激活到当前项目的宿主目录
+test-generator activate claude
+test-generator activate codex
+test-generator activate qoder
+test-generator activate openclaw
+
+# 如需激活到用户本地目录
+test-generator activate claude -g
+
+# 如需指定安装目录
+test-generator activate codex --target ./custom-skills/testcase-generator
+```
+
+当前支持的环境名：`claude`、`codex`、`qoder`、`openclaw`、`trae`。`--global` 仍作为 `-g` 的兼容写法保留。
+
+> npm 安装方式使用 `package.json` 的 `bin` 字段暴露 `test-generator` 命令；它不替代 `.skill` / `.zip` 分发产物，只提供跨宿主激活入口。
+
 ---
 
 ## 发布到 GitHub 前检查清单
@@ -130,6 +154,5 @@ npx skills add ./testcase-generator.zip
 - [ ] `.gitignore` 排除了 `.venv/`、`test-output/`、`.idea/` 等本地目录。
 - [ ] 多宿主镜像目录不作为主源维护。
 - [ ] 根目录中的 `.skill` / `.zip` 产物不作为源码提交。
-
-
+- [ ] npm 发布前执行 `npm test`，并确认 `test-generator activate <environment> --dry-run` 输出目标目录正确。
 
