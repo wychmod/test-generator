@@ -1,0 +1,371 @@
+version: 1
+plan:
+  name: 'testcase-generator 适配器扩展 + .harness 体系建设'
+  max_concurrency: 3
+  max_consecutive_failures: 2
+  max_cycles: 8
+  verifier_config:
+    default_verifiers: [verifier]
+    audit_sample_rate: 0.0
+tasks:
+  - id: adapters-and-ecosystem
+    title: '扩展适配器生态（CodeBuddy 完整 + Cursor/Windsurf 软适配）并同步元数据'
+    prompt: |
+      在 D:\pycharm\test-generator 项目里，给 testcase-generator skill 增加新的 AI 宿主适配器，并同步所有相关元数据。
+
+      目标：
+      1. 新增 CodeBuddy（腾讯）完整适配器
+      2. 新增 Cursor（Anysphere）软适配（rules 风格）
+      3. 新增 Windsurf / Antigravity（Codeium/Google）软适配（rules 风格）
+      4. 同步所有元数据（skill.manifest.json / HOST_COMPATIBILITY.md / lib/activation.js / devtools/package_skill.py / .gitignore / README.md / DISTRIBUTION.md / SKILL.md / capability_audit.py）
+
+      关键背景：
+      - 项目是 AI 驱动的测试用例生成 Skill 包（v2.1.0），canonical source 在项目根
+      - 已有 5 个 adapter：claude / codex / qoder / openclaw / trae
+      - 已有 devtools/capability_audit.py + devtools/skill_quality_audit.py + devtools/package_skill.py
+      - 已有 lib/activation.js（5 个 ENVIRONMENTS 常量）+ bin/test-generator.js
+      - 已有 skill.manifest.json（中英双语 manifest）
+      - 已有 HOST_COMPATIBILITY.md / DISTRIBUTION.md / PACKAGING.md
+      - .claude/、.qoder/、.trae/、.agents/、.workbuddy/ 是本地镜像（不入包，发布时生成）
+
+      新适配器目录约定（来自公开资料）：
+      - CodeBuddy: `.codebuddy/skills/<name>/SKILL.md`（项目级）/ `~/.codebuddy/skills/<name>/SKILL.md`（用户级），入口文件名 SKILL.md
+      - Cursor: 入口是 `.cursorrules`（项目根），不是 SKILL.md，规则文件风格
+      - Windsurf: 入口是 `.windsurfrules`（项目根），规则文件风格
+
+      不要适配：Kimi（月之暗面，AI 助手非编程 IDE）、Lingma/MarsCode/文心快码（IDE 插件无 skill 目录）。
+
+      任务清单：
+
+      1. 创建 `adapters/codebuddy/SKILL.md`
+         - 参照 `adapters/claude/SKILL.md` 结构
+         - YAML frontmatter：name, description（中英 trigger phrases）
+         - 中文主体：适用场景、使用方式、推荐路由、Fallback
+         - 重点能力（CodeBuddy 类似 Claude，多文件路由 + 仓库分析）
+         - 约 80-150 行
+      2. 创建 `adapters/cursor/cursorrules.md`（注意是 .md 文件，激活时会被复制为 .cursorrules；内容是 Cursor 规则文件风格）
+         - 英文 + 中文混合
+         - 描述 Skill 触发场景、推荐工作流、降级策略
+         - 约 50-100 行
+      3. 创建 `adapters/windsurf/windsurfrules.md`（同上）
+         - 约 50-100 行
+      4. 更新 `skill.manifest.json`：
+         - "宿主适配入口" 加上 codebuddy / cursor / windsurf
+         - "运行时文件" 加上 adapters/codebuddy/**、adapters/cursor/**、adapters/windsurf/**
+         - "Node.js安装入口" 的"支持环境" 加上 codebuddy、cursor、windsurf
+         - "分发排除" 加上 .codebuddy/**、.cursor/**、.windsurf/**
+      5. 更新 `HOST_COMPATIBILITY.md`：
+         - 宿主适配入口表加三行
+         - Node.js 激活入口表加三行
+         - 后续建议可以提
+      6. 更新 `lib/activation.js`：
+         - ENVIRONMENTS 常量加 codebuddy / cursor / windsurf
+         - codebuddy: { localPath: ['.codebuddy', 'skills', SKILL_NAME], globalPath: ['.codebuddy', 'skills', SKILL_NAME] }
+         - cursor: { localPath: ['.cursor', 'rules'], globalPath: ['.cursor', 'rules'], entry: { source: path.join('adapters', 'cursor', 'cursorrules.md'), target: 'cursorrules' } }
+         - windsurf: { localPath: ['.windsurf', 'rules'], globalPath: ['.windsurf', 'rules'], entry: { source: path.join('adapters', 'windsurf', 'windsurfrules.md'), target: 'windsurfrules' } }
+         - 注意 cursor 和 windsurf 的 entry 行为：复制为指定 target 文件名（不是 SKILL.md）
+         - 验证 supportedEnvironments() 返回 8 个
+      7. 更新 `devtools/package_skill.py`：
+         - 验证 FORBIDDEN_ARCHIVE_PATTERNS 覆盖 .codebuddy/**、.cursor/**、.windsurf/**（如果在 manifest 分发排除里，逻辑会自动覆盖）
+      8. 更新 `.gitignore`：
+         - 加上 /.codebuddy/、/.cursor/、/.windsurf/
+      9. 更新 `README.md`：
+         - 简介里"支持 Claude / Qoder / Codex / OpenClaw" 之类更新
+         - 适配器相关表格更新
+      10. 更新 `DISTRIBUTION.md`：
+          - 排除规则加 .codebuddy/、.cursor/、.windsurf/
+      11. 更新 `SKILL.md`（可选）：
+          - description 提到更多宿主
+      12. 更新 `devtools/capability_audit.py`：
+          - 如果有相关 audit 规则要更新（比如 host 表三方一致检查），更新
+
+      验证步骤：
+      1. 跑 `node --test test/`（验证 activation.js 改动）
+      2. 跑 `python devtools/capability_audit.py`（验证 metadata 同步）
+      3. 跑 `node -e "const {supportedEnvironments, activateEnvironment} = require('./lib/activation'); console.log(supportedEnvironments()); for (const env of supportedEnvironments()) { console.log(env, '->', activateEnvironment(env, {dryRun: true}).targetDir); }"` —— 验证 8 个环境的 targetDir
+      4. 用 PowerShell：
+         ```
+         node --test test/
+         python devtools/capability_audit.py
+         node -e "<上面那段>"
+         ```
+
+      完成后写 deliverable.md：
+      - 新增/修改的文件清单
+      - 验证结果（audit / test 输出）
+      - 任何与方案不一致的判断（标注你的决定和理由）
+      - 已知未完成项
+
+      重要约束：
+      - 不要触碰 .claude/、.qoder/、.trae/、.agents/、.workbuddy/ 镜像目录
+      - 不要在 adapters/ 下写代码，只放文档
+      - 所有新 adapter 必须保持"薄适配"原则：只放触发场景、推荐读取顺序、降级策略，不复制核心 prompts/templates/resources
+      - 中文优先（CodeBuddy adapter 主体中文）；Cursor/Windsurf 软适配因为是 rules 文件，用英文为主 + 中文补充
+      - activation.js 改动必须向后兼容
+    assigned_to: coder
+    verified_by: verifier
+    verify_prompt: |
+      独立验证以下事项（不要只读 producer 的 deliverable.md，必须实际跑命令）：
+
+      用 PowerShell 跑：
+      1. `cd D:\pycharm\test-generator; node --test test/` —— 必须通过
+      2. `cd D:\pycharm\test-generator; python devtools/capability_audit.py` —— 必须 pass 或 warn（不能 fail）
+      3. `cd D:\pycharm\test-generator; node -e "const {supportedEnvironments, activateEnvironment} = require('./lib/activation'); console.log(supportedEnvironments()); for (const env of supportedEnvironments()) { console.log(env, '->', activateEnvironment(env, {dryRun: true}).targetDir); }"` —— 必须列出 8 个宿主，每个都有合理 targetDir
+
+      读文件验证：
+      4. 读 `lib/activation.js` —— ENVIRONMENTS 包含 codebuddy / cursor / windsurf，结构正确
+      5. 读 `skill.manifest.json` —— "宿主适配入口" 有 codebuddy / cursor / windsurf 三个键；"分发排除" 含新三目录
+      6. 读 `HOST_COMPATIBILITY.md` —— 适配入口表和 Node.js 激活入口表都有新三行
+      7. 读 `.gitignore` —— 含 /.codebuddy/、/.cursor/、/.windsurf/
+      8. 读新加的三个 adapter 文件 —— 不应包含 prompts/、templates/、resources/ 内容复制
+      9. 读 `adapters/codebuddy/SKILL.md` —— YAML frontmatter 包含中英 trigger phrases
+      10. 读 `adapters/cursor/cursorrules.md` 和 `adapters/windsurf/windsurfrules.md` —— 确认是 rules 风格而非 SKILL.md
+      11. 验证 cursor / windsurf 的 entry.target 是 'cursorrules' / 'windsurfrules'（不是 'SKILL.md'）
+
+      任何 fail 用具体原因（哪个命令、哪行代码、哪个文件、什么不一致）。
+    timeout_ms: 1800000
+
+  - id: harness-foundation
+    title: '搭建 .harness 核心（AGENTS.md 项目宪法 + 6 个 reins + 文档护栏脚本）'
+    prompt: |
+      在 D:\pycharm\test-generator 项目里搭建 .harness/ 体系的核心层：项目宪法、agent 角色团队、文档护栏脚本。
+
+      目标交付物：
+      1. `.harness/AGENTS.md`（项目宪法）
+      2. `.harness/reins/<name>/AGENT.md` × 6
+      3. `.harness/scripts/doc_consistency_audit.py`（文档护栏脚本）
+      4. `.harness/scripts/README.md`（说明）
+      5. `.harness/README.md`（harness 体系总览）
+      6. `.harness/reins/README.md`（reins 角色索引）
+
+      关键背景：
+      - 项目是 testcase-generator skill 包（v2.1.0），AI 测试用例生成器，6 阶段流水线
+      - 已有 5+3=8 个 adapter（claude/codex/qoder/openclaw/trae + codebuddy/cursor/windsurf，本 plan 的 Task 1 会加）
+      - 已有 devtools/ 工具（capability_audit.py / skill_quality_audit.py / package_skill.py）
+      - 已有 npm CLI（test-generator activate <env>）
+      - 入包铁律：.claude/、.qoder/、.trae/、.agents/、.workbuddy/、.codebuddy/、.cursor/、.windsurf/、test-output/、skills/、skills-lock.json 永远不能进 .skill/.zip
+      - 版本号三处一致：SKILL.md / README.md / skill.manifest.json
+      - 中文优先
+
+      A. `.harness/AGENTS.md` 必须包含（中文）：
+      1. **项目是什么**：3-5 句讲清楚 testcase-generator 是 AI 测试用例生成 Skill，6 阶段流水线，2.1.0 版
+      2. **目录速查表**：canonical source 结构（SKILL.md / README.md / skill.manifest.json / DISTRIBUTION.md / HOST_COMPATIBILITY.md / adapters/ / config/ / prompts/ / resources/ / templates/ / scripts/ / devtools/ / bin/ / lib/）
+      3. **必跑命令**：
+         - `python devtools/capability_audit.py` — 能力矩阵审计
+         - `python devtools/skill_quality_audit.py` — Skill 字段质量审计
+         - `python devtools/package_skill.py` — 打包（生成 .skill / .zip）
+         - `python .harness/scripts/doc_consistency_audit.py` — 文档护栏
+         - `node --test test/` — node 单测
+         - `node bin/test-generator.js environments` — 列支持宿主
+         - `node bin/test-generator.js activate <env> --dry-run` — dry-run 激活
+      4. **AI 协作必须遵守的铁律**（绝对不能违反）：
+         - 入包边界铁律：列清楚所有不能入包的目录
+         - 版本号三处一致铁律
+         - adapter 薄适配铁律
+         - 中文优先铁律
+         - 能力矩阵不能分叉铁律
+         - prd_reader.py 是可选依赖铁律
+      5. **PR 模板**（精简版）
+      6. **reins 角色索引表**（指向 reins/ 目录）
+      7. **相关文档链接**
+
+      B. 6 个 reins agent（每个写 `.harness/reins/<name>/AGENT.md`，中文）：
+      1. **skill-author**：负责 SKILL.md / prompts/ / templates/ / resources/ 维护
+      2. **adapter-curator**：负责 adapters/ 维护，与根 SKILL.md 同步
+      3. **manifest-keeper**：负责 skill.manifest.json + DISTRIBUTION.md 一致性
+      4. **packager**：负责跑 package_skill.py，验证 .skill / .zip 一致
+      5. **auditor**：负责跑 capability_audit.py + skill_quality_audit.py + doc_consistency_audit.py
+      6. **test-runner**：负责 node --test test/，验证 lib/activation.js 在所有支持宿主下激活路径正确
+
+      每个 reins AGENT.md 应包含：
+      - **身份**：一两句话讲清楚这个 agent 是干嘛的
+      - **负责范围**：具体文件 / 目录
+      - **必跑命令**：该角色常跑的命令
+      - **产出物格式**：报告 / 改动 / 验证结果 怎么写
+      - **失败时怎么报告**：哪些情况算 fail / 怎么写 issue
+      - **Stop 条件**：什么时候算 done
+
+      C. `.harness/scripts/doc_consistency_audit.py`（独立可运行的 Python 脚本，必须能跑通）：
+      检查项：
+      1. **版本号三处一致**：SKILL.md 的 `version:` 字段、README.md 标题、skill.manifest.json 的"版本"字段
+      2. **能力矩阵覆盖**：SKILL.md 提到的能力 ↔ prompts/phase*.md ↔ resources/output_artifacts.md
+      3. **宿主表三方一致**：HOST_COMPATIBILITY.md 的宿主表 ↔ adapters/ 实际目录 ↔ lib/activation.js 的 ENVIRONMENTS 常量
+      4. **npm 脚本入口**：`test-generator` 命令在 README / package.json / HOST_COMPATIBILITY 都有提到
+      5. **运行时分发清单**：skill.manifest.json 的"运行时文件"列出的文件实际都存在
+      6. **排他规则一致性**：DISTRIBUTION.md 的"建议排除"表 ↔ skill.manifest.json 的"分发排除"数组 ↔ devtools/package_skill.py 的 STATIC_EXCLUDES + FORBIDDEN_ARCHIVE_PATTERNS
+      7. 输出 markdown 表格报告，pass/warn/fail 三档
+      8. 命令行参数：支持 --format=json
+
+      D. `.harness/README.md`（中文）：
+      - 简短总览
+      - 文件结构
+      - 跟项目根 AGENTS.md 的关系
+      - 各子目录索引
+
+      E. `.harness/reins/README.md`（中文）：
+      - 6 个 reins 角色清单
+      - 简短描述每个角色的职责
+      - 怎么新增 reins
+
+      完成后写 deliverable.md：
+      - 新增文件清单
+      - 跑过的命令和输出
+      - 任何决策点
+      - 已知未完成项
+
+      重要约束：
+      - 不要触碰项目根目录的现有文件
+      - **不要**把 .harness/ 加到 skill.manifest.json 的"运行时文件"里（它是开发工具，不是运行时资产）
+      - 所有 reins 的 AGENT.md 用中文
+      - doc_consistency_audit.py 必须能跑通（用 python 直接跑）
+    assigned_to: coder
+    verified_by: verifier
+    verify_prompt: |
+      独立验证（PowerShell）：
+      1. 读 `.harness/AGENTS.md` —— 验证包含项目说明、目录速查、必跑命令、铁律、reins 索引
+      2. ls `.harness/reins/` —— 验证有 6 个子目录
+      3. 每个 reins 子目录 ls —— 每个有 AGENT.md
+      4. 读每个 reins AGENT.md —— 含身份/范围/必跑/产出/Stop 条件
+      5. 跑 `python .harness/scripts/doc_consistency_audit.py` —— 必须能跑通，输出报告
+      6. 读 doc_consistency_audit.py —— 验证检查了 6 类一致性问题
+      7. 验证 `skill.manifest.json` 没有把 .harness/ 加到"运行时文件"
+      8. 验证 devtools/package_skill.py 不会把 .harness/ 入包（读 STATIC_EXCLUDES 或 manifest 分发排除）
+      9. 读 `.harness/README.md` 和 `.harness/reins/README.md` —— 内容合理
+      10. 跑 `python .harness/scripts/doc_consistency_audit.py --format=json` —— 必须输出合法 JSON
+
+      任何 fail 用具体原因。
+    timeout_ms: 1800000
+
+  - id: harness-automation
+    title: '搭建 .harness 自动化（hooks + changelogs + eval 流水线）'
+    prompt: |
+      在 D:\pycharm\test-generator 项目里搭建 .harness/ 体系的自动化层：提交前 hooks、changelogs、eval 回归流水线。
+
+      关键背景：
+      - 项目是 testcase-generator skill 包（v2.1.0）
+      - `.harness/` 目录在 Task 2 会被创建（AGENTS.md / reins/ / scripts/）
+      - 已有 devtools/ 工具（capability_audit.py / skill_quality_audit.py / package_skill.py）
+      - 已有 test-fixtures/ 和 test-output/ 里的样例（login_prd.md / order_openapi.yaml / bugfix_regression.py / ambiguous_requirement.md 等）
+      - 项目根 .gitignore 已有规则
+
+      目标交付物：
+      1. `.harness/hooks/precommit.py`（跨平台 Python 提交前检查）
+      2. `.harness/hooks/prepackage.py`（跨平台 Python 打包前完整审计）
+      3. `.harness/hooks/install-hooks.ps1`（Windows 钩子安装脚本）
+      4. `.harness/hooks/install-hooks.sh`（Linux/macOS 钩子安装脚本）
+      5. `.harness/hooks/README.md`（hooks 说明）
+      6. `.harness/changelogs/README.md`（变更日志规范）
+      7. `.harness/changelogs/v2.1.0.md`（当前版本回填）
+      8. `.harness/changelogs/v2.2.0-TEMPLATE.md`（发版模板）
+      9. `.harness/eval/run_eval.py`（端到端 eval 流水线）
+      10. `.harness/eval/README.md`（eval 说明）
+      11. `.harness/eval/EXPECTED_OUTPUTS.md`（期望输出规范）
+      12. `.harness/eval/baselines/README.md`（基线说明）
+
+      A. `.harness/hooks/precommit.py`（跨平台 Python）：
+      - 接受 --dry-run 参数（不 fail，只报告）
+      - 检测 git 暂存文件（git diff --cached --name-only）
+      - 触发检查：
+        1. 改了 `SKILL.md` / `skill.manifest.json` / `package.json` → 跑 capability_audit.py
+        2. 改了 `prompts/` / `templates/` / `resources/` → 跑 skill_quality_audit.py
+        3. 改了 `lib/` / `bin/` → 跑 node --test test/
+        4. 改了 `DISTRIBUTION.md` / `skill.manifest.json` 的排除规则 → 提示同步
+        5. 改了 `adapters/` → 跑 activation.js 跨宿主 dry-run 验证
+      - 任何 fail 输出非零退出码
+
+      B. `.harness/hooks/prepackage.py`（跨平台 Python）：
+      - 接受 --dry-run 参数
+      - 顺序跑：capability_audit.py + skill_quality_audit.py + doc_consistency_audit.py + node --test test/
+      - 全部通过才输出 0 退出码
+
+      C. `.harness/hooks/install-hooks.ps1` 和 `install-hooks.sh`：
+      - 检查项目根 .git/ 目录
+      - 复制 precommit.py / prepackage.py 到 .git/hooks/pre-commit / .git/hooks/pre-package
+      - POSIX 给执行权限（chmod +x）
+      - 输出"已安装"信息
+
+      D. `.harness/changelogs/`：
+      - README.md：命名规范（v<版本号>.md）、必含字段（新增 / 改动 / 修复 / 移除 / 已知限制 / 升级注意）
+      - v2.1.0.md：回填当前版本（参考 README.md 的"版本历史" + audit 结果 + 能力矩阵说明）
+      - v2.2.0-TEMPLATE.md：占位模板
+
+      E. `.harness/eval/run_eval.py`（端到端 eval 流水线）：
+      - 离线可跑（不依赖网络）
+      - 读取 `test-fixtures/skill-eval/` 下的样本文件
+      - 对每个样本：
+        1. 验证 prompt 完整性（检查 phase0-5 的 prompt 文件都覆盖该 fixture 类型）
+        2. 验证 capability 覆盖（fixture 类型 ↔ SKILL.md 的能力声明）
+        3. 验证期望产物路径（参考 EXPECTED_OUTPUTS.md）
+      - 输出 markdown 报告，pass/warn/fail
+      - 命令行参数：--format=json
+
+      F. `.harness/eval/EXPECTED_OUTPUTS.md`：
+      - 列每个 fixture 期望经过 Skill 后的产物形态
+      - 比如 login_prd.md → 期望产物 phase1/01_requirements_summary.md + phase5/01_testcase_collection.md
+      - phase0 期望的输入质量评分阈值
+
+      G. `.harness/eval/baselines/README.md`：
+      - 解释基线来源（参考 test-output/ 的现有样例）
+      - 列哪些子集被选为基线（不复制全部内容）
+
+      完成后写 deliverable.md：
+      - 新增文件清单
+      - 跑过的命令和输出
+      - 任何决策点
+      - 已知未完成项
+
+      重要约束：
+      - 所有 Python 脚本跨平台（Windows + Linux + macOS 都能跑）
+      - eval 流水线不依赖网络
+      - hooks 不覆盖现有 .git/hooks 里的非 test-generator 钩子
+      - changelogs 是给人看的
+    assigned_to: coder
+    verified_by: verifier
+    verify_prompt: |
+      独立验证（PowerShell）：
+      1. 跑 `python .harness/hooks/precommit.py --dry-run` —— 必须不 fail，输出检查项
+      2. 跑 `python .harness/hooks/prepackage.py --dry-run` —— 必须不 fail
+      3. 跑 `python .harness/eval/run_eval.py` —— 必须能跑通，输出报告
+      4. 跑 `python .harness/eval/run_eval.py --format=json` —— 输出合法 JSON
+      5. 读 `.harness/changelogs/README.md` —— 验证命名规范和必含字段
+      6. 读 `.harness/changelogs/v2.1.0.md` —— 验证回填了 README 版本历史
+      7. 读 `.harness/eval/EXPECTED_OUTPUTS.md` —— 验证有 fixture → 期望产物的对应表
+      8. 读 install-hooks.ps1 / install-hooks.sh —— 验证不破坏现有 .git/hooks
+      9. grep eval 流水线 —— 不能有 requests/urllib/urllib2 等网络依赖
+      10. 读 precommit.py —— 验证它跑的检查项与 AGENTS.md "必跑命令" 对得上
+
+      任何 fail 用具体原因。
+    timeout_ms: 1800000
+
+  - id: final-verification
+    title: '最终集成验证（跑全部 audit + npm test + 打包 dry-run + 一致性自检）'
+    prompt: |
+      完整验证 testcase-generator 项目经过本 plan 的 T1/T2/T3 后的整体健康度。
+
+      验证清单（每项给出 pass/warn/fail + 证据）：
+      1. 跑 `python devtools/capability_audit.py` —— pass/warn 才算 OK
+      2. 跑 `python devtools/skill_quality_audit.py` —— pass/warn 才算 OK
+      3. 跑 `python .harness/scripts/doc_consistency_audit.py` —— pass/warn 才算 OK
+      4. 跑 `node --test test/` —— 全过
+      5. 跑 `node bin/test-generator.js environments` —— 列出所有支持的宿主
+      6. 对每个宿主跑 `node bin/test-generator.js activate <env> --dry-run` —— 必须输出正确 targetDir
+      7. 验证 .harness/、.claude/、.codebuddy/、.cursor/、.windsurf/ 等排除目录都不在 skill.manifest.json 的运行时清单里
+      8. 验证 skill.manifest.json 是合法 JSON
+      9. 验证 config/example-config.json 仍能通过 config/testcase-config-schema.json 校验
+      10. 验证 README.md / SKILL.md / skill.manifest.json 三处版本号一致
+      11. 验证 AGENTS.md 中所有"必跑命令"在当前项目结构下都能找到对应文件
+      12. 验证 6 个 reins 都齐全，文件结构正确
+      13. 验证 8 个 adapter 文件夹齐全（claude/codex/qoder/openclaw/trae + codebuddy/cursor/windsurf）
+      14. 验证所有 hooks 脚本能跑
+      15. 验证 changelogs/ 有 README + 当前版本回填 + 模板
+      16. 验证 eval 流水线能跑通
+      17. 验证 install-hooks.ps1 / install-hooks.sh 不破坏 .git/hooks
+
+      输出一份 markdown 验证报告到 `.harness/eval/HEALTH_REPORT.md`，表格形式：
+      | 检查项 | 状态 | 证据 |
+
+      如果有 fail，写明 fail 项 + 修复建议（不修，只报告）。
+    assigned_to: verifier
+    depends_on: [adapters-and-ecosystem, harness-foundation, harness-automation]
+    role: verify-as-task
+    timeout_ms: 1800000

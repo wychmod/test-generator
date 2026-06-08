@@ -27,21 +27,8 @@ test-automation quality-assurance automation claude-code skill ai-driven testing
 ## 📦 安装
 
 ```bash
-# 方式一：Vercel skills CLI（推荐）
-npm install -g skills
-npx skills add https://github.com/wychmod/test-generator -y
-
-# 方式二：本地 ZIP 安装
-npx skills add ./testcase-generator.zip
-
-# 方式三：手动安装
-# 通过已打包的 Skill 文件安装（推荐）
-# 在支持 .skill 的宿主平台中导入
-./testcase-generator.skill
-./testcase-generator.zip
-
-# 方式四：Node.js/npm 安装并激活到宿主环境
-npm install -g testcase-generator-skill
+# 方式一：Node.js/npm 安装并激活到宿主环境（最推荐）
+npm i @wychmod-cn/testcase-generator-skill
 test-generator activate claude
 test-generator activate codex
 test-generator activate qoder
@@ -50,9 +37,22 @@ test-generator activate trae
 test-generator activate codebuddy
 test-generator activate cursor
 test-generator activate windsurf
+
+# 方式二：Vercel skills CLI
+npm install -g skills
+npx skills add https://github.com/wychmod/test-generator -y
+
+# 方式三：本地 ZIP 安装
+npx skills add ./testcase-generator.zip
+
+# 方式四：手动安装
+# 通过已打包的 Skill 文件安装
+# 在支持 .skill 的宿主平台中导入
+./testcase-generator.skill
+./testcase-generator.zip
 ```
 
-> 推荐优先使用 `testcase-generator.skill`；仅在宿主平台暂不支持 `.skill` 时再使用 `testcase-generator.zip`。
+> 最推荐使用 `npm i @wychmod-cn/testcase-generator-skill` 安装；仅在无法使用 npm 时再选择 `testcase-generator.skill` 或 `testcase-generator.zip`。
 > npm 方式不会改变 `.skill` / `.zip` 产物，只是提供 `test-generator activate <environment>` 将 Skill 运行时文件复制到对应宿主目录。
 
 ---

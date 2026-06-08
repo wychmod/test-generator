@@ -1,0 +1,126 @@
+{
+  "fixtures": [
+    {
+      "name": "ambiguous_requirement",
+      "path": "test-fixtures\\skill-eval\\ambiguous_requirement.md",
+      "status": "warn",
+      "notes": "降级路径：先输出风险摘要 + 缺失信息清单，再考虑测试草稿。",
+      "checks": [
+        {
+          "name": "prompt_coverage",
+          "status": "warn",
+          "detail": "no token match in: phase4_mbt_design_prompt.md (no token match)"
+        },
+        {
+          "name": "capability_coverage",
+          "status": "pass",
+          "detail": "SKILL.md + manifest 都声明了相关能力"
+        },
+        {
+          "name": "expected_outputs",
+          "status": "pass",
+          "detail": "全部 2 个期望产物已存在于 test-output/: phase0/00_input_validation_report.md, phase0/00_enhancement_suggestions.md"
+        }
+      ]
+    },
+    {
+      "name": "bugfix_regression",
+      "path": "test-fixtures\\skill-eval\\bugfix_regression.py",
+      "status": "warn",
+      "notes": "回归聚焦：过期券在 min_spend 边界上必须拒绝。",
+      "checks": [
+        {
+          "name": "prompt_coverage",
+          "status": "warn",
+          "detail": "no token match in: phase0_input_preprocessing_prompt.md (no token match)"
+        },
+        {
+          "name": "capability_coverage",
+          "status": "pass",
+          "detail": "SKILL.md + manifest 都声明了相关能力"
+        },
+        {
+          "name": "expected_outputs",
+          "status": "pass",
+          "detail": "全部 2 个期望产物已存在于 test-output/: phase2/04_concurrency_analysis.md, phase5/01_testcase_collection.md"
+        }
+      ]
+    },
+    {
+      "name": "login_prd",
+      "path": "test-fixtures\\skill-eval\\login_prd.md",
+      "status": "pass",
+      "notes": "标准交付：覆盖正向、负向、边界值、安全锁定、追溯矩阵。",
+      "checks": [
+        {
+          "name": "prompt_coverage",
+          "status": "pass",
+          "detail": "all 6 phase prompts mention this fixture kind"
+        },
+        {
+          "name": "capability_coverage",
+          "status": "pass",
+          "detail": "SKILL.md + manifest 都声明了相关能力"
+        },
+        {
+          "name": "expected_outputs",
+          "status": "pass",
+          "detail": "全部 2 个期望产物已存在于 test-output/: phase1/01_requirements_summary.md, phase5/01_testcase_collection.md"
+        }
+      ]
+    },
+    {
+      "name": "order_lifecycle",
+      "path": "test-fixtures\\skill-eval\\order_lifecycle.md",
+      "status": "warn",
+      "notes": "MBT 路径：状态转换表 + 非法路径 + 覆盖准则 + 最小路径集。",
+      "checks": [
+        {
+          "name": "prompt_coverage",
+          "status": "warn",
+          "detail": "no token match in: phase0_input_preprocessing_prompt.md (no token match), phase1_requirements_prompt.md (no token match), phase2_code_analysis_prompt.md (no token match), phase5_testcase_generation_prompt.md (no token match)"
+        },
+        {
+          "name": "capability_coverage",
+          "status": "pass",
+          "detail": "SKILL.md + manifest 都声明了相关能力"
+        },
+        {
+          "name": "expected_outputs",
+          "status": "pass",
+          "detail": "全部 2 个期望产物已存在于 test-output/: phase3/04_event_storming_model.md, phase4/04_mutation_testing_strategy.md"
+        }
+      ]
+    },
+    {
+      "name": "order_openapi",
+      "path": "test-fixtures\\skill-eval\\order_openapi.yaml",
+      "status": "warn",
+      "notes": "API/契约测试：401/409/400/201 等状态码都要覆盖。",
+      "checks": [
+        {
+          "name": "prompt_coverage",
+          "status": "warn",
+          "detail": "no token match in: phase4_mbt_design_prompt.md (no token match)"
+        },
+        {
+          "name": "capability_coverage",
+          "status": "pass",
+          "detail": "SKILL.md + manifest 都声明了相关能力"
+        },
+        {
+          "name": "expected_outputs",
+          "status": "pass",
+          "detail": "全部 2 个期望产物已存在于 test-output/: phase2/05_contract_test_derivation.md, phase5/01_testcase_collection.md"
+        }
+      ]
+    }
+  ],
+  "global_checks": [
+    {
+      "name": "phase0_threshold_doc",
+      "status": "warn",
+      "detail": "未在 README/AGENTS.md/Phase 0 prompt 中找到 ≥80 阈值的明文声明"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "运行时文件": [
+    "SKILL.md",
+    "README.md",
+    "HOST_COMPATIBILITY.md",
+    "adapters/**",
+    "config/**",
+    "prompts/**",
+    "resources/**",
+    "templates/**",
+    "scripts/prd_reader.py"
+  ]
+}

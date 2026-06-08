@@ -1,10 +1,31 @@
 {
-  "name": "testcase-generator-skill",
+  "name": "@wychmod-cn/testcase-generator-skill",
   "version": "2.1.0",
   "description": "Testcase generator skill package with host activation CLI.",
   "license": "MIT",
   "bin": {
     "test-generator": "./bin/test-generator.js"
+  },
+  "author": "wychmod <545480453@qq.com>",
+  "keywords": [
+    "mbt",
+    "model-based-testing",
+    "testcase",
+    "skill",
+    "agent",
+    "test-automation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wychmod/test-generator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wychmod/test-generator/issues"
+  },
+  "homepage": "https://github.com/wychmod/test-generator#readme",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "files": [
     "SKILL.md",
@@ -26,5 +47,8 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "@wychmod-cn/testcase-generator-skill": "^2.1.0"
   }
 }
