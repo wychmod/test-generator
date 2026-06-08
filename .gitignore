@@ -19,6 +19,9 @@ Thumbs.db
 /.claude/
 /.qoder/
 /.trae/
+/.codebuddy/
+/.cursor/
+/.windsurf/
 
 # Skills (local lock file, environment-specific)
 /skills-lock.json

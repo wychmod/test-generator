@@ -26,8 +26,11 @@
 |---|---|---|---|
 | Claude 类宿主 | `adapters/claude/SKILL.md` | 中文主说明 + 英文 trigger phrases | 高 |
 | Qoder / IDE 类宿主 | `adapters/qoder/SKILL.md` | 中文主说明 + 工程化入口 | 高 |
+| CodeBuddy / 腾讯云 AI 代码助手 | `adapters/codebuddy/SKILL.md` | 中文主说明 + 英文 trigger phrases | 高 |
 | Codex / 工程 CLI 类宿主 | `adapters/codex/AGENTS.md` | 英文主说明 + 中文补充 | 中 |
 | OpenClaw / 兼容型宿主 | `adapters/openclaw/skill.md` | 简化英文入口 + 中文补充 | 中 |
+| Cursor / Anysphere | `adapters/cursor/cursorrules.md` | 英文为主 + 中文补充，激活时复制为 `.cursorrules` | 中（软适配） |
+| Windsurf / Antigravity（Codeium / Google） | `adapters/windsurf/windsurfrules.md` | 英文为主 + 中文补充，激活时复制为 `.windsurfrules` | 中（软适配） |
 
 ## Node.js 激活入口
 
@@ -40,6 +43,9 @@
 | `codex` | `.agents/skills/testcase-generator` | 根目录 `AGENTS.md` |
 | `openclaw` | `skills/testcase-generator` | 根目录 `skill.md` |
 | `trae` | `.trae/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `codebuddy` | `.codebuddy/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `cursor` | `.cursor/rules/` | 根目录 `.cursorrules`（来自 `adapters/cursor/cursorrules.md`） |
+| `windsurf` | `.windsurf/rules/` | 根目录 `.windsurfrules`（来自 `adapters/windsurf/windsurfrules.md`） |
 
 可通过 `-g` 安装到用户本地目录，或通过 `--target <path>` 指定目标目录。`--global` 仍作为兼容写法保留。
 
@@ -111,6 +117,51 @@
 - 使用最小入口 `adapters/openclaw/skill.md`
 - 如果宿主不支持脚本，则只走文本与模板驱动路径
 
+### CodeBuddy（腾讯云 AI 代码助手）
+
+适合：
+- 仓库内多文件联合分析
+- PRD + 代码联合测试设计
+- IDE 协作语境下的中文任务
+
+入口约定：
+- 入口文件固定为 `SKILL.md`
+- 宿主目录固定为 `.codebuddy/skills/testcase-generator/`
+
+建议：
+- 优先读取 `adapters/codebuddy/SKILL.md`
+- 与 Claude / Qoder 共用 `prompts/` 与 `resources/` 资源；不需要复制核心资产
+- 脚本不可执行时显式回落到纯文本分析模式
+
+### Cursor（Anysphere，软适配）
+
+适合：
+- 使用 `.cursorrules` 风格的单文件规则的 IDE/编辑器场景
+- 上下文预算有限、需要快速产出的轻量任务
+
+入口约定：
+- 入口文件为 `adapters/cursor/cursorrules.md`
+- 激活时由 `test-generator activate cursor` 复制为根目录 `.cursorrules`
+
+建议：
+- 完整复杂任务仍然回退到根目录 `SKILL.md` + `prompts/`
+- 上下文紧张时按 cursorrules 中的 Fallback 策略输出测试点清单
+- 软适配不复制核心资产
+
+### Windsurf / Antigravity（Codeium / Google，软适配）
+
+适合：
+- 使用 `.windsurfrules` 风格的单文件规则的 IDE/编辑器场景
+- 多模型协作 / 英文偏好环境
+
+入口约定：
+- 入口文件为 `adapters/windsurf/windsurfrules.md`
+- 激活时由 `test-generator activate windsurf` 复制为根目录 `.windsurfrules`
+
+建议：
+- 与 Cursor 软适配类似：完整任务回退到根目录 `SKILL.md`，上下文紧张时按 Fallback 策略
+- 不要在 `.windsurfrules` 中复制核心 prompts / templates / resources
+
 ## 推荐接入方式
 
 ### 中文工作流
@@ -119,18 +170,23 @@
 1. 根目录 `SKILL.md`
 2. `adapters/claude/SKILL.md`
 3. `adapters/qoder/SKILL.md`
+4. `adapters/codebuddy/SKILL.md`
 
 ### 英文或混合工作流
 
 优先顺序：
 1. `adapters/codex/AGENTS.md`
 2. `adapters/openclaw/skill.md`
-3. `skill.manifest.json` 中的英文元数据
+3. `adapters/cursor/cursorrules.md`（Cursor 软适配）
+4. `adapters/windsurf/windsurfrules.md`（Windsurf / Antigravity 软适配）
+5. `skill.manifest.json` 中的英文元数据
 
 ## 后续建议
 
 当前已经具备 canonical source + host adapters 的基础结构。后续可以继续推进：
 
 1. 在打包阶段按宿主生成专用分发包
-2. 为 Codex / OpenClaw 增加更严格的英文 trigger phrase 测试
-3. 为 Claude / Qoder 增加多文件路由自测用例
+2. 为 Codex / OpenClaw / Cursor / Windsurf 增加更严格的英文 trigger phrase 测试
+3. 为 Claude / Qoder / CodeBuddy 增加多文件路由自测用例
+4. 为 Cursor / Windsurf rules 文件补一份 `devtools/` 下的 syntax lint（确保不漂移到核心方法论）
+5. 跟进 Kimi / Lingma / MarsCode / 文心快码等宿主是否有新的 skill / rules 入口约定

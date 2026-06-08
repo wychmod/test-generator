@@ -140,6 +140,38 @@ def check_v21_capabilities(skill_path: Path) -> CheckResult:
     return CheckResult("skill_capability_matrix", "pass", "Chinese SKILL.md and resource files include the declared v2.1 capability markers")
 
 
+def check_host_adapter_consistency(manifest_path: Path) -> CheckResult:
+    """Verify that every host entry declared in the manifest points to an existing file."""
+    if not manifest_path.exists():
+        return CheckResult("host_adapter_consistency", "warn", f"{manifest_path} is missing")
+    try:
+        manifest = json.loads(read_text(manifest_path))
+    except json.JSONDecodeError as exc:
+        return CheckResult("host_adapter_consistency", "fail", f"Manifest parse failed: {exc}")
+
+    host_entries = manifest.get("宿主适配入口", {}) or {}
+    if not isinstance(host_entries, dict) or not host_entries:
+        return CheckResult("host_adapter_consistency", "warn", "Manifest has no 宿主适配入口 entries")
+
+    missing_files = [
+        f"{name} -> {relative}"
+        for name, relative in sorted(host_entries.items())
+        if not (ROOT / relative).is_file()
+    ]
+    if missing_files:
+        return CheckResult(
+            "host_adapter_consistency",
+            "fail",
+            f"Host adapter entry files are missing: {', '.join(missing_files)}",
+        )
+
+    return CheckResult(
+        "host_adapter_consistency",
+        "pass",
+        f"All {len(host_entries)} host adapter entry files exist on disk",
+    )
+
+
 def build_results() -> List[CheckResult]:
     skill_path = ROOT / "SKILL.md"
     readme_path = ROOT / "README.md"
@@ -152,6 +184,7 @@ def build_results() -> List[CheckResult]:
         check_v21_capabilities(skill_path),
         validate_schema(schema_path),
         validate_example_config(config_path, schema_path),
+        check_host_adapter_consistency(manifest_path),
     ]
     results.extend(check_required_paths())
     return results

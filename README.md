@@ -46,6 +46,10 @@ test-generator activate claude
 test-generator activate codex
 test-generator activate qoder
 test-generator activate openclaw
+test-generator activate trae
+test-generator activate codebuddy
+test-generator activate cursor
+test-generator activate windsurf
 ```
 
 > 推荐优先使用 `testcase-generator.skill`；仅在宿主平台暂不支持 `.skill` 时再使用 `testcase-generator.zip`。
@@ -294,10 +298,13 @@ testcase-generator/
 ├── run_package.bat                       # 🛠️ Windows 打包入口
 │
 ├── adapters/                             # 🔌 多宿主适配入口
-│   ├── claude/
-│   ├── codex/
-│   ├── openclaw/
-│   └── qoder/
+│   ├── claude/                          #   Claude / Anthropic 类宿主
+│   ├── codex/                           #   Codex / 工程 CLI 类宿主
+│   ├── codebuddy/                       #   CodeBuddy / 腾讯云 AI 代码助手
+│   ├── cursor/                          #   Cursor (Anysphere) 软适配
+│   ├── openclaw/                        #   OpenClaw / 兼容型宿主
+│   ├── qoder/                           #   Qoder / IDE 集成类宿主
+│   └── windsurf/                        #   Windsurf / Antigravity 软适配
 │
 ├── config/                               # ⚙️ 配置文件
 │   ├── example-config.json               #   配置示例
@@ -344,6 +351,11 @@ testcase-generator/
 - 增加 `resources/output_artifacts.md`，承接阶段产物的详细定义
 - 打包与审计工具迁移至 `devtools/`，区分运行时资产与开发工具
 - 增加 `adapters/` 目录，为多宿主入口做统一收口
+- 扩展适配器生态：
+  - 新增 `adapters/codebuddy/SKILL.md`（腾讯云 CodeBuddy 完整适配）
+  - 新增 `adapters/cursor/cursorrules.md`（Anysphere Cursor 软适配，激活时复制为 `.cursorrules`）
+  - 新增 `adapters/windsurf/windsurfrules.md`（Codeium / Google Windsurf / Antigravity 软适配，激活时复制为 `.windsurfrules`）
+  - `lib/activation.js` 支持环境从 5 个扩展到 8 个（`claude` / `qoder` / `codex` / `openclaw` / `trae` / `codebuddy` / `cursor` / `windsurf`）
 
 ### v2.0.0 (2026-04-04)
 - 五阶段流水线架构 + 质量门禁系统

@@ -68,7 +68,11 @@
     "claude": "adapters/claude/SKILL.md",
     "qoder": "adapters/qoder/SKILL.md",
     "codex": "adapters/codex/AGENTS.md",
-    "openclaw": "adapters/openclaw/skill.md"
+    "openclaw": "adapters/openclaw/skill.md",
+    "trae": "adapters/trae/SKILL.md",
+    "codebuddy": "adapters/codebuddy/SKILL.md",
+    "cursor": "adapters/cursor/cursorrules.md",
+    "windsurf": "adapters/windsurf/windsurfrules.md"
   },
   "分发排除": [
     "test-output/**",
@@ -78,11 +82,18 @@
     ".qoder/**",
     ".trae/**",
     ".workbuddy/**",
+    ".codebuddy/**",
+    ".cursor/**",
+    ".windsurf/**",
     ".git/**",
     ".idea/**",
     ".venv/**",
     "__pycache__/**",
     "devtools/**",
+    "bin/test-generator.js",
+    "lib/activation.js",
+    "devtools/capability_audit.py",
+    "devtools/package_skill.py",
     "run_package.bat",
     "PACKAGING.md",
     "_pkg_log.txt",
@@ -104,7 +115,10 @@
       "codex",
       "qoder",
       "openclaw",
-      "trae"
+      "trae",
+      "codebuddy",
+      "cursor",
+      "windsurf"
     ],
     "说明": "npm 入口用于将 Skill 运行时文件激活到对应宿主目录，不改变 testcase-generator.skill 与 testcase-generator.zip 的分发边界。"
   }

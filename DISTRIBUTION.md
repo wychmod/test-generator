@@ -64,11 +64,19 @@ testcase-generator-skill
 | `.agents/` | 宿主镜像副本，避免重复和版本漂移 |
 | `.qoder/` | 宿主镜像副本，避免重复和版本漂移 |
 | `.trae/` | 宿主镜像副本，避免重复和版本漂移 |
+| `.codebuddy/` | CodeBuddy 宿主镜像副本，避免重复和版本漂移 |
+| `.cursor/` | Cursor 宿主镜像副本，避免重复和版本漂移 |
+| `.windsurf/` | Windsurf / Antigravity 宿主镜像副本，避免重复和版本漂移 |
 | `.workbuddy/` | 本地工作记忆与环境配置，不能分发 |
 | `.git/` | 版本控制目录，不能分发 |
 | `.idea/` | IDE 本地配置，不能分发 |
 | `.venv/` | 本地 Python 环境，不能分发 |
 | `__pycache__/` | Python 缓存，不能分发 |
+| `devtools/` | 开发与发布工具（capability_audit / package_skill 等），不属于 Skill 运行时能力 |
+| `bin/test-generator.js` | npm CLI 入口，只进入 npm 包，不进入运行时分发 |
+| `lib/activation.js` | npm 激活逻辑，只进入 npm 包，不进入运行时分发 |
+| `devtools/capability_audit.py` | 审计工具，不属于 Skill 运行时能力（devtools/ 已整体排除） |
+| `devtools/package_skill.py` | 打包工具，不属于 Skill 运行时能力（devtools/ 已整体排除） |
 | `_pkg_log.txt` | 本地打包日志，不能分发 |
 | `_pkg_result.txt` | 本地打包结果，不能分发 |
 | `package_log.txt` | 本地打包日志，不能分发 |

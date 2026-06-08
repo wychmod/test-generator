@@ -9,6 +9,18 @@
 - 所有阶段产物都应尽量保持可追溯：说明来源、依赖关系、假设项与未确认点。
 - 若输入信息不足，不要伪造完整产物，优先输出缺口清单和降级版本。
 
+## 覆盖的核心能力
+
+本产物清单对应 `skill.manifest.json` 中声明的全部 7 项核心能力，按阶段承接：
+
+- **输入质量预处理**：Phase 0 产物（`00_input_validation_report.md`、`00_normalized_input.md`）。
+- **可测试需求抽取**：Phase 1 产物（`01_requirements_summary.md`、`02_testable_requirements.md`）。
+- **代码与接口契约辅助分析**：Phase 2 产物（`01_code_structure.md`、`02_data_flow_analysis.md`、`03_defect_radar.md`）。
+- **领域模型与状态模型构建**：Phase 3 产物（`01_business_domain_model.md`、`02_state_machine_spec.md`、`04_event_storming_model.md`）。
+- **MBT 导向测试设计**：Phase 4 产物（`01_test_model_specification.md`、`02_state_transition_graph.md`、`03_coverage_criteria.md`、`04_mutation_testing_strategy.md`）。
+- **结构化测试用例生成**：Phase 5 产物（`01_testcase_collection.md`、`02_test_suite_summary.md`、`04_chaos_engineering_scenarios.md`）。
+- **追溯矩阵与质量门禁**：Phase 5 + 全局产物（`03_traceability_matrix.md`、`quality_report.md`）。
+
 ## 能力标记
 
 本 Skill 的分发审计会检查以下能力是否仍可被入口或资源文件发现：
