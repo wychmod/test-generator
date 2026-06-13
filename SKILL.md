@@ -1,7 +1,7 @@
 ---
 name: testcase-generator
 version: 2.1.0
-description: 从需求文档、PRD、API 规范、源代码、缺陷修复上下文或功能描述中生成结构化、可追溯、可执行的软件测试用例与测试设计产物。当用户提出生成、扩展、评审、标准化、优化或审计测试用例、测试场景、测试点清单、MBT 导向测试设计结果或测试文档时使用。已为 Claude / Qoder / CodeBuddy / Codex / OpenClaw / Trae / Cursor / Windsurf 提供完整或软适配入口（详见 `HOST_COMPATIBILITY.md`）。v2.1 起支持可选的本地 `knowledge/` 知识库（术语表 / 项目规范 / 历史用例）的触发式检索（详见 `docs/architecture/knowledge-base.md`）。
+description: 从需求文档、PRD、API 规范、源代码、缺陷修复上下文或功能描述中生成结构化、可追溯、可执行的软件测试用例与测试设计产物。当用户提出生成、扩展、评审、标准化、优化或审计测试用例、测试场景、测试点清单、MBT 导向测试设计结果或测试文档时使用。已为 Claude / Qoder / CodeBuddy / Codex / OpenClaw / Trae / Cursor / Windsurf 提供完整或软适配入口（详见 `HOST_COMPATIBILITY.md`）。v2.1 起支持可选的本地 `knowledge/` 知识库（术语表 / 项目规范 / 历史用例）的触发式检索，以及通过大模型自动从 PDF / Markdown / TXT / 图片 / 粘贴文本中录入知识条目（详见 `docs/architecture/knowledge-base.md`）。
 ---
 
 # Testcase Generator
@@ -283,6 +283,8 @@ description: 从需求文档、PRD、API 规范、源代码、缺陷修复上下
 
 ## 知识库支持（v2.1 起，作为可选辅助层）
 
+### 知识检索（消费侧）
+
 如果当前工作目录存在 `knowledge/sources/*.md`，可在以下场景中显式引用知识库：
 
 | 触发词 | 检索源 | 用途 |
@@ -292,16 +294,34 @@ description: 从需求文档、PRD、API 规范、源代码、缺陷修复上下
 | "参考历史" / "查历史用例" / "类似用例" | `historical-cases` | 历史用例复用与模式参考 |
 | "查一下知识库" / "kb:" | 所有源 | 综合检索 |
 
-检索工具：
-
 ```bash
 python knowledge/scripts/build_index.py     # 首次或源变更后
 python knowledge/scripts/search.py "关键词"  # 检索
 ```
 
+### 知识录入（生产侧）
+
+**用户无需手写 Markdown。** 把 PDF / Markdown / TXT / 图片 / 粘贴文本丢给 `ingest.py`，由大模型自动抽取、分类、写 frontmatter、生成结构化条目、自动重建索引：
+
+```bash
+# 1. 配置 LLM 调用命令（一次性）
+export TEST_GEN_LLM_CMD='openai api chat.completions.create -m gpt-4o ...'
+# 或使用包装脚本 ~/bin/my-llm-wrapper
+
+# 2. 录入知识
+python knowledge/scripts/ingest.py docs/payment-spec.pdf
+python knowledge/scripts/ingest.py notes.md
+python knowledge/scripts/ingest.py screenshot.png            # OCR
+python knowledge/scripts/ingest.py --dry-run spec.pdf        # 仅查看抽取结果
+cat glossary.md | python knowledge/scripts/ingest.py -        # 从 stdin
+
+# 3. 下次提问，Skill 直接能命中
+python knowledge/scripts/search.py "支付回调"
+```
+
 详细架构与触发词列表：[`docs/architecture/knowledge-base.md`](docs/architecture/knowledge-base.md)
 
-**默认不注入**：知识库是**触发式辅助**，不主动污染 context。命中片段应由用户或宿主在调用 Skill 时显式传入 `[参考知识]` 上下文。
+**默认不主动注入**：知识库是**触发式辅助**，不主动污染 context。命中片段应由用户或宿主在调用 Skill 时显式传入 `[参考知识]` 上下文。
 
 ## 交付深度策略
 

@@ -95,6 +95,9 @@ def should_skip(rel_path: Path, excluded_patterns: list[str], allowed_patterns: 
     parts = set(rel_path.parts)
     if rel_path.name.startswith("."):
         return True
+    # Skip knowledge sources starting with `_` (templates / drafts).
+    if "knowledge" in parts and rel_path.name.startswith("_"):
+        return True
     if parts & STATIC_EXCLUDES:
         return True
     if path_matches(path_str, excluded_patterns):

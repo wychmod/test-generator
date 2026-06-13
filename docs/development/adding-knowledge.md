@@ -10,7 +10,37 @@
 
 ## 1. 普通用户：3 步添加知识
 
-### Step 1：写一个 `.md` 文件
+### 方式 A：大模型自动录入（推荐）⭐
+
+用户**不需要手写 Markdown**。把任意源材料丢给 `ingest.py`：
+
+```bash
+# 一次性：配置 LLM 调用命令
+export TEST_GEN_LLM_CMD='openai api chat.completions.create -m gpt-4o ...'
+# 或使用包装脚本：TEST_GEN_LLM_CMD='~/bin/my-llm-wrapper'
+
+# 录入任意源材料
+python knowledge/scripts/ingest.py docs/payment-spec.pdf       # PDF
+python knowledge/scripts/ingest.py notes.md                   # Markdown
+python knowledge/scripts/ingest.py readme.txt                 # 纯文本
+python knowledge/scripts/ingest.py screenshot.png             # 图片（OCR）
+python knowledge/scripts/ingest.py --dry-run spec.pdf         # 仅查看抽取
+python knowledge/scripts/ingest.py --slug payment-glossary spec.pdf  # 自定义 slug
+cat notes.md | python knowledge/scripts/ingest.py -            # 从 stdin
+```
+
+`ingest.py` 会自动：
+
+1. **读取源材料**（PDF / Markdown / TXT / 图片 OCR / stdin）
+2. **敏感信息检测**（AWS key / OpenAI key / GitHub PAT / PAN 等 → 拒绝录入）
+3. **调用 LLM**（通过 `TEST_GEN_LLM_CMD` 配置的命令）→ 输出结构化 Markdown
+4. **校验输出**（frontmatter 必填字段、slug kebab-case、category 合法、body 以 H1 开头）
+5. **写入** `knowledge/sources/<slug>.md`
+6. **重建索引**（自动调用 `build_index.py --rebuild`）
+
+### 方式 B：手动写 Markdown
+
+#### Step 1：写一个 `.md` 文件
 
 ```bash
 # 示例：添加项目支付术语表
@@ -32,7 +62,7 @@ $EDITOR knowledge/sources/payment-glossary.md
 已签收后 7 天内可申请退款。
 ```
 
-### Step 2（可选）：添加 frontmatter 元数据
+#### Step 2（可选）：添加 frontmatter 元数据
 
 ```markdown
 ---
@@ -53,28 +83,86 @@ updated: 2026-06-13
 | `priority` | 否 | `high`/`normal`/`low`，影响检索分数（high ×1.5，low ×0.7） |
 | `updated` | 否 | ISO 日期，纯展示用 |
 
-### Step 3：重建索引
+#### Step 3：重建索引
 
 ```bash
 python knowledge/scripts/build_index.py
 ```
 
-输出类似：
-
-```
-[ok] index built -> D:\pycharm\test-generator\knowledge\index.json
-  sources:    4
-  sections:   19
-  vocab:      312 terms
-```
-
-### Step 4：验证检索
+#### Step 4：验证检索
 
 ```bash
 python knowledge/scripts/search.py "支付宝回调"
 ```
 
 应该能在结果中看到你刚添加的源。
+
+---
+
+## 1.5 配置 LLM 调用命令（方式 A 必需）
+
+`ingest.py` 通过环境变量 `TEST_GEN_LLM_CMD` 调用大模型。命令必须：
+
+1. 从 **STDIN** 读取 `prompt + 源材料`（拼接后的字符串）
+2. 把模型输出（Markdown）写到 **STDOUT**
+3. 退出码 0 = 成功
+
+### 示例 1：直接用 OpenAI CLI
+
+```bash
+export TEST_GEN_LLM_CMD='openai api chat.completions.create \
+  -m gpt-4o \
+  -g user "你是一个知识录入员..." \
+  --file /dev/stdin'
+```
+
+### 示例 2：包装脚本（推荐）
+
+`~/bin/my-llm-wrapper`：
+
+```bash
+#!/usr/bin/env bash
+# Read prompt from stdin, return LLM output.
+input=$(cat)
+prompt=$(echo "$input" | sed '/^---$/,$d')   # before separator
+source=$(echo "$input" | sed '1,/^---$/d')  # after separator
+
+curl -s https://api.openai.com/v1/chat/completions \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d "$(jq -n \
+    --arg prompt "$prompt" \
+    --arg source "$source" \
+    '{model: "gpt-4o", messages: [
+      {role: "system", content: $prompt},
+      {role: "user", content: $source}
+    ]}')" \
+  | jq -r '.choices[0].message.content'
+```
+
+```bash
+export TEST_GEN_LLM_CMD='~/bin/my-llm-wrapper'
+```
+
+### 示例 3：本地 Ollama 模型
+
+```bash
+export TEST_GEN_LLM_CMD='ollama run qwen2.5:7b'
+```
+
+### 示例 4：Claude API
+
+```bash
+export TEST_GEN_LLM_CMD='~/bin/my-claude-wrapper'
+```
+
+`my-claude-wrapper`：
+
+```bash
+#!/usr/bin/env bash
+input=$(cat)
+# ... use Anthropic SDK to call messages API with the prompt and source
+```
 
 ---
 

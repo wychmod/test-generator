@@ -211,7 +211,11 @@ def build_inverted_index(sources: list[dict]) -> tuple[dict, dict, dict]:
 def build_index(rebuild: bool = False) -> dict:
     sources_meta: list[dict] = []
     for path in sorted(SOURCES_DIR.glob("*.md")):
+        # Skip README (it's the usage guide, not a knowledge entry).
+        # Skip files starting with `_` (templates / drafts that aren't ready).
         if path.name.lower() == "readme.md":
+            continue
+        if path.name.startswith("_"):
             continue
         meta = load_source(path)
         if meta is None:

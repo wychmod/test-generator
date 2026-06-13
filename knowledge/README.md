@@ -76,14 +76,30 @@ python knowledge/scripts/search.py "密码强度" --top-k 5
 
 ### 4. 添加新知识
 
-把 `.md` 文件放到 `sources/` 目录，重建索引：
+**方式 A：大模型自动录入（推荐）**
 
 ```bash
-# 添加文件
-cp your-glossary.md knowledge/sources/custom-glossary.md
+# 一次性配置 LLM 调用命令
+export TEST_GEN_LLM_CMD='openai api chat.completions.create -m gpt-4o ...'
+# 或使用包装脚本 ~/bin/my-llm-wrapper
+
+# 把任意材料丢给大模型
+python knowledge/scripts/ingest.py docs/payment-spec.pdf
+python knowledge/scripts/ingest.py notes.md
+python knowledge/scripts/ingest.py screenshot.png            # OCR
+cat glossary.md | python knowledge/scripts/ingest.py -        # stdin
+
+# ingest.py 会自动：抽取 → 分类 → 写 sources/<slug>.md → 重建索引
+```
+
+**方式 B：手动写 Markdown**
+
+```bash
+# 直接编辑文件
+$EDITOR knowledge/sources/your-glossary.md
 
 # 重建索引
-python knowledge/scripts/build_index.py --rebuild
+python knowledge/scripts/build_index.py
 ```
 
 格式要求：见 [`../docs/development/adding-knowledge.md`](../docs/development/adding-knowledge.md)。

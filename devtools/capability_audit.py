@@ -86,6 +86,7 @@ def check_required_paths() -> List[CheckResult]:
         "phase3_prompt": ROOT / "prompts/phase3_domain_analysis_prompt.md",
         "phase4_prompt": ROOT / "prompts/phase4_mbt_design_prompt.md",
         "phase5_prompt": ROOT / "prompts/phase5_testcase_generation_prompt.md",
+        "knowledge_ingest_prompt": ROOT / "prompts/knowledge_ingest_prompt.md",
         "requirements_template": ROOT / "templates/requirements_template.md",
         "state_diagram_template": ROOT / "templates/state_diagram_template.md",
         "testcase_template": ROOT / "templates/testcase_template.md",
