@@ -62,7 +62,10 @@
     "prompts/**",
     "resources/**",
     "templates/**",
-    "scripts/prd_reader.py"
+    "scripts/prd_reader.py",
+    "knowledge/README.md",
+    "knowledge/sources/**",
+    "knowledge/scripts/**"
   ],
   "宿主适配入口": {
     "claude": "adapters/claude/SKILL.md",
@@ -81,10 +84,10 @@
     ".agents/**",
     ".qoder/**",
     ".trae/**",
-    ".workbuddy/**",
     ".codebuddy/**",
     ".cursor/**",
     ".windsurf/**",
+    ".workbuddy/**",
     ".git/**",
     ".idea/**",
     ".venv/**",
@@ -101,7 +104,8 @@
     "package_log.txt",
     "skills-lock.json",
     "testcase-generator.zip",
-    "testcase-generator.skill"
+    "testcase-generator.skill",
+    "knowledge/index.json"
   ],
   "推荐打包产物": "testcase-generator.skill",
   "兼容打包产物": "testcase-generator.zip",

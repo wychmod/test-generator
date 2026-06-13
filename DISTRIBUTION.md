@@ -83,6 +83,7 @@ testcase-generator-skill
 | `skills-lock.json` | 宿主侧锁定文件，不属于 Skill 运行时资产 |
 | `testcase-generator.zip` | 兼容打包产物，避免包中包 |
 | `testcase-generator.skill` | 标准打包产物，避免包中包 |
+| `knowledge/index.json` | 本地知识库索引产物（`python knowledge/scripts/build_index.py` 本地构建），不进包 |
 
 ## 开发工具处理
 
@@ -96,6 +97,11 @@ testcase-generator-skill
 | `lib/activation.js` | `lib/activation.js` | npm 激活逻辑，只进入 npm 包，不进入 `.skill` / `.zip` |
 | `run_package.bat` | `devtools/run_package.bat` | Windows 打包入口，不属于运行时资产 |
 | `PACKAGING.md` | `docs/PACKAGING.md` 或保留根目录 | 发布维护说明，不属于 Skill 执行资产 |
+| `knowledge/README.md` | `knowledge/README.md` | 用户文档，进入分发包 |
+| `knowledge/sources/README.md` | `knowledge/sources/README.md` | sources 使用说明，进入分发包 |
+| `knowledge/sources/*.md`（示例） | `knowledge/sources/*.md` | 示例源文件（domain-glossary / project-conventions / historical-cases）进入分发包；用户填充内容不进 |
+| `knowledge/scripts/build_index.py` | `knowledge/scripts/build_index.py` | 索引构建工具，不属于 Skill 运行时能力（仅本地使用） |
+| `knowledge/scripts/search.py` | `knowledge/scripts/search.py` | BM25 检索工具，可作为可选运行时工具进包（宿主支持 Python 时可用） |
 
 当前阶段已经完成开发工具迁移；后续如需进一步收口，可再将 `run_package.bat` 与发布文档统一收纳到 `devtools/` / `docs/`。
 

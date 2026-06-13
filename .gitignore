@@ -42,6 +42,13 @@ venv/
 /skills-lock.json
 /test-output/
 
+# ===== Knowledge base (rebuild locally, never commit) =====
+# `knowledge/index.json` is generated from `knowledge/sources/*.md` by
+# `python knowledge/scripts/build_index.py`. Rebuild after editing sources.
+# It's not portable across machines (mtime + sha) and may contain project-
+# specific data the user does not want to share.
+/knowledge/index.json
+
 # ===== Project-specific local run state =====
 /test-fixtures/.cache/
 
