@@ -82,6 +82,7 @@
 - 需要补足隐藏分支、异常处理、契约风险
 
 建议产物：
+- `00_incremental_scope.md`：增量代码行扫描、PRD 符合性、潜在 bug 信号（增量模式适用）
 - `01_code_structure.md`：模块结构、调用关系、主要职责
 - `02_data_flow_analysis.md`：数据流、控制流、关键依赖
 - `03_defect_radar.md`：潜在缺陷点、脆弱逻辑、风险判断

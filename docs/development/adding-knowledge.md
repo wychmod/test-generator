@@ -1,368 +1,147 @@
 # 如何添加知识库条目
 
-> 本指南面向**普通用户**（添加自己的项目知识）和**贡献者**（改进示例源）。
->
-> 架构说明：[`../architecture/knowledge-base.md`](../architecture/knowledge-base.md)
->
-> sources 使用说明：[`../../knowledge/sources/README.md`](../../knowledge/sources/README.md)
+本指南面向普通使用者。目标是让用户把资料手动喂给大模型，由大模型生成可索引 Markdown，再由本地脚本建立索引。
+
+架构说明：[`../architecture/knowledge-base.md`](../architecture/knowledge-base.md)
 
 ---
 
-## 1. 普通用户：3 步添加知识
+## 推荐流程：复制模板喂给大模型
 
-### 方式 A：大模型自动录入（推荐）⭐
-
-用户**不需要手写 Markdown**。把任意源材料丢给 `ingest.py`：
-
-```bash
-# 一次性：配置 LLM 调用命令
-export TEST_GEN_LLM_CMD='openai api chat.completions.create -m gpt-4o ...'
-# 或使用包装脚本：TEST_GEN_LLM_CMD='~/bin/my-llm-wrapper'
-
-# 录入任意源材料
-python knowledge/scripts/ingest.py docs/payment-spec.pdf       # PDF
-python knowledge/scripts/ingest.py notes.md                   # Markdown
-python knowledge/scripts/ingest.py readme.txt                 # 纯文本
-python knowledge/scripts/ingest.py screenshot.png             # 图片（OCR）
-python knowledge/scripts/ingest.py --dry-run spec.pdf         # 仅查看抽取
-python knowledge/scripts/ingest.py --slug payment-glossary spec.pdf  # 自定义 slug
-cat notes.md | python knowledge/scripts/ingest.py -            # 从 stdin
-```
-
-`ingest.py` 会自动：
-
-1. **读取源材料**（PDF / Markdown / TXT / 图片 OCR / stdin）
-2. **敏感信息检测**（AWS key / OpenAI key / GitHub PAT / PAN 等 → 拒绝录入）
-3. **调用 LLM**（通过 `TEST_GEN_LLM_CMD` 配置的命令）→ 输出结构化 Markdown
-4. **校验输出**（frontmatter 必填字段、slug kebab-case、category 合法、body 以 H1 开头）
-5. **写入** `knowledge/sources/<slug>.md`
-6. **重建索引**（自动调用 `build_index.py --rebuild`）
-
-### 方式 B：手动写 Markdown
-
-#### Step 1：写一个 `.md` 文件
+1. 打开 [`../../knowledge/llm-ingest-template.md`](../../knowledge/llm-ingest-template.md)。
+2. 复制全文。
+3. 把模板和你的 PRD、规范、历史用例或 API 文档一起发给大模型。
+4. 要求大模型“必须输出且只输出 Markdown”。
+5. 保存模型输出到 `knowledge/sources/<slug>.md`。
+6. 重建索引。
 
 ```bash
-# 示例：添加项目支付术语表
-$EDITOR knowledge/sources/payment-glossary.md
+python knowledge/scripts/build_index.py --rebuild
+python knowledge/scripts/search.py "你的关键词"
 ```
 
-最小可用文件：
+如果检索能命中，生成用例时就可以说：
 
-```markdown
-# 支付术语表
-
-## 支付宝回调
-异步通知，商户需返回 "success" 字符串才算接收成功。
-
-## 微信支付 V3
-使用 APIv3 签名，需要商户证书。回调需解密。
-
-## 退款时效
-已签收后 7 天内可申请退款。
+```text
+按规范生成测试用例，参考知识库。
 ```
 
-#### Step 2（可选）：添加 frontmatter 元数据
+或：
+
+```text
+参考历史用例，生成登录锁定逻辑的回归用例。
+```
+
+---
+
+## 大模型输出必须满足什么
+
+最小结构：
 
 ```markdown
 ---
-title: 支付术语表
-tags: [payment, glossary]
+title: 支付规则
+slug: payment-rules
+category: project-conventions
+tags: [payment, convention, refund]
 priority: high
 updated: 2026-06-13
 ---
 
-# 支付术语表
-...
-```
+# 支付规则
 
-| 字段 | 必需 | 说明 |
-|---|---|---|
-| `title` | 否 | 未指定则用文件名（去掉 `.md`） |
-| `tags` | 否 | 数组或逗号分隔，影响检索权重（未来） |
-| `priority` | 否 | `high`/`normal`/`low`，影响检索分数（high ×1.5，low ×0.7） |
-| `updated` | 否 | ISO 日期，纯展示用 |
+## 退款时效
 
-#### Step 3：重建索引
-
-```bash
-python knowledge/scripts/build_index.py
-```
-
-#### Step 4：验证检索
-
-```bash
-python knowledge/scripts/search.py "支付宝回调"
-```
-
-应该能在结果中看到你刚添加的源。
+- 已签收后 7 天内可申请退款。
 
 ---
 
-## 1.5 配置 LLM 调用命令（方式 A 必需）
+## 来源与处理说明
 
-`ingest.py` 通过环境变量 `TEST_GEN_LLM_CMD` 调用大模型。命令必须：
-
-1. 从 **STDIN** 读取 `prompt + 源材料`（拼接后的字符串）
-2. 把模型输出（Markdown）写到 **STDOUT**
-3. 退出码 0 = 成功
-
-### 示例 1：直接用 OpenAI CLI
-
-```bash
-export TEST_GEN_LLM_CMD='openai api chat.completions.create \
-  -m gpt-4o \
-  -g user "你是一个知识录入员..." \
-  --file /dev/stdin'
+- **来源**：支付 PRD
+- **抽取方式**：大模型从用户资料中抽取并结构化
+- **置信度**：high
+- **后续维护**：无
 ```
 
-### 示例 2：包装脚本（推荐）
-
-`~/bin/my-llm-wrapper`：
-
-```bash
-#!/usr/bin/env bash
-# Read prompt from stdin, return LLM output.
-input=$(cat)
-prompt=$(echo "$input" | sed '/^---$/,$d')   # before separator
-source=$(echo "$input" | sed '1,/^---$/d')  # after separator
-
-curl -s https://api.openai.com/v1/chat/completions \
-  -H "Authorization: Bearer $OPENAI_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d "$(jq -n \
-    --arg prompt "$prompt" \
-    --arg source "$source" \
-    '{model: "gpt-4o", messages: [
-      {role: "system", content: $prompt},
-      {role: "user", content: $source}
-    ]}')" \
-  | jq -r '.choices[0].message.content'
-```
-
-```bash
-export TEST_GEN_LLM_CMD='~/bin/my-llm-wrapper'
-```
-
-### 示例 3：本地 Ollama 模型
-
-```bash
-export TEST_GEN_LLM_CMD='ollama run qwen2.5:7b'
-```
-
-### 示例 4：Claude API
-
-```bash
-export TEST_GEN_LLM_CMD='~/bin/my-claude-wrapper'
-```
-
-`my-claude-wrapper`：
-
-```bash
-#!/usr/bin/env bash
-input=$(cat)
-# ... use Anthropic SDK to call messages API with the prompt and source
-```
+`build_index.py` 会读取 `##` 章节并建立检索片段，所以重要关键词要放进二级标题或正文前部。
 
 ---
 
-## 2. 文件命名与组织
+## 分类选择
 
-### 命名约定
-
-| ✅ 推荐 | ❌ 不推荐 |
+| category | 适合内容 |
 |---|---|
-| `user-auth-glossary.md` | `Untitled.md` |
-| `payment-flow.md` | `payment flow.md`（含空格） |
-| `compliance-pci-dss.md` | `payment.md`（太泛） |
-
-**原则**：
-
-- 一个文件 = 一个主题（避免"综合知识.md"这种大杂烩）
-- 主题用名词短语，不用动词
-- 英文小写 + 连字符（与 `lib/activation.js` 命名风格一致）
-
-### 组织策略
-
-```
-sources/
-├── domain-glossary.md           # 通用术语
-├── payment-glossary.md          # 领域术语（按领域拆）
-├── auth-glossary.md
-├── project-conventions.md       # 项目规范
-├── historical-cases-auth.md     # 历史用例（按模块拆）
-├── historical-cases-payment.md
-├── compliance-rules.md          # 合规条款
-└── api-quick-ref.md             # API 速查
-```
-
-**粒度建议**：
-
-- 每个文件 50-500 行（太小则分片多，索引过大；太大则检索粗）
-- 任何文件超过 1MB 应拆分
+| `domain-glossary` | 术语、缩写、状态枚举、易混淆概念 |
+| `project-conventions` | 命名规则、错误码、权限规则、字段规则 |
+| `historical-cases` | 历史测试用例、回归用例、线上事故易漏点 |
+| `compliance-rules` | 法规、合规、风控、审计要求 |
+| `api-quick-ref` | API 路径、参数、响应、鉴权、错误码 |
 
 ---
 
-## 3. 检索测试
+## 生成用例时如何引用
 
-添加知识后，跑这套基础测试：
+检索到的知识应放进 `[参考知识]` 块：
+
+```markdown
+[参考知识]
+
+### KB: project-conventions.md#密码强度规则
+- 密码最少 8 位。
+- 必须包含大写字母、小写字母、数字。
+```
+
+生成的用例必须在“追溯引用”里保留 `KB:`：
+
+```text
+REQ-AUTH-001; KB: project-conventions.md#密码强度规则
+```
+
+规则：
+
+- 当前需求优先于知识库。
+- 知识库不能覆盖用户当前需求。
+- 冲突时标注 `KB 冲突`。
+- 历史用例只能作为参考，不能原样复制为新用例。
+
+---
+
+## 可选：命令行自动录入
+
+如果你有一个大模型包装命令，能从 STDIN 读取提示词和资料、从 STDOUT 输出 Markdown，可以使用：
 
 ```bash
-# 1. 索引构建
-python knowledge/scripts/build_index.py --stats
-
-# 2. 直接命中测试
-python knowledge/scripts/search.py "你的关键词"
-
-# 3. 触发词检测
-python knowledge/scripts/search.py "你的查询" --trigger
+set TEST_GEN_LLM_CMD=你的大模型包装命令
+python knowledge/scripts/ingest.py docs/payment-spec.md
 ```
 
-**如果检索失败**：
+`ingest.py` 会调用 `prompts/knowledge_ingest_prompt.md`，自动校验 frontmatter、写入 `knowledge/sources/<slug>.md` 并重建索引。
 
-| 症状 | 原因 | 修复 |
-|---|---|---|
-| 完全找不到 | 文件没被读取 | 检查文件名以 `.md` 结尾且**非 `README.md`** |
-| 找到但分数低 | 关键词不突出 | 在文档中重复使用目标关键词 2-3 次 |
-| 找到错误段落 | 命中了无关内容 | 用更具体的术语 |
-| snippet 太短 | 命中词靠后 | 重新组织文档结构，让关键词出现在前 80 字内 |
+没有包装命令时，不需要使用 `ingest.py`；手动复制 `knowledge/llm-ingest-template.md` 更简单。
 
 ---
 
-## 4. 贡献者：改进示例源
+## 常见问题
 
-示例源（`domain-glossary.md`、`project-conventions.md`、`historical-cases.md`）随 v1 进入分发包。改进时注意：
+### 搜不到刚录入的内容
 
-### 4.1 替换 vs 扩展
+- 确认文件在 `knowledge/sources/`。
+- 确认文件名以 `.md` 结尾。
+- 确认文件名不是 `README.md`，也不是 `_` 开头。
+- 运行 `python knowledge/scripts/build_index.py --rebuild`。
+- 把关键词写进 `##` 标题或正文前 80 字。
 
-- **替换**：示例内容明显错误或误导 → 改
-- **扩展**：增加更多行业通用示例 → 加新文件（如 `compliance-hipaa.md`）
-- ❌ 不要删除示例源 —— 用户可能依赖它们作为参考模板
+### 模型输出太长
 
-### 4.2 内容质量标准
+拆分为多个文件，例如：
 
-| 维度 | 标准 |
-|---|---|
-| 中立性 | 不带特定公司的内部术语（除非是公开标准） |
-| 可验证 | 每个事实可被读者独立查证 |
-| 时效性 | 标注 `updated` 字段 |
-| 完整性 | 每个主题至少 3 个示例条目 |
-
-### 4.3 同步 manifest
-
-如果新增示例源（不是替换）：
-
-1. 检查 `skill.manifest.json` 中 `运行时文件` 是否包含 `knowledge/sources/**`（已包含则无需改）
-2. PR description 中列出新增文件
-3. 不需要改 `.gitignore`（`knowledge/index.json` 已忽略）
-
----
-
-## 5. 常见任务清单
-
-### 任务：批量导入历史用例
-
-```bash
-# 1. 把历史用例文件放到 sources
-cp old-cases/*.md knowledge/sources/historical-cases-legacy.md
-
-# 2. 编辑 frontmatter
-$EDITOR knowledge/sources/historical-cases-legacy.md
-# 加：
-# ---
-# title: 历史用例集（2024 迁移）
-# tags: [historical, legacy]
-# priority: normal
-# ---
-
-# 3. 重建 + 验证
-python knowledge/scripts/build_index.py
-python knowledge/scripts/search.py "登录" --source historical-cases-legacy
+```text
+payment-glossary.md
+payment-conventions.md
+historical-cases-payment.md
 ```
 
-### 任务：清理过期知识
+### 资料里有敏感信息
 
-```bash
-# 1. 直接删除文件
-mavis-trash knowledge/sources/old-glossary.md
-
-# 2. 重建索引
-python knowledge/scripts/build_index.py --rebuild
-```
-
-### 任务：临时禁用某源（不删除）
-
-把文件名加上 `_disabled` 后缀：
-
-```bash
-mv knowledge/sources/api-quick-ref.md knowledge/sources/_disabled_api-quick-ref.md
-python knowledge/scripts/build_index.py --rebuild
-```
-
-**为什么用 `_disabled_` 前缀而不是 .gitignore？** 因为 build_index 扫描 `*.md`，gitignore 不影响 Python 扫描。
-
-### 任务：调试检索结果
-
-```bash
-# 查看 JSON 详细结构
-python knowledge/scripts/search.py "你的查询" --json --top-k 10
-
-# 看 matched_terms 字段了解命中了哪些词
-```
-
----
-
-## 6. 不接受的改动
-
-- ❌ 把 `knowledge/index.json` 加入 git（已 .gitignore）
-- ❌ 把个人敏感数据提交到 `knowledge/sources/`（PR review 时会拒）
-- ❌ 删除示例源（`domain-glossary.md` 等）即使觉得不实用
-- ❌ 在 `knowledge/scripts/` 引入第三方依赖（破坏零依赖承诺）
-- ❌ 修改 `search.py` 的 `TRIGGER_KEYWORDS` 而不在 docs 中说明
-
----
-
-## 7. 进阶：触发词自定义
-
-v1 的触发词定义在 `search.py` 的 `TRIGGER_KEYWORDS` 字典中。如果你的项目有特殊术语：
-
-**v1 阶段**：直接编辑 `search.py` 中的 `TRIGGER_KEYWORDS`，本地使用即可（不入分发包）。
-
-**v1.1 阶段**：迁移到 `knowledge/config.json`，build 时合并。
-
-```json
-{
-  "trigger_keywords": {
-    "payment-glossary": ["查支付", "支付相关"],
-    "compliance-rules": ["合规", "GDPR", "PCI"]
-  }
-}
-```
-
-**未来**：触发词可在 Phase 0 prompt 中显式说明，由宿主自动调用 search.py。
-
----
-
-## 8. 进阶：自定义 tokenizer
-
-如果你的项目包含大量专业术语（医学 / 金融 / 法律），可能需要扩展 tokenizer：
-
-```python
-# knowledge/scripts/build_index.py 中的 _TOKEN_RE
-# 当前：
-_TOKEN_RE = re.compile(r"[A-Za-z][A-Za-z0-9_\-]{1,}|[0-9]+|[\u4e00-\u9fa5]+")
-
-# 改进（示例：增加希腊字母 / 罗马数字）：
-_TOKEN_RE = re.compile(
-    r"[A-Za-z\u0370-\u03ff][A-Za-z0-9_\-\u0370-\u03ff]{1,}"
-    r"|[0-9]+"
-    r"|[\u4e00-\u9fa5]+"
-)
-```
-
-修改后**必须**：
-
-1. 在 PR 中说明动机
-2. 在 `docs/architecture/knowledge-base.md` 中记录
-3. 用你的样例数据验证
-4. 注意：自定义 tokenizer 跨 v1.0 / v1.1 / v2 可能需要保持兼容
+先脱敏再录入。知识库不应保存密钥、Token、密码、私钥、真实银行卡号或未脱敏个人信息。

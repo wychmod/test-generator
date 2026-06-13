@@ -60,7 +60,7 @@
 
 ### 2. 脚本执行能力
 
-- **支持脚本执行**：可使用 `scripts/prd_reader.py` 读取本地 PRD / Markdown / PDF
+- **支持脚本执行**：可使用 `scripts/prd_reader.py` 读取本地 PRD / Markdown / PDF；可使用 `scripts/incremental_code_scan.py` 扫描 diff 新增代码行并结合 PRD 输出符合性与潜在 bug 信号
 - **不支持脚本执行**：降级为纯文本分析模式，直接基于用户提供的文本或已读取文件内容执行
 
 ### 3. 语言能力差异

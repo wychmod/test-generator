@@ -35,6 +35,7 @@
     "adapters",
     "bin",
     "config",
+    "knowledge",
     "lib",
     "prompts",
     "resources",

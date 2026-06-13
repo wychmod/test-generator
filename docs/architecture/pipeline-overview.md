@@ -116,13 +116,15 @@
 | 关键产物 | `01_code_structure.md` / `02_data_flow_analysis.md` / `03_defect_radar.md` / `04_concurrency_analysis.md` / `05_contract_test_derivation.md` |
 | 触发场景 | 用户提供代码 / 接口实现 / 服务逻辑 / API 定义；需要补足隐藏分支、异常处理、契约风险 |
 
-**三种分析模式**：
+**五种分析模式**：
 
 | 模式 | 触发条件 | 标注规范 |
 |---|---|---|
 | `actual_analysis` | 用户提供完整源代码 | 所有结论基于代码引用 |
 | `contract_analysis` | 仅 API 规范（OpenAPI/Swagger/GraphQL/Proto） | 所有内部逻辑标 [预期实现] |
 | `requirements_only` | 没有代码 | 仅基于需求推演，标 [逻辑推导] |
+| `incremental_analysis` | 有 base/head、diff、PRD/REQ 或上一轮产物 | 结论必须追溯到增量代码行、PRD 匹配和影响面规则 |
+| `incremental_hybrid_analysis` | 只有部分 diff、PRD 或历史上下文 | 能增量的部分按增量分析，缺上下文部分标 [增量受限] |
 
 **v2.1 增强**：并发与竞态条件检测 / API 契约测试推导 / 技术债务识别 / 接口兼容性分析
 
@@ -130,6 +132,7 @@
 - **缺陷雷达**：每条 DEF 必须有代码位置引用（CWE 编号准确），禁止"可能存在…但无法确认"模糊措辞
 - **数据流**：DFD Level-0 + 关键数据对象字典 + CFG 关键路径
 - **需求-代码映射**：≥ 90% REQ 关联到代码位置
+- **增量代码行扫描**：`00_incremental_scope.md` 记录 changed lines、PRD 符合性和新增潜在 bug 信号
 
 详细规则：[`../../prompts/phase2_code_analysis_prompt.md`](../../prompts/phase2_code_analysis_prompt.md)
 

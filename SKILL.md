@@ -255,11 +255,13 @@ description: 从需求文档、PRD、API 规范、源代码、缺陷修复上下
 当输入是本地需求文件、PRD 或混合结构文档时，可使用：
 
 - `scripts/prd_reader.py`
+- `scripts/incremental_code_scan.py`
 
 优先用于：
 - Markdown 需求文件
 - PDF PRD 文件
 - 结构混杂的需求文档
+- git diff / patch / PR 变更与 PRD 联合分析：提取新增代码行、判断是否符合 PRD、识别潜在 bug 风险
 
 ## 工作流选择建议
 
@@ -283,7 +285,21 @@ description: 从需求文档、PRD、API 规范、源代码、缺陷修复上下
 
 ## 知识库支持（v2.1 起，作为可选辅助层）
 
-### 知识检索（消费侧）
+知识库用于保存项目级稳定信息：术语、规范、历史用例、API 速查和合规规则。它不改变六阶段主流程，只在用户明确要求“参考知识库/按规范/参考历史/查术语”时作为辅助上下文。
+
+### 用户录入方式
+
+优先使用手动喂给大模型的方式：
+
+1. 复制 `knowledge/llm-ingest-template.md`。
+2. 把模板和项目资料一起发给大模型。
+3. 让大模型输出可索引 Markdown。
+4. 保存到 `knowledge/sources/<slug>.md`。
+5. 运行 `python knowledge/scripts/build_index.py --rebuild`。
+
+可选自动化方式：配置 `TEST_GEN_LLM_CMD` 后运行 `python knowledge/scripts/ingest.py <file>`，由脚本调用大模型、写入 sources 并重建索引。
+
+### 检索触发
 
 如果当前工作目录存在 `knowledge/sources/*.md`，可在以下场景中显式引用知识库：
 
@@ -292,36 +308,37 @@ description: 从需求文档、PRD、API 规范、源代码、缺陷修复上下
 | "查术语" / "术语表" / "什么是 X" | `domain-glossary` | 统一业务术语与定义 |
 | "按规范" / "命名规则" / "错误码" | `project-conventions` | 项目规范与约定 |
 | "参考历史" / "查历史用例" / "类似用例" | `historical-cases` | 历史用例复用与模式参考 |
-| "查一下知识库" / "kb:" | 所有源 | 综合检索 |
+| "查一下知识库" / "参考知识库" / "kb:" | 所有源 | 综合检索 |
 
 ```bash
-python knowledge/scripts/build_index.py     # 首次或源变更后
-python knowledge/scripts/search.py "关键词"  # 检索
+python knowledge/scripts/build_index.py --rebuild
+python knowledge/scripts/search.py "关键词"
 ```
 
-### 知识录入（生产侧）
+### `[参考知识]` 消费规则
 
-**用户无需手写 Markdown。** 把 PDF / Markdown / TXT / 图片 / 粘贴文本丢给 `ingest.py`，由大模型自动抽取、分类、写 frontmatter、生成结构化条目、自动重建索引：
+命中片段应由用户或宿主在调用 Skill 时显式传入 `[参考知识]` 上下文，推荐格式：
 
-```bash
-# 1. 配置 LLM 调用命令（一次性）
-export TEST_GEN_LLM_CMD='openai api chat.completions.create -m gpt-4o ...'
-# 或使用包装脚本 ~/bin/my-llm-wrapper
+```markdown
+[参考知识]
 
-# 2. 录入知识
-python knowledge/scripts/ingest.py docs/payment-spec.pdf
-python knowledge/scripts/ingest.py notes.md
-python knowledge/scripts/ingest.py screenshot.png            # OCR
-python knowledge/scripts/ingest.py --dry-run spec.pdf        # 仅查看抽取结果
-cat glossary.md | python knowledge/scripts/ingest.py -        # 从 stdin
+### KB: project-conventions.md#密码强度规则
+- 密码最少 8 位。
+- 必须包含大写字母、小写字母、数字。
 
-# 3. 下次提问，Skill 直接能命中
-python knowledge/scripts/search.py "支付回调"
+### KB: historical-cases.md#TC-AUTH-LOGIN-007
+- 连续 5 次错误密码后账号锁定 30 分钟。
 ```
+
+执行规则：
+
+- 知识库不能覆盖用户当前需求；当前需求与知识库冲突时，以当前需求为准，并标注 `KB 冲突`。
+- Phase 0 只识别和保留 `[参考知识]`，不把它当作用户新需求。
+- Phase 1 可用 `[参考知识]` 统一术语、补充边界候选和标注规范来源。
+- Phase 5 生成用例时，如果使用知识库规则、术语或历史用例，必须在“追溯引用”中写 `KB:`，例如 `KB: project-conventions.md#密码强度规则`。
+- 未被 `[参考知识]` 支持的推断仍必须标注为“推断”或“假设”。
 
 详细架构与触发词列表：[`docs/architecture/knowledge-base.md`](docs/architecture/knowledge-base.md)
-
-**默认不主动注入**：知识库是**触发式辅助**，不主动污染 context。命中片段应由用户或宿主在调用 Skill 时显式传入 `[参考知识]` 上下文。
 
 ## 交付深度策略
 

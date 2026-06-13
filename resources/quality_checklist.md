@@ -160,6 +160,15 @@
 | G2-4-3 | 术语对齐 | 代码术语与需求术语建立了映射表 | 4 |
 | G2-4-4 | 隐含功能已标注 | 代码中有但需求未提及的功能已列出 | 5 |
 
+### G4.1: 增量模式附加门禁（incremental_analysis / incremental_hybrid_analysis）
+
+| # | 检查项 | 标准 |
+|---|-------|------|
+| G2-INC-1 | 增量行级范围 | 已列出 changed files、added lines、deleted lines、base/head 与置信度 |
+| G2-INC-2 | 增量 PRD 符合性 | 每条新增关键代码行均标注符合/部分符合/不符合/无法判断 |
+| G2-INC-3 | PRD 缺口闭环 | 对不符合、部分符合、无法判断项给出测试建议或补充信息请求 |
+| G2-INC-4 | 增量潜在Bug证据 | 每条潜在 bug 均引用 file:line、规则、代码片段和关联 REQ |
+
 ### G5: 幻觉防护 (Weight: 10%)
 
 | # | 检查项 | 标准 | 权重 |

@@ -322,7 +322,8 @@ testcase-generator/
 │   └── phase5_testcase_generation_prompt.md
 │
 ├── scripts/                              # 🐍 运行时辅助脚本
-│   └── prd_reader.py                     #   PRD / Markdown / PDF 读取辅助
+│   ├── prd_reader.py                     #   PRD / Markdown / PDF 读取辅助
+│   └── incremental_code_scan.py          #   diff 增量代码行 + PRD 符合性 + 潜在 bug 扫描
 │
 ├── devtools/                             # 🧪 开发与发布工具
 │   ├── capability_audit.py               #   能力矩阵与资产一致性审计

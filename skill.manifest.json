@@ -63,7 +63,9 @@
     "resources/**",
     "templates/**",
     "scripts/prd_reader.py",
+    "scripts/incremental_code_scan.py",
     "knowledge/README.md",
+    "knowledge/llm-ingest-template.md",
     "knowledge/sources/**",
     "knowledge/scripts/**"
   ],

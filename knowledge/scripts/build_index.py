@@ -78,6 +78,16 @@ def tokenize(text: str) -> list[str]:
             # Drop single-char Chinese / single letters unless it's a digit.
             continue
         tokens.append(t)
+        if re.fullmatch(r"[\u4e00-\u9fa5]+", t) and len(t) >= 4:
+            # Add short Chinese n-grams so "密码强度" can match "密码强度规则"
+            # without requiring jieba or another tokenizer dependency.
+            for n in (2, 3, 4):
+                if len(t) < n:
+                    continue
+                for i in range(0, len(t) - n + 1):
+                    gram = t[i:i + n]
+                    if gram not in STOPWORDS:
+                        tokens.append(gram)
     return tokens
 
 

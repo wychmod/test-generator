@@ -1,142 +1,167 @@
-# Testcase Generator 知识库（v1）
+# Testcase Generator 知识库
 
-> 目的：让 testcase-generator 在生成测试用例时能够参考**项目级知识**（术语表、历史用例、规范条款），而不是从零开始。
->
-> 设计原则：**触发式检索**，**本地 Markdown**，**零外部依赖**，**跨宿主一致**。
->
-> 架构详解：[`../docs/architecture/knowledge-base.md`](../docs/architecture/knowledge-base.md)
->
-> 如何添加知识：[`../docs/development/adding-knowledge.md`](../docs/development/adding-knowledge.md)
+知识库用来保存项目术语、项目规范、历史用例、API 速查和合规规则。生成测试用例时，大模型可以先参考这些内容，再输出带追溯引用的用例。
+
+核心目标：用户不需要学习复杂格式，只要把资料手动喂给大模型，让大模型生成可索引 Markdown，放进 `knowledge/sources/` 后重建索引即可。
 
 ---
 
-## 工作原理（一句话）
+## 最短路径
 
-当用户在 Skill 输入中包含**触发词**（如"参考历史"、"查一下"、"按规范"），Skill 会自动从 `knowledge/sources/` 中检索相关片段，作为 `[参考知识]` 注入到 Phase 0/1/5 的 prompt 中。
+### 1. 让大模型录入知识
 
-没有触发词 → 知识库不参与 → 与 v2.1.0 行为完全一致。
+复制 `knowledge/llm-ingest-template.md` 的内容，连同你的项目资料一起发给大模型。
+
+让大模型输出可索引 Markdown。大模型会输出一个完整 Markdown 文件，形如：
+
+```text
+knowledge/sources/payment-rules.md
+```
+
+你只需要把模型输出保存到它建议的 `knowledge/sources/<slug>.md` 路径。
+
+### 2. 建索引
+
+```bash
+python knowledge/scripts/build_index.py --rebuild
+```
+
+索引产物是 `knowledge/index.json`，它是本地生成文件，不提交、不分发。
+
+### 3. 生成用例时说清楚要参考知识库
+
+示例：
+
+```text
+按规范生成登录密码强度测试用例，参考知识库。
+```
+
+```text
+参考历史用例，生成支付回调超时的回归用例。
+```
+
+```text
+查一下知识库里的订单状态定义，再生成订单取消流程测试用例。
+```
+
+生成用例时，命中的知识会作为 `[参考知识]` 输入给阶段提示词。最终用例的“追溯引用”应包含 `KB:`，例如：
+
+```text
+REQ-AUTH-001; KB: project-conventions.md#密码强度规则
+```
+
+---
+
+## 用户只需要记住什么
+
+| 你想做什么 | 推荐做法 |
+|---|---|
+| 录入一份 PRD / 规则 / 历史用例 | 复制 `knowledge/llm-ingest-template.md` 给大模型 |
+| 检查知识是否能搜到 | `python knowledge/scripts/search.py "关键词"` |
+| 生成用例时参考规范 | 在请求里写“按规范”或“参考知识库” |
+| 生成用例时复用历史经验 | 在请求里写“参考历史”或“查历史用例” |
+| 统一术语 | 在请求里写“查术语”或“术语表” |
+
+---
+
+## 知识如何被生成用例阶段使用
+
+知识库不会自动替代当前需求，它只是补充上下文。
+
+使用规则：
+
+- 当前用户需求优先于知识库。
+- 知识库与当前需求冲突时，必须标注冲突，不得静默合并。
+- 使用知识库里的规则、术语、历史用例时，必须保留 `KB:` 追溯引用。
+- 只把检索命中的相关片段放入 `[参考知识]`，不要把整个知识库塞进上下文。
+
+推荐传入格式：
+
+```markdown
+[参考知识]
+
+### KB: project-conventions.md#密码强度规则
+- 密码最少 8 位。
+- 必须包含大写字母、小写字母、数字。
+- 不能与最近 3 次密码相同。
+
+### KB: historical-cases.md#TC-AUTH-LOGIN-007
+- 连续 5 次输入错误密码后账号锁定 30 分钟。
+- 易错点：锁定状态是否持久化、计数器是否重置。
+```
 
 ---
 
 ## 目录结构
 
-```
+```text
 knowledge/
-├── README.md                       ← 本文件（用户文档）
-├── SKILL.md                        ← 知识库子 Skill 入口（分发包内）
-├── index.json                      ← 索引产物（git ignore，本地构建）
-├── sources/                        ← 实际知识源（用户填充，分发包带示例）
-│   ├── README.md                   ← sources 使用说明
-│   ├── domain-glossary.md          ← 🆕 示例：业务术语表
-│   ├── project-conventions.md      ← 🆕 示例：项目规范
-│   └── historical-cases.md         ← 🆕 示例：历史用例集
+├── README.md                    # 用户入口文档
+├── llm-ingest-template.md        # 可直接复制给大模型的录入模板
+├── index.json                   # 本地索引产物，忽略提交
+├── sources/                     # 知识条目目录
+│   ├── README.md                # sources 写法说明
+│   ├── domain-glossary.md       # 示例：术语表
+│   ├── project-conventions.md   # 示例：项目规范
+│   └── historical-cases.md      # 示例：历史用例
 └── scripts/
-    ├── build_index.py              ← 构建索引（不依赖外部库）
-    └── search.py                   ← BM25 检索
+    ├── build_index.py           # 构建索引
+    ├── search.py                # 检索知识
+    └── ingest.py                # 可选：用命令行包装大模型自动写入
 ```
 
 ---
 
-## 快速上手
-
-### 1. 首次使用：构建索引
+## 检索命令
 
 ```bash
-python knowledge/scripts/build_index.py
+# 首次或修改 sources 后
+python knowledge/scripts/build_index.py --rebuild
+
+# 搜索全部知识
+python knowledge/scripts/search.py "密码强度"
+
+# 搜索历史用例
+python knowledge/scripts/search.py "登录失败" --source historical-cases
+
+# 输出机器可读 JSON
+python knowledge/scripts/search.py "支付回调" --json --top-k 5
+
+# 查看触发词命中
+python knowledge/scripts/search.py "按规范生成登录用例" --trigger
 ```
 
-输出：`knowledge/index.json`（约几十 KB）
+常用触发词：
 
-### 2. 检索知识
-
-```bash
-# 关键词检索
-python knowledge/scripts/search.py "登录失败"
-
-# 多关键词
-python knowledge/scripts/search.py "用户认证 token 过期"
-
-# 限定来源
-python knowledge/scripts/search.py "退款流程" --source historical-cases
-
-# 显示 Top-K
-python knowledge/scripts/search.py "密码强度" --top-k 5
-```
-
-### 3. 在 Skill 中使用
-
-| 触发词 | 含义 |
+| 触发词 | 主要检索内容 |
 |---|---|
-| `参考历史` / `查历史用例` | 检索 `historical-cases` 源 |
-| `按规范` / `按规范生成` | 检索 `project-conventions` 源 |
-| `术语表` / `查术语` | 检索 `domain-glossary` 源 |
-| `查一下知识库` / `知识库` | 跨所有来源检索 |
+| `查术语` / `术语表` / `什么是` | 业务术语 |
+| `按规范` / `项目规范` / `错误码` | 项目规范与约定 |
+| `参考历史` / `查历史用例` / `类似用例` | 历史用例 |
+| `查知识库` / `参考知识库` / `kb:` | 所有知识 |
 
-更多触发词可自定义（见 `search.py` 中 `TRIGGER_KEYWORDS`）。
+---
 
-### 4. 添加新知识
+## 可选：命令行自动录入
 
-**方式 A：大模型自动录入（推荐）**
+如果你已经有一个可从 STDIN 读入、从 STDOUT 输出 Markdown 的大模型命令，可以使用：
 
 ```bash
-# 一次性配置 LLM 调用命令
-export TEST_GEN_LLM_CMD='openai api chat.completions.create -m gpt-4o ...'
-# 或使用包装脚本 ~/bin/my-llm-wrapper
-
-# 把任意材料丢给大模型
-python knowledge/scripts/ingest.py docs/payment-spec.pdf
-python knowledge/scripts/ingest.py notes.md
-python knowledge/scripts/ingest.py screenshot.png            # OCR
-cat glossary.md | python knowledge/scripts/ingest.py -        # stdin
-
-# ingest.py 会自动：抽取 → 分类 → 写 sources/<slug>.md → 重建索引
+set TEST_GEN_LLM_CMD=你的大模型包装命令
+python knowledge/scripts/ingest.py docs/payment-spec.md
 ```
 
-**方式 B：手动写 Markdown**
+`ingest.py` 会读取 `prompts/knowledge_ingest_prompt.md`，让模型抽取、分类、输出 Markdown，并自动写入 `knowledge/sources/<slug>.md` 后重建索引。
 
-```bash
-# 直接编辑文件
-$EDITOR knowledge/sources/your-glossary.md
-
-# 重建索引
-python knowledge/scripts/build_index.py
-```
-
-格式要求：见 [`../docs/development/adding-knowledge.md`](../docs/development/adding-knowledge.md)。
+不想配置命令行时，直接使用 `knowledge/llm-ingest-template.md` 手动喂给大模型即可。
 
 ---
 
-## 索引产物（`index.json`）
+## 不要放进知识库的内容
 
-- **不入 git**（已在 `.gitignore`）
-- 本地构建，可随时 `build_index.py --rebuild`
-- 格式：`{ "sources": {...}, "terms": {...}, "doc_freq": {...}, "doc_len": {...} }`
-- 体积：~几十 KB（与文档数量成正比）
+- 密钥、Token、密码、私钥、真实支付卡号。
+- 个人身份信息，除非已经脱敏。
+- 与测试用例生成无关的长篇背景材料。
+- 无法确认来源且会影响业务判断的规则。
 
----
-
-## 隐私与边界
-
-- ✅ **完全本地**：不联网，不上传知识库内容
-- ✅ **不进分发包**：示例源进入 `.skill`/`.zip`，但用户填充内容**不进入**
-- ❌ **不主动注入**：必须显式触发词才检索
-- ❌ **不调用 Embedding**：不依赖任何 LLM API / 外部服务
-
----
-
-## 与 Phase 0/1/5 的集成（v1 阶段说明）
-
-本轮交付（P1+P2）：**脚手架 + 检索工具就绪**。
-
-Phase 集成（P3）的具体做法留给下一轮：在 `prompts/phase0_input_preprocessing_prompt.md`、`phase1_requirements_prompt.md`、`phase5_testcase_generation_prompt.md` 中显式加入"如命中知识库，注入 `[参考知识]` 上下文"的指令。
-
-当前 v1 的使用方式：用户在调用 Skill 时手动添加触发词，宿主或用户自己运行 `search.py` 检索，把命中片段作为补充输入传入 Skill。
-
----
-
-## 不做的事（明确边界）
-
-- ❌ 不做 Embedding / 向量检索（避免外部 API 依赖）
-- ❌ 不做自动触发（保持显式可控）
-- ❌ 不存储敏感数据（用户自负责任，建议加密或本地存储）
-- ❌ 不修改 Phase 0/1/5 的产物协议（v1 阶段保持兼容）
+知识库应该保存“以后生成用例会反复参考的稳定信息”，不是临时聊天记录仓库。

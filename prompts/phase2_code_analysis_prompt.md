@@ -98,6 +98,21 @@ input_scenarios:
         - 有代码的部分：实际分析 + [代码验证]
         - 无代码的部分：逻辑建模 + [预期实现]
         - 明确区分两种来源的分析结论
+
+  scenario_e:  # 增量代码行扫描
+    name: "Incremental Code Line Scan"
+    conditions:
+      - "用户提供了 git diff / patch / PR 变更上下文"
+      - "或可通过 base/head commit 计算增量代码行"
+      - "同时存在 PRD / Phase 1 需求产物 / 需求摘要"
+    strategy:
+      mode: "incremental_analysis"
+      actions:
+        - 优先运行 `scripts/incremental_code_scan.py` 提取新增代码行、变更文件、PRD 匹配结果和潜在 bug 信号
+        - 若宿主不能执行脚本，则手工解析 diff hunk，至少列出 changed files、added lines、deleted lines
+        - 将每一条新增代码行映射到 PRD/REQ，判断符合 / 部分符合 / 不符合 / 无法判断
+        - 对新增代码行做潜在 bug 风险识别，所有风险必须引用 file:line、代码片段、触发规则和关联 REQ
+        - 缺少 base/head、PRD 或历史快照时，降级为 `incremental_hybrid_analysis` 并标注缺口
 ```
 
 ### 2.2 代码分析范围界定
@@ -128,6 +143,76 @@ input_scenarios:
 ---
 
 ## 3. 核心执行步骤
+
+### Step 0: 增量代码行扫描与 PRD 对齐
+
+当输入包含 diff / patch / PR / base-head commit 时，必须先执行增量范围界定。
+
+#### 0.1 推荐脚本
+
+若宿主支持执行本地脚本，优先运行：
+
+```bash
+python scripts/incremental_code_scan.py \
+  --base <base_ref_or_commit> \
+  --head <head_ref_or_commit> \
+  --prd <prd_or_requirement_file> \
+  --format json \
+  --output test-output/phase2/00_incremental_scan.json
+```
+
+若只分析暂存区：
+
+```bash
+python scripts/incremental_code_scan.py \
+  --cached \
+  --prd <prd_or_requirement_file> \
+  --format json \
+  --output test-output/phase2/00_incremental_scan.json
+```
+
+若宿主不能运行脚本，必须根据用户提供的 diff 文本手工生成同等结构的增量上下文，不能跳过增量行级分析。
+
+#### 0.2 必须产出 `00_incremental_scope.md`
+
+```markdown
+## 00_incremental_scope.md
+
+### 增量范围
+| 字段 | 值 |
+|---|---|
+| base | [base_ref/base_commit/unknown] |
+| head | [head_ref/head_commit/unknown] |
+| changed_files | N |
+| added_lines | N |
+| deleted_lines | N |
+| analysis_mode | incremental_analysis / incremental_hybrid_analysis |
+| confidence | high / medium / low |
+
+### 增量代码行清单
+| 文件 | 行号 | 新增代码 | PRD符合性 | 关联REQ | 说明 |
+|---|---:|---|---|---|---|
+| [path] | [line] | `[code]` | 符合/部分符合/不符合/无法判断 | REQ-xxx | [理由] |
+
+### PRD符合性结论
+| REQ | 需求摘要 | 增量代码证据 | 结论 | 缺口/风险 |
+|---|---|---|---|---|
+| REQ-xxx | [summary] | [file:line] | 符合/部分符合/不符合/无法判断 | [gap] |
+
+### 潜在Bug信号
+| 风险ID | 严重性 | 位置 | 代码证据 | 关联REQ | 潜在影响 | 建议验证 |
+|---|---|---|---|---|---|---|
+| DELTA-BUG-001 | Critical/Major/Minor/Info | [file:line] | `[code]` | REQ-xxx | [impact] | [test/check] |
+```
+
+#### 0.3 判断规则
+
+- `符合`：新增代码行能直接对应 PRD/REQ 的验收条件，且未发现明显违背需求的逻辑。
+- `部分符合`：新增代码只覆盖 PRD 的部分条件、缺少边界/异常/权限/状态校验。
+- `不符合`：新增代码与 PRD 明确要求相反，或实现了 PRD 未允许的行为且会影响公开功能。
+- `无法判断`：PRD 信息不足、diff 缺上下文、代码依赖外部行为或运行时配置。
+
+> 重要约束：潜在 bug 只能标为“风险”或“疑似缺陷”，不得在没有运行证据时声称已确认 bug。
 
 ### Step 1: 代码结构全景分析
 
@@ -569,6 +654,7 @@ pie title 缺陷按严重性分布
 
 | 文件名 | 内容概要 | 核心价值 |
 |-------|---------|---------|
+| `00_incremental_scope.md` | 增量代码行扫描 + PRD符合性 + 潜在Bug信号 | 为本次变更提供行级证据和需求对齐结论 |
 | `01_code_structure.md` | 代码架构全景 + 函数规格表 + 依赖关系图 | 为测试提供完整的代码地图 |
 | `02_data_flow_analysis.md` | DFD + 数据对象字典 + 流转路径 | 理解数据如何在系统中流动 |
 | `03_defect_radar.md` | 潜在缺陷 + 安全检查 + 需求-代码映射 | 主动发现质量风险 |
@@ -580,11 +666,13 @@ pie title 缺陷按严重性分布
 generated_by: testcase-generator v2.1.0
 phase: 2
 timestamp: {ISO8601}
-analysis_mode: actual_analysis / contract_analysis / logical_modeling / hybrid_analysis
-source_files: [分析的文件列表]
+analysis_mode: actual_analysis / contract_analysis / logical_modeling / hybrid_analysis / incremental_analysis / incremental_hybrid_analysis
+incremental_context: {base: [base], head: [head], changed_files: N, added_lines: N, confidence: high/medium/low}
+source_files: {changed: [], impacted: [], reused_from_baseline: [], excluded: []}
 total_functions_analyzed: N
 defects_found: {critical:N, major:N, minor:N, info:N}
 requirements_coverage: {N}%
+prd_delta_compliance: {matched:N, partial:N, mismatch:N, unknown:N}
 status: draft
 quality_score: {0-100}
 version: 1.0

@@ -40,6 +40,7 @@ testcase-generator-skill
 | `resources/` | 质量检查、格式规范、反馈模板与阶段产物协议 |
 | `templates/` | 需求、状态图、测试用例等标准输出模板 |
 | `scripts/prd_reader.py` | 本地 PRD / Markdown / PDF 文件读取辅助工具 |
+| `scripts/incremental_code_scan.py` | 增量 diff 代码行扫描、PRD 符合性分析与潜在 bug 信号辅助工具 |
 | `skill.manifest.json` | 中文分发元数据与入包边界说明 |
 
 ## npm 分发必须入包
@@ -98,6 +99,7 @@ testcase-generator-skill
 | `run_package.bat` | `devtools/run_package.bat` | Windows 打包入口，不属于运行时资产 |
 | `PACKAGING.md` | `docs/PACKAGING.md` 或保留根目录 | 发布维护说明，不属于 Skill 执行资产 |
 | `knowledge/README.md` | `knowledge/README.md` | 用户文档，进入分发包 |
+| `knowledge/llm-ingest-template.md` | `knowledge/llm-ingest-template.md` | 可直接复制给大模型的知识录入模板，进入分发包 |
 | `knowledge/sources/README.md` | `knowledge/sources/README.md` | sources 使用说明，进入分发包 |
 | `knowledge/sources/*.md`（示例） | `knowledge/sources/*.md` | 示例源文件（domain-glossary / project-conventions / historical-cases）进入分发包；用户填充内容不进 |
 | `knowledge/scripts/build_index.py` | `knowledge/scripts/build_index.py` | 索引构建工具，不属于 Skill 运行时能力（仅本地使用） |
@@ -112,6 +114,18 @@ testcase-generator/
 ├── SKILL.md
 ├── README.md
 ├── skill.manifest.json
+├── knowledge/
+│   ├── README.md
+│   ├── llm-ingest-template.md
+│   ├── sources/
+│   │   ├── README.md
+│   │   ├── domain-glossary.md
+│   │   ├── project-conventions.md
+│   │   └── historical-cases.md
+│   └── scripts/
+│       ├── build_index.py
+│       ├── ingest.py
+│       └── search.py
 ├── config/
 │   ├── example-config.json
 │   └── testcase-config-schema.json
@@ -132,7 +146,8 @@ testcase-generator/
 │   ├── state_diagram_template.md
 │   └── testcase_template.md
 └── scripts/
-    └── prd_reader.py
+    ├── prd_reader.py
+    └── incremental_code_scan.py
 ```
 
 ## 发布前检查项

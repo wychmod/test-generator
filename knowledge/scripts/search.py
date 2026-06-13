@@ -51,7 +51,7 @@ TRIGGER_KEYWORDS: dict[str, list[str]] = {
         "复用", "历史", "回归用例", "已有用例", "historical",
     ],
     "*": [
-        "查一下知识库", "查知识库", "搜知识库", "知识库里",
+        "查一下知识库", "查知识库", "搜知识库", "知识库里", "参考知识库",
         "knowledge base", "kb:", "/kb",
     ],
 }
@@ -128,7 +128,8 @@ def search(
     top_k: int = 5,
     source_filter: str | None = None,
 ) -> list[dict[str, Any]]:
-    query_tokens = tokenize(query)
+    clean_query = strip_trigger_keywords(query)
+    query_tokens = tokenize(clean_query or query)
     if not query_tokens:
         return []
 
@@ -182,6 +183,15 @@ def search(
 
 
 # --- Trigger detection -----------------------------------------------------
+
+def strip_trigger_keywords(text: str) -> str:
+    """Remove retrieval trigger phrases so they do not pollute BM25 scoring."""
+    cleaned = text
+    for kws in TRIGGER_KEYWORDS.values():
+        for kw in sorted(kws, key=len, reverse=True):
+            cleaned = re.sub(re.escape(kw), " ", cleaned, flags=re.IGNORECASE)
+    return re.sub(r"\s+", " ", cleaned).strip()
+
 
 def detect_trigger(text: str) -> dict[str, Any]:
     """Return which knowledge source should be retrieved given the user's text."""
