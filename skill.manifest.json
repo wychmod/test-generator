@@ -109,7 +109,7 @@
     "npm包名": "testcase-generator-skill",
     "命令": "test-generator",
     "安装示例": "npm install -g testcase-generator-skill",
-    "激活示例": "test-generator activate claude",
+    "激活示例": "test-generator activate all",
     "支持环境": [
       "claude",
       "codex",

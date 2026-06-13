@@ -6,9 +6,11 @@ const test = require("node:test");
 
 const { run } = require("../bin/test-generator");
 const {
+  ENVIRONMENTS,
   activateEnvironment,
   collectRuntimeFiles,
   resolveActivationTarget,
+  supportedEnvironments,
 } = require("../lib/activation");
 
 function makeFixtureRoot() {
@@ -57,6 +59,31 @@ function makeFixtureRoot() {
   );
 
   return root;
+}
+
+function captureLogs(callback) {
+  const originalLog = console.log;
+  const lines = [];
+  console.log = (message) => lines.push(String(message));
+
+  try {
+    callback();
+  } finally {
+    console.log = originalLog;
+  }
+
+  return lines.join("\n");
+}
+
+function withWorkingDirectory(cwd, callback) {
+  const originalCwd = process.cwd();
+  process.chdir(cwd);
+
+  try {
+    return callback();
+  } finally {
+    process.chdir(originalCwd);
+  }
 }
 
 test("resolveActivationTarget uses project-local host directories by default", () => {
@@ -111,16 +138,47 @@ test("activateEnvironment copies runtime assets and writes host-specific entry f
 });
 
 test("CLI help advertises -g as the primary global activation flag", () => {
-  const originalLog = console.log;
-  const lines = [];
-  console.log = (message) => lines.push(String(message));
-
-  try {
+  const output = captureLogs(() => {
     assert.equal(run(["--help"]), 0);
-  } finally {
-    console.log = originalLog;
-  }
+  });
 
-  const output = lines.join("\n");
-  assert.match(output, /activate <environment> \[-g\]/);
+  assert.match(output, /activate <environment\|all> \[-g\]/);
+  assert.match(output, /Use 'all' to activate every supported environment/);
+});
+
+test("CLI activate all dry-run reports every supported environment", () => {
+  const output = captureLogs(() => {
+    assert.equal(run(["activate", "all", "--dry-run"]), 0);
+  });
+
+  for (const environment of supportedEnvironments()) {
+    assert.match(output, new RegExp(`Would activate ${environment} skill at `));
+  }
+});
+
+test("CLI activate all creates each project-local host directory", () => {
+  const cwd = fs.mkdtempSync(path.join(os.tmpdir(), "test-generator-all-target-"));
+
+  withWorkingDirectory(cwd, () => {
+    captureLogs(() => {
+      assert.equal(run(["activate", "all"]), 0);
+    });
+  });
+
+  for (const environment of supportedEnvironments()) {
+    const target = resolveActivationTarget(environment, { cwd });
+    assert.equal(fs.existsSync(path.join(target, "DISTRIBUTION.md")), true);
+
+    const entryTarget = ENVIRONMENTS[environment].entry?.target;
+    if (entryTarget) {
+      assert.equal(fs.existsSync(path.join(target, entryTarget)), true);
+    }
+  }
+});
+
+test("CLI activate all rejects exact --target paths", () => {
+  assert.throws(
+    () => run(["activate", "all", "--target", "custom-target"]),
+    /--target cannot be used with activate all/,
+  );
 });

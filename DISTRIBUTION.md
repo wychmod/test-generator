@@ -25,7 +25,7 @@ testcase-generator-skill
 ```
 
 > 如果宿主平台支持标准 Skill 包，优先使用 `.skill`；仅在宿主平台只接受 ZIP 时再使用 `.zip`。
-> npm 产物用于提供 `test-generator activate <environment>` 激活命令，不改变 `.skill` / `.zip` 的入包边界。
+> npm 产物用于提供 `test-generator activate all` 和 `test-generator activate <environment>` 激活命令，不改变 `.skill` / `.zip` 的入包边界。
 
 ## 必须入包
 
@@ -144,7 +144,7 @@ testcase-generator/
 - [ ] 分发包内不存在 `skills-lock.json`、旧 ZIP 或包中包。
 - [ ] 同时生成 `.skill` 与 `.zip` 两种产物，且内容一致。
 - [ ] npm 包包含 `package.json`、`bin/`、`lib/` 和 Skill 运行时资产。
-- [ ] `test-generator activate <environment> --dry-run` 可显示正确目标目录。
+- [ ] `test-generator activate all --dry-run` 与 `test-generator activate <environment> --dry-run` 可显示正确目标目录。
 - [ ] 抽样打开包内 Markdown，确认中文内容未乱码。
 
 ## 后续建议

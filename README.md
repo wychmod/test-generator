@@ -29,6 +29,9 @@ test-automation quality-assurance automation claude-code skill ai-driven testing
 ```bash
 # 方式一：Node.js/npm 安装并激活到宿主环境（最推荐）
 npm i @wychmod-cn/testcase-generator-skill
+test-generator activate all
+
+# 如需只激活单个平台，也可以使用：
 test-generator activate claude
 test-generator activate codex
 test-generator activate qoder
@@ -53,7 +56,7 @@ npx skills add ./testcase-generator.zip
 ```
 
 > 最推荐使用 `npm i @wychmod-cn/testcase-generator-skill` 安装；仅在无法使用 npm 时再选择 `testcase-generator.skill` 或 `testcase-generator.zip`。
-> npm 方式不会改变 `.skill` / `.zip` 产物，只是提供 `test-generator activate <environment>` 将 Skill 运行时文件复制到对应宿主目录。
+> npm 方式不会改变 `.skill` / `.zip` 产物，只是提供 `test-generator activate all` 和 `test-generator activate <environment>` 将 Skill 运行时文件复制到对应宿主目录。
 
 ---
 

@@ -125,6 +125,9 @@ npx skills add ./testcase-generator.zip
 npm install -g testcase-generator-skill
 
 # 激活到当前项目的宿主目录
+test-generator activate all
+
+# 或只激活单个平台
 test-generator activate claude
 test-generator activate codex
 test-generator activate qoder
@@ -154,5 +157,4 @@ test-generator activate codex --target ./custom-skills/testcase-generator
 - [ ] `.gitignore` 排除了 `.venv/`、`test-output/`、`.idea/` 等本地目录。
 - [ ] 多宿主镜像目录不作为主源维护。
 - [ ] 根目录中的 `.skill` / `.zip` 产物不作为源码提交。
-- [ ] npm 发布前执行 `npm test`，并确认 `test-generator activate <environment> --dry-run` 输出目标目录正确。
-
+- [ ] npm 发布前执行 `npm test`，并确认 `test-generator activate all --dry-run` 与 `test-generator activate <environment> --dry-run` 输出目标目录正确。

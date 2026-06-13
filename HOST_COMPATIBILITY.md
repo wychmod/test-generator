@@ -34,7 +34,7 @@
 
 ## Node.js 激活入口
 
-通过 npm 安装后，可使用 `test-generator activate <environment>` 将 Skill 运行时文件复制到对应宿主目录。
+通过 npm 安装后，可使用 `test-generator activate all` 一次性激活所有支持的宿主环境，也可使用 `test-generator activate <environment>` 将 Skill 运行时文件复制到单个对应宿主目录。
 
 | 环境名 | 默认本地目标目录 | 额外入口 |
 |---|---|---|
@@ -47,7 +47,7 @@
 | `cursor` | `.cursor/rules/` | 根目录 `.cursorrules`（来自 `adapters/cursor/cursorrules.md`） |
 | `windsurf` | `.windsurf/rules/` | 根目录 `.windsurfrules`（来自 `adapters/windsurf/windsurfrules.md`） |
 
-可通过 `-g` 安装到用户本地目录，或通过 `--target <path>` 指定目标目录。`--global` 仍作为兼容写法保留。
+可通过 `-g` 安装到用户本地目录，或通过 `--target <path>` 指定单个平台目标目录。`--target` 不支持 `activate all`，避免多个宿主写入同一个精确目录。`--global` 仍作为兼容写法保留。
 
 ## 能力差异与降级策略
 

@@ -14,7 +14,7 @@ function printHelp() {
   console.log(`test-generator
 
 Usage:
-  test-generator activate <environment> [-g] [--target <path>] [--dry-run]
+  test-generator activate <environment|all> [-g] [--target <path>] [--dry-run]
   test-generator environments
 
 Options:
@@ -22,6 +22,9 @@ Options:
 
 Environments:
   ${environments}
+
+Use 'all' to activate every supported environment. --target is only supported
+for single-environment activation.
 `);
 }
 
@@ -63,6 +66,19 @@ function parseActivateArgs(args) {
   return parsed;
 }
 
+function isAllEnvironment(env) {
+  return String(env || "").trim().toLowerCase() === "all";
+}
+
+function printActivationResult(result, dryRun) {
+  const action = dryRun ? "Would activate" : "Activated";
+  console.log(`${action} ${result.environment} skill at ${result.target}`);
+  console.log(`Runtime files: ${result.copied}`);
+  if (result.entry) {
+    console.log(`Host entry: ${result.entry}`);
+  }
+}
+
 function run(argv = process.argv.slice(2)) {
   const [command, ...args] = argv;
 
@@ -83,6 +99,24 @@ function run(argv = process.argv.slice(2)) {
       return 0;
     }
 
+    if (isAllEnvironment(options.env)) {
+      if (options.target) {
+        throw new Error("--target cannot be used with activate all");
+      }
+
+      for (const environment of supportedEnvironments()) {
+        const result = activateEnvironment({
+          cwd: process.cwd(),
+          dryRun: options.dryRun,
+          env: environment,
+          global: options.global,
+          packageRoot: PACKAGE_ROOT,
+        });
+        printActivationResult(result, options.dryRun);
+      }
+      return 0;
+    }
+
     const result = activateEnvironment({
       cwd: process.cwd(),
       dryRun: options.dryRun,
@@ -92,12 +126,7 @@ function run(argv = process.argv.slice(2)) {
       target: options.target,
     });
 
-    const action = options.dryRun ? "Would activate" : "Activated";
-    console.log(`${action} ${result.environment} skill at ${result.target}`);
-    console.log(`Runtime files: ${result.copied}`);
-    if (result.entry) {
-      console.log(`Host entry: ${result.entry}`);
-    }
+    printActivationResult(result, options.dryRun);
     return 0;
   }
 
@@ -115,6 +144,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  isAllEnvironment,
   parseActivateArgs,
   run,
 };
