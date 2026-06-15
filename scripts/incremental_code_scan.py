@@ -202,19 +202,133 @@ def parse_unified_diff(diff_text: str) -> List[Dict[str, Any]]:
     return files
 
 
+# 代码句式的"动作动词"——行以这些开头时几乎不可能是声明性需求
+# (Python/常见命令式语言)。REQ-* / must/should/hint 命中时仍可豁免。
+_CODE_VERB_PREFIXES = (
+    "return ",
+    "if ",
+    "for ",
+    "while ",
+    "def ",
+    "class ",
+    "raise ",
+    "yield ",
+    "print(",
+    "import ",
+    "from ",
+    "pass\n",
+    "continue",
+    "break",
+    "self.",
+    "this.",
+    "const ",
+    "let ",
+    "var ",
+    "function ",
+    "=>",
+)
+
+
+TRIPLE_SINGLE = "'" + "''"  # 避开文件级 docstring 的 '"""' 闭合冲突
+
+
+def _looks_like_python_source(prd_text: str) -> bool:
+    # 粗略判断 PRD 文本是否本身就是 Python 源代码（而非 Markdown 需求文档）。
+    for raw in prd_text.splitlines()[:5]:
+        stripped = raw.lstrip()
+        if stripped.startswith(("def ", "class ", "import ", "from ")):
+            return True
+        if stripped.startswith("#!") and "python" in stripped:
+            return True
+    return False
+
+
+def _is_inside_def_docstring(prd_text: str, line_index: int) -> bool:
+    # 判断第 line_index 行是否在某个 def 后紧跟的 docstring 区间内。
+    # 这是 Python 源码里真正的"干扰项"——函数 docstring 经常被错误识别为需求。
+    # 其他位置（比如模块顶层的 BUGFIX_NOTE 这种字符串字面量）
+    # 不在此过滤范围内，因为那才是用户写 PRD 文本的地方。
+    lines = prd_text.splitlines()
+    n = len(lines)
+    i = 0
+    while i < n:
+        stripped = lines[i].lstrip()
+        if stripped.startswith("def ") and stripped.rstrip().endswith(":"):
+            # 找这个 def 后面紧跟的 docstring 区间
+            j = i + 1
+            # 跳过空行
+            while j < n and not lines[j].strip():
+                j += 1
+            if j < n and lines[j].lstrip().startswith('"""'):
+                # 单行 docstring
+                if '"""' in lines[j][lines[j].index('"""') + 3:]:
+                    if line_index == j:
+                        return True
+                    i = j + 1
+                    continue
+                # 多行 docstring
+                start = j
+                k = j + 1
+                while k < n and '"""' not in lines[k]:
+                    k += 1
+                end = k  # 包含闭合行
+                if start <= line_index <= end:
+                    return True
+                i = end + 1
+                continue
+        i += 1
+    return False
+
+
 def extract_requirements(prd_text: str) -> List[Dict[str, Any]]:
+    """从 PRD 文本中抽取结构化需求，过滤代码块/字符串字面量/代码句式。"""
     requirements: List[Dict[str, Any]] = []
     auto_index = 1
 
-    for raw_line in prd_text.splitlines():
+    in_fenced_code = False
+    in_indented_code = False
+    lines = prd_text.splitlines()
+    is_python_source = _looks_like_python_source(prd_text)
+
+    for line_index, raw_line in enumerate(lines):
+        # 1) Markdown fenced code block：``` 开头 / 结尾
+        stripped = raw_line.lstrip()
+        if stripped.startswith("```"):
+            in_fenced_code = not in_fenced_code
+            continue
+        if in_fenced_code:
+            continue
+
         line = raw_line.strip(" \t-*#>")
         if not line:
+            in_indented_code = False  # 空行重置缩进代码状态
             continue
+
+        # 2) Markdown indented code block (4+ 空格) 或 tab 开头
+        if raw_line.startswith("    ") or raw_line.startswith("\t"):
+            in_indented_code = True
+            continue
+        if in_indented_code:
+            # 缩进代码块遇到非空、非缩进行即结束
+            in_indented_code = False
+
+        # 3) Python 源码里的函数 docstring 区间（仅当 PRD 文本是 .py 时过滤）
+        if is_python_source and _is_inside_def_docstring(prd_text, line_index):
+            continue
+
         lower = line.lower()
         ids = REQ_ID_RE.findall(line)
-        looks_like_requirement = ids or any(hint in lower for hint in REQUIREMENT_HINTS)
+        has_hint = any(hint in lower for hint in REQUIREMENT_HINTS)
+        starts_with_code_verb = line.startswith(_CODE_VERB_PREFIXES) or lower.startswith(
+            tuple(_CODE_VERB_PREFIXES)
+        )
+
+        # 有显式 REQ-* ID：直接当作需求
+        # 否则必须命中 hint 且不是命令式代码句式
+        looks_like_requirement = bool(ids) or (has_hint and not starts_with_code_verb)
         if not looks_like_requirement:
             continue
+
         req_id = ids[0] if ids else f"REQ-AUTO-{auto_index:03d}"
         if not ids:
             auto_index += 1

@@ -1,6 +1,6 @@
 {
   "name": "@wychmod-cn/testcase-generator-skill",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Testcase generator skill package with host activation CLI.",
   "license": "MIT",
   "bin": {
