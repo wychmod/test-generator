@@ -76,22 +76,22 @@ description: 适配 <host> 类宿主的入口文件。Use when the host expects 
 - 结构化测试设计文档
 
 ## 使用方式
-1. 优先理解根目录 `SKILL.md` 的核心规则。
+1. 优先理解技能树入口 `skills/testcase-generator/SKILL.md` 的核心规则。
 2. 根据任务类型继续读取：
-   - `prompts/` 中的阶段提示词
-   - `resources/` 中的质量与格式规范
-   - `templates/` 中的输出模板
-3. 若输入为本地文件，可在宿主支持脚本时使用 `scripts/prd_reader.py`。
+   - `skills/testcase-generator/prompts/` 中的阶段提示词
+   - `skills/testcase-generator/resources/` 中的质量与格式规范
+   - `skills/testcase-generator/templates/` 中的输出模板
+3. 若输入为本地文件，可在宿主支持脚本时使用 `skills/testcase-generator/scripts/prd_reader.py`。
 
 ## 推荐路由
-- 完整复杂任务：根目录 `SKILL.md` + `prompts/` + `resources/quality_checklist.md`
-- 轻量任务：根目录 `SKILL.md` + `templates/testcase_template.md`
-- 输入质量较差：先参考 `resources/output_artifacts.md` 的阻断与假设规则
+- 完整复杂任务：`skills/testcase-generator/SKILL.md` + `skills/testcase-generator/prompts/` + `skills/testcase-generator/resources/quality_checklist.md`
+- 轻量任务：`skills/testcase-generator/SKILL.md` + `skills/testcase-generator/templates/testcase_template.md`
+- 输入质量较差：先参考 `skills/testcase-generator/resources/output_artifacts.md` 的阻断与假设规则
 
 ## Fallback
 如果宿主不能稳定执行脚本：
 - 直接基于用户提供的文本内容执行
-- 不依赖 `scripts/prd_reader.py`
+- 不依赖 `skills/testcase-generator/scripts/prd_reader.py`
 - 明确标记基于文本推断的假设项
 ```
 
@@ -200,7 +200,7 @@ cat .<entry_filename>
 
 **验证清单**：
 - [ ] 入口文件被复制到目标目录
-- [ ] 运行时文件（prompts/、resources/、templates/）齐全
+- [ ] 运行时文件（`skills/testcase-generator/` 下的 prompts/、resources/、templates/）齐全
 - [ ] 如果有 `entry`，目标文件名与约定一致
 - [ ] 全局激活（`-g`）路径正确
 

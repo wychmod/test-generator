@@ -8,16 +8,16 @@
 
 ## 推荐流程：复制模板喂给大模型
 
-1. 打开 [`../../knowledge/llm-ingest-template.md`](../../knowledge/llm-ingest-template.md)。
+1. 打开 [`../../skills/testcase-generator/knowledge/llm-ingest-template.md`](../../skills/testcase-generator/knowledge/llm-ingest-template.md)。
 2. 复制全文。
 3. 把模板和你的 PRD、规范、历史用例或 API 文档一起发给大模型。
 4. 要求大模型“必须输出且只输出 Markdown”。
-5. 保存模型输出到 `knowledge/sources/<slug>.md`。
+5. 保存模型输出到 `skills/testcase-generator/knowledge/sources/<slug>.md`。
 6. 重建索引。
 
 ```bash
-python knowledge/scripts/build_index.py --rebuild
-python knowledge/scripts/search.py "你的关键词"
+python skills/testcase-generator/knowledge/scripts/build_index.py --rebuild
+python skills/testcase-generator/knowledge/scripts/search.py "你的关键词"
 ```
 
 如果检索能命中，生成用例时就可以说：
@@ -113,12 +113,12 @@ REQ-AUTH-001; KB: project-conventions.md#密码强度规则
 
 ```bash
 set TEST_GEN_LLM_CMD=你的大模型包装命令
-python knowledge/scripts/ingest.py docs/payment-spec.md
+python skills/testcase-generator/knowledge/scripts/ingest.py docs/payment-spec.md
 ```
 
-`ingest.py` 会调用 `prompts/knowledge_ingest_prompt.md`，自动校验 frontmatter、写入 `knowledge/sources/<slug>.md` 并重建索引。
+`ingest.py` 会调用 `skills/testcase-generator/prompts/knowledge_ingest_prompt.md`，自动校验 frontmatter、写入 `skills/testcase-generator/knowledge/sources/<slug>.md` 并重建索引。
 
-没有包装命令时，不需要使用 `ingest.py`；手动复制 `knowledge/llm-ingest-template.md` 更简单。
+没有包装命令时，不需要使用 `ingest.py`；手动复制 `skills/testcase-generator/knowledge/llm-ingest-template.md` 更简单。
 
 ---
 
@@ -126,10 +126,10 @@ python knowledge/scripts/ingest.py docs/payment-spec.md
 
 ### 搜不到刚录入的内容
 
-- 确认文件在 `knowledge/sources/`。
+- 确认文件在 `skills/testcase-generator/knowledge/sources/`。
 - 确认文件名以 `.md` 结尾。
 - 确认文件名不是 `README.md`，也不是 `_` 开头。
-- 运行 `python knowledge/scripts/build_index.py --rebuild`。
+- 运行 `python skills/testcase-generator/knowledge/scripts/build_index.py --rebuild`。
 - 把关键词写进 `##` 标题或正文前 80 字。
 
 ### 模型输出太长

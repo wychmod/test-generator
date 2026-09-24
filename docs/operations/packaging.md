@@ -49,7 +49,7 @@ python -c "import zipfile; [print(n) for n in sorted(zipfile.ZipFile('testcase-g
 - `SKILL.md` 在包根目录。
 - `skill.manifest.json` 已入包。
 - `DISTRIBUTION.md` 已入包。
-- `config/`、`prompts/`、`resources/`、`templates/` 已入包。
+- `skills/testcase-generator/` 下的 `config/`、`prompts/`、`references/`、`resources/`、`templates/`、`scripts/`、`knowledge/` 已入包。
 - `test-output/` 未入包。
 - `.workbuddy/` 未入包。
 - 多宿主镜像目录未入包。
@@ -153,7 +153,7 @@ test-generator activate codex --target ./custom-skills/testcase-generator
 - [ ] `README.md` 包含安装和使用说明。
 - [ ] `skill.manifest.json` 已更新。
 - [ ] `DISTRIBUTION.md` 已更新。
-- [ ] 所有相关文件 `prompts/`、`config/`、`templates/`、`resources/` 在根目录。
+- [ ] 所有技能内容文件都在 `skills/testcase-generator/` 下（**不是**仓库根目录）。
 - [ ] `.gitignore` 排除了 `.venv/`、`test-output/`、`.idea/` 等本地目录。
 - [ ] 多宿主镜像目录不作为主源维护。
 - [ ] 根目录中的 `.skill` / `.zip` 产物不作为源码提交。

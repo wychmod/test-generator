@@ -16,11 +16,11 @@
 
 | 改动位置 | 同步检查 |
 |---|---|
-| `prompts/phaseN_*.md` | `resources/output_artifacts.md`（产物协议）+ `.harness/eval/baselines/`（回归基线） |
-| `templates/*.md` | `SKILL.md` 中对该模板的引用 |
+| `prompts/phaseN_*.md` | `skills/testcase-generator/resources/output_artifacts.md`（产物协议）+ `.harness/eval/baselines/`（回归基线） |
+| `skills/testcase-generator/templates/*.md` | `SKILL.md` 中对该模板的引用 |
 | `adapters/<host>/` | `skill.manifest.json` → `宿主适配入口` + `HOST_COMPATIBILITY.md` |
 | `SKILL.md` 描述行 | `skill.manifest.json` → `说明` 字段、`README.md` → 顶部 GitHub Topics |
-| `config/*.json` | `test-fixtures/skill-eval/` 下的样例需同步更新 |
+| `skills/testcase-generator/config/*.json` | `test-fixtures/skill-eval/` 下的样例需同步更新 |
 
 ## 调试工具
 

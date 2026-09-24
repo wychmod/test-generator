@@ -7,7 +7,7 @@
 | 类别 | 路径 | 内容 | 状态 |
 |---|---|---|---|
 | **用户入口** | [`../README.md`](../README.md) | 安装、快速开始、用法 | 必读 |
-| **Skill 主入口** | [`../SKILL.md`](../SKILL.md) | Skill 入口文件、能力声明、触发场景 | 必读 |
+| **Skill 主入口** | [`../skills/testcase-generator/SKILL.md`](../skills/testcase-generator/SKILL.md) | Skill 入口文件、能力声明、触发场景 | 必读 |
 | 分发边界 | [`../DISTRIBUTION.md`](../DISTRIBUTION.md) | 入包/排除规则、发布前检查 | 必读 |
 | 宿主兼容 | [`../HOST_COMPATIBILITY.md`](../HOST_COMPATIBILITY.md) | 各宿主适配策略、Node.js 激活命令 | 必读 |
 | **打包指南** | [`operations/packaging.md`](operations/packaging.md) | 如何本地打包、产物校验 | 已搬入 |
@@ -38,7 +38,7 @@
 2. **每个目录放一个 README.md** 作为该目录的入口，避免成为「野文件目录」。
 3. **跨文档链接用相对路径**（例如 `../SKILL.md`），不要用绝对 URL，避免 GitHub 渲染问题。
 4. **改分发边界前**必须同步更新 `../DISTRIBUTION.md` 和 `../skill.manifest.json`。
-5. **改 SKILL.md / prompts/ / resources/ / templates/ 前**先在 `.harness/eval/` 加一条评测用例，确保改动有回归保护。
+5. **改 `skills/testcase-generator/` 下的 SKILL.md / prompts/ / resources/ / templates/ 前**先在 `.harness/eval/` 加一条评测用例，确保改动有回归保护。
 
 ## 待办
 

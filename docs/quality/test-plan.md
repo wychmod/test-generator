@@ -61,7 +61,7 @@ python devtools/skill_quality_audit.py --outputs test-output/skill-eval --format
 
 审计范围：
 
-- 静态审计覆盖 `SKILL.md`、`prompts/phase0-5`、`resources/*`、`templates/*` 中的版本、阶段、标准引用、必备字段和质量门禁。
+- 静态审计覆盖 `skills/testcase-generator/SKILL.md`、`skills/testcase-generator/prompts/phase0-5`、`skills/testcase-generator/resources/*`、`skills/testcase-generator/templates/*` 中的版本、阶段、标准引用、必备字段和质量门禁。
 - 正式测试用例输出按 100 分制评分；字段完整性、可执行性、预期结果质量、覆盖类型信号、追溯与假设/缺口标记各 20 分。
 - 正式测试用例单文件分数必须 `>= 90`，输出目录的正式用例通过率必须 `>= 90%`。
 - Gherkin 输出必须包含 Feature、Scenario、Given、When、Then。

@@ -12,14 +12,14 @@
 ## 待写内容
 
 - [ ] **data-model.md**：核心数据结构（需求条目 / 用例条目 / 追溯矩阵 / 状态机）
-- [ ] **prompts-vs-templates.md**：prompts/ 与 templates/ 的职责边界
+- [ ] **prompts-vs-templates.md**：`skills/testcase-generator/prompts/` 与 `skills/testcase-generator/templates/` 的职责边界
 - [ ] **quality-gate-flow.md**：阶段间质量门禁如何触发、各阶段产物的最低验收标准
 
 ## 已有的设计源（散落各处）
 
-- 入口契约：[`../../SKILL.md`](../../SKILL.md)
+- 入口契约：[`../../skills/testcase-generator/SKILL.md`](../../skills/testcase-generator/SKILL.md)
 - 六阶段能力声明：[`../../skill.manifest.json`](../../skill.manifest.json) → `核心能力` 字段
-- 阶段产物协议：[`../../resources/output_artifacts.md`](../../resources/output_artifacts.md)
+- 阶段产物协议：[`../../skills/testcase-generator/resources/output_artifacts.md`](../../skills/testcase-generator/resources/output_artifacts.md)
 - 质量基线：[`../quality/test-plan.md`](../quality/test-plan.md)
 
 ## 相关工具

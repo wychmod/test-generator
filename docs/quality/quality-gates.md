@@ -1,8 +1,8 @@
 # 阶段间质量门禁（Quality Gates）
 
-> 目的：把 `resources/quality_checklist.md` 中分散在各 Phase 的检查项，抽取为一份「门禁决策表」——告诉流水线执行者每个阶段什么时候可以放行、什么时候必须修复后重审、什么时候必须降级。
+> 目的：把 `skills/testcase-generator/resources/quality_checklist.md` 中分散在各 Phase 的检查项，抽取为一份「门禁决策表」——告诉流水线执行者每个阶段什么时候可以放行、什么时候必须修复后重审、什么时候必须降级。
 >
-> 详细检查项与权重：[`../../resources/quality_checklist.md`](../../resources/quality_checklist.md)（v2.1，ISTQB + ISO/IEC/IEEE 29119-3:2021 + CMMI DEV 3.0）
+> 详细检查项与权重：[`../../skills/testcase-generator/resources/quality_checklist.md`](../../skills/testcase-generator/resources/quality_checklist.md)（v2.1，ISTQB + ISO/IEC/IEEE 29119-3:2021 + CMMI DEV 3.0）
 >
 > 流水线结构：[`../architecture/pipeline-overview.md`](../architecture/pipeline-overview.md)
 >
@@ -63,7 +63,7 @@ Phase N 输出 ──────►     │  门禁评估    │
 - 阻断项中等 → 跳过 Phase 2-4，只输出 Phase 1 的测试点清单
 - 阻断项严重 → 停止流水线，要求用户补充输入
 
-详见：[`../../resources/quality_checklist.md#phase-0输入预处理---质量门禁`](../../resources/quality_checklist.md)
+详见：[`../../skills/testcase-generator/resources/quality_checklist.md#phase-0输入预处理---质量门禁`](../../skills/testcase-generator/resources/quality_checklist.md)
 
 ---
 
@@ -88,7 +88,7 @@ Phase N 输出 ──────►     │  门禁评估    │
 - 存在凭空创造的功能点（无来源且非推断）
 - 同一概念术语不一致且影响追溯
 
-详见：[`../../resources/quality_checklist.md#phase-1需求分析---质量门禁`](../../resources/quality_checklist.md)
+详见：[`../../skills/testcase-generator/resources/quality_checklist.md#phase-1需求分析---质量门禁`](../../skills/testcase-generator/resources/quality_checklist.md)
 
 ---
 
@@ -108,7 +108,7 @@ Phase N 输出 ──────►     │  门禁评估    │
 - Critical DEF 无修复建议
 - 需求-代码映射率 < 95%
 
-详见：[`../../resources/quality_checklist.md#phase-2代码分析---质量门禁`](../../resources/quality_checklist.md)
+详见：[`../../skills/testcase-generator/resources/quality_checklist.md#phase-2代码分析---质量门禁`](../../skills/testcase-generator/resources/quality_checklist.md)
 
 ---
 
@@ -134,7 +134,7 @@ Phase N 输出 ──────►     │  门禁评估    │
 - 状态总数 ≥ 50 且未应用任何优化策略
 - 跨阶段术语不一致且影响后续 MBT 推导
 
-详见：[`../../resources/quality_checklist.md#phase-3领域建模---质量门禁`](../../resources/quality_checklist.md)
+详见：[`../../skills/testcase-generator/resources/quality_checklist.md#phase-3领域建模---质量门禁`](../../skills/testcase-generator/resources/quality_checklist.md)
 
 ---
 
@@ -153,7 +153,7 @@ Phase N 输出 ──────►     │  门禁评估    │
 - 守卫条件弱化（漏掉业务约束）
 - MTS 大小 > 全路径 × 0.5 且无压缩策略
 
-详见：[`../../resources/quality_checklist.md#phase-4mbt-设计---质量门禁`](../../resources/quality_checklist.md)
+详见：[`../../skills/testcase-generator/resources/quality_checklist.md#phase-4mbt-设计---质量门禁`](../../skills/testcase-generator/resources/quality_checklist.md)
 
 ---
 
@@ -178,7 +178,7 @@ Phase N 输出 ──────►     │  门禁评估    │
 - Critical/Major DEF 无反向测试 TC
 - 追溯矩阵存在断裂（不可双向追溯）
 
-详见：[`../../resources/quality_checklist.md#phase-5用例生成---质量门禁`](../../resources/quality_checklist.md)
+详见：[`../../skills/testcase-generator/resources/quality_checklist.md#phase-5用例生成---质量门禁`](../../skills/testcase-generator/resources/quality_checklist.md)
 
 ---
 
@@ -220,7 +220,7 @@ Item_Pass_Status = 1.0 (Pass)
 | 幻觉率 | Unfounded_Items / Total_Items | < 5% | > 10% | > 20% |
 | 追溯闭合率 | Bidirectional_Traceable / Total | 100% | < 95% | < 90% |
 
-阶段特有指标见 [`../../resources/quality_checklist.md#度量指标基线`](../../resources/quality_checklist.md)。
+阶段特有指标见 [`../../skills/testcase-generator/resources/quality_checklist.md#度量指标基线`](../../skills/testcase-generator/resources/quality_checklist.md)。
 
 ---
 
@@ -231,7 +231,7 @@ Item_Pass_Status = 1.0 (Pass)
 ```markdown
 ---
 report_type: "quality_assurance_report"
-generator: "testcase-generator v2.1.0"
+generator: "testcase-generator v2.3.0"
 project: "[Project Name]"
 date: "{YYYY-MM-DD}"
 overall_score: {N}/{100}

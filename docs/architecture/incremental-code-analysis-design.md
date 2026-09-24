@@ -103,7 +103,7 @@ new_findings: 4
 resolved_findings: 2
 baseline_snapshot: "test-output/.cache/code-analysis/latest.json"
 rules_hash: "sha256:..."
-prompt_version: "2.1.0"
+prompt_version: "2.3.0"
 incremental_confidence: "high | medium | low"
 fallback_reason: null
 ```
@@ -227,7 +227,7 @@ snapshot_version: 1
 project_hash: "sha256(repo root + config)"
 created_at: "2026-06-13T00:00:00+08:00"
 commit: "abc123"
-prompt_version: "2.1.0"
+prompt_version: "2.3.0"
 rules_hash: "sha256:..."
 source_files:
   - path: "src/order/coupon.py"
@@ -285,7 +285,7 @@ source_files:
 
 ### v1：Prompt 和产物协议增量化
 
-- 在 `prompts/phase2_code_analysis_prompt.md` 增加 `incremental_analysis` / `incremental_hybrid_analysis`。
+- 在 `skills/testcase-generator/prompts/phase2_code_analysis_prompt.md` 增加 `incremental_analysis` / `incremental_hybrid_analysis`。
 - 增加 `00_incremental_scope.md` 产物模板。
 - 在质量门禁中要求增量分析必须说明 base/head、影响面和回退原因。
 

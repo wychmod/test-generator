@@ -1,10 +1,10 @@
 # Testcase Generator 六阶段流水线
 
-> 目的：把分散在 `prompts/phase0..phase5`、`resources/output_artifacts.md`、`skill.manifest.json` 中的流水线信息，集中描述为一份可被新成员一次读完的「流水线全景图」。
+> 目的：把分散在 `skills/testcase-generator/prompts/phase0..phase5`、`skills/testcase-generator/resources/output_artifacts.md`、`skill.manifest.json` 中的流水线信息，集中描述为一份可被新成员一次读完的「流水线全景图」。
 >
-> 详细产物协议：[`../../resources/output_artifacts.md`](../../resources/output_artifacts.md)
+> 详细产物协议：[`../../skills/testcase-generator/resources/output_artifacts.md`](../../skills/testcase-generator/resources/output_artifacts.md)
 > 质量门禁细则：[`../quality/quality-gates.md`](../quality/quality-gates.md)
-> Skill 入口：[`../../SKILL.md`](../../SKILL.md)
+> Skill 入口：[`../../skills/testcase-generator/SKILL.md`](../../skills/testcase-generator/SKILL.md)
 > 能力声明：[`../../skill.manifest.json`](../../skill.manifest.json)
 
 ---
@@ -69,7 +69,7 @@
 - 阻断项中等 → 输出"草稿级需求分析 + 风险摘要"
 - 阻断项严重 → 直接停止流水线，要求用户补充输入
 
-详细规则：[`../../prompts/phase0_input_preprocessing_prompt.md`](../../prompts/phase0_input_preprocessing_prompt.md)
+详细规则：[`../../skills/testcase-generator/prompts/phase0_input_preprocessing_prompt.md`](../../skills/testcase-generator/prompts/phase0_input_preprocessing_prompt.md)
 
 ---
 
@@ -100,7 +100,7 @@
 - 所有推断内容标 [推断: 理由]
 - 矛盾点必须标 [冲突: 描述]，不得静默跳过
 
-详细规则：[`../../prompts/phase1_requirements_prompt.md`](../../prompts/phase1_requirements_prompt.md)
+详细规则：[`../../skills/testcase-generator/prompts/phase1_requirements_prompt.md`](../../skills/testcase-generator/prompts/phase1_requirements_prompt.md)
 
 ---
 
@@ -134,7 +134,7 @@
 - **需求-代码映射**：≥ 90% REQ 关联到代码位置
 - **增量代码行扫描**：`00_incremental_scope.md` 记录 changed lines、PRD 符合性和新增潜在 bug 信号
 
-详细规则：[`../../prompts/phase2_code_analysis_prompt.md`](../../prompts/phase2_code_analysis_prompt.md)
+详细规则：[`../../skills/testcase-generator/prompts/phase2_code_analysis_prompt.md`](../../skills/testcase-generator/prompts/phase2_code_analysis_prompt.md)
 
 ---
 
@@ -162,7 +162,7 @@
 - 无死状态
 - 与 Phase 1/2 术语全局统一
 
-详细规则：[`../../prompts/phase3_domain_analysis_prompt.md`](../../prompts/phase3_domain_analysis_prompt.md)
+详细规则：[`../../skills/testcase-generator/prompts/phase3_domain_analysis_prompt.md`](../../skills/testcase-generator/prompts/phase3_domain_analysis_prompt.md)
 
 ---
 
@@ -202,7 +202,7 @@
 - 单点覆盖元素占比 < 30%
 - 状态爆炸控制（< 50 个状态）
 
-详细规则：[`../../prompts/phase4_mbt_design_prompt.md`](../../prompts/phase4_mbt_design_prompt.md)
+详细规则：[`../../skills/testcase-generator/prompts/phase4_mbt_design_prompt.md`](../../skills/testcase-generator/prompts/phase4_mbt_design_prompt.md)
 
 ---
 
@@ -252,7 +252,7 @@ SEQUENCE = 三位数字序号（001 / 002 / ...）
 - 预期结果二元化（Pass/Fail 可判定）
 - 后置状态可验证
 
-详细规则：[`../../prompts/phase5_testcase_generation_prompt.md`](../../prompts/phase5_testcase_generation_prompt.md)
+详细规则：[`../../skills/testcase-generator/prompts/phase5_testcase_generation_prompt.md`](../../skills/testcase-generator/prompts/phase5_testcase_generation_prompt.md)
 
 ---
 
@@ -294,7 +294,7 @@ Skill 在交付后支持基于反馈的迭代改进：
 - 用户提供**漏测场景** → 扩展参数空间或状态机
 - 用户提供**规则修正** → 更新 prompt 或 manifest 中的能力声明
 
-反馈入口由 [`../../resources/feedback_template.md`](../../resources/feedback_template.md) 提供。
+反馈入口由 [`../../skills/testcase-generator/resources/feedback_template.md`](../../skills/testcase-generator/resources/feedback_template.md) 提供。
 
 ---
 

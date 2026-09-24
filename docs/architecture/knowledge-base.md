@@ -2,7 +2,7 @@
 
 > 目的：在不改六阶段流水线主流程的前提下，让 Skill 在生成用例时能够参考项目级知识。
 >
-> 用户文档：[`../../knowledge/README.md`](../../knowledge/README.md)
+> 用户文档：[`../../skills/testcase-generator/knowledge/README.md`](../../skills/testcase-generator/knowledge/README.md)
 >
 > 贡献指南：[`../development/adding-knowledge.md`](../development/adding-knowledge.md)
 >
@@ -19,7 +19,7 @@
 | **触发式注入** | 用户显式说"参考历史/查术语"才查 | 全局注入会污染 context、且无法控制敏感数据外泄 |
 | **可审计** | 索引 JSON 透明、可 git diff | 向量数据库不透明，难复现 |
 | **可分发** | 示例源进 `.skill`/`.zip`，用户内容不进 | ChromaDB 二进制 index 不便分发 |
-| **LLM 录入** | 首选复制 `knowledge/llm-ingest-template.md` 手动喂给大模型；也支持用户配置 shell 命令自动抽取 | 强绑 OpenAI SDK 限制灵活性 |
+| **LLM 录入** | 首选复制 `skills/testcase-generator/knowledge/llm-ingest-template.md` 手动喂给大模型；也支持用户配置 shell 命令自动抽取 | 强绑 OpenAI SDK 限制灵活性 |
 
 **为什么不直接做 Embedding/RAG？** 见后文 §7 演进路径。
 
@@ -48,13 +48,13 @@
               └────────────► rebuild_index ◄──────────────┘
                                     │
                                     ▼
-                          knowledge/index.json
+                          skills/testcase-generator/knowledge/index.json
                           (BM25 倒排索引)
 ```
 
 两侧职责分明：
 
-- **生产侧（手动模板或 `ingest.py`）**：把任意源材料 → 结构化 Markdown 条目。推荐用户复制 `knowledge/llm-ingest-template.md` 手动喂给大模型；需要自动化时再用 `ingest.py` 包装大模型命令。
+- **生产侧（手动模板或 `ingest.py`）**：把任意源材料 → 结构化 Markdown 条目。推荐用户复制 `skills/testcase-generator/knowledge/llm-ingest-template.md` 手动喂给大模型；需要自动化时再用 `ingest.py` 包装大模型命令。
 - **消费侧（`search.py`）**：把关键词查询 → Top-K 命中片段。BM25 负责"检索 + 排序"，脚本负责"切词 + 触发词识别 + snippet 渲染"。
 
 两侧通过 `index.json` 共享一个视图，**互不直接调用**。这保证：
@@ -74,13 +74,13 @@
 │           ▼                                                              │
 │   ┌──────────────────────────────────┐                                    │
 │   │ Phase 0 输入预处理               │                                    │
-│   │  ├─ 触发词检测                  │──命中"按规范"──► knowledge/scripts  │
+│   │  ├─ 触发词检测                  │──命中"按规范"──► skills/testcase-generator/knowledge/scripts  │
 │   │  └─ [可选] 调用 search.py        │                  /search.py       │
 │   └──────────────────────────────────┘                       │           │
 │           │ 检索结果注入 [参考知识]                              │           │
 │           ▼                                                  ▼           │
 │   ┌──────────────────────────────────┐      ┌──────────────────────┐    │
-│   │ Phase 1 需求分析                │      │ knowledge/index.json │    │
+│   │ Phase 1 需求分析                │      │ skills/testcase-generator/knowledge/index.json │    │
 │   │ ...                             │      │   ├─ sources[]       │    │
 │   │ (引用 [参考知识] 中的术语/规范)  │      │   ├─ inverted_index  │    │
 │   └──────────────────────────────────┘      │   └─ bm25_stats      │    │
@@ -111,7 +111,7 @@
 
 当前使用方式：
 
-1. 用户或宿主调用 `python knowledge/scripts/search.py "..."`
+1. 用户或宿主调用 `python skills/testcase-generator/knowledge/scripts/search.py "..."`
 2. 把命中片段整理为 `[参考知识]`
 3. Phase 0 保留知识来源，Phase 1 用于术语/规则参考，Phase 5 在用例追溯中写 `KB:`
 
@@ -151,7 +151,7 @@
 
 ### 4.2 算法实现
 
-**位置**：[`../../knowledge/scripts/build_index.py`](../../knowledge/scripts/build_index.py) 和 `search.py`
+**位置**：[`../../skills/testcase-generator/knowledge/scripts/build_index.py`](../../skills/testcase-generator/knowledge/scripts/build_index.py) 和 `search.py`
 
 **关键参数**（Robertson / Zaragoza 2009 默认）：
 
@@ -190,9 +190,9 @@ PRIORITY_WEIGHT = {"high": 1.5, "normal": 1.0, "low": 0.7}
 ## 5. 增量构建
 
 ```bash
-python knowledge/scripts/build_index.py                # 仅在源变化时重建
-python knowledge/scripts/build_index.py --rebuild      # 强制重建
-python knowledge/scripts/build_index.py --stats        # 看索引统计
+python skills/testcase-generator/knowledge/scripts/build_index.py                # 仅在源变化时重建
+python skills/testcase-generator/knowledge/scripts/build_index.py --rebuild      # 强制重建
+python skills/testcase-generator/knowledge/scripts/build_index.py --stats        # 看索引统计
 ```
 
 **变更检测**：基于源文件的 `mtime` + `sha256`，自动跳过未变化的文件。
@@ -200,7 +200,7 @@ python knowledge/scripts/build_index.py --stats        # 看索引统计
 **索引不入 git**（已在 `.gitignore`）：
 
 ```gitignore
-/knowledge/index.json
+/skills/testcase-generator/knowledge/index.json
 ```
 
 理由：
@@ -215,24 +215,24 @@ python knowledge/scripts/build_index.py --stats        # 看索引统计
 
 ### 6.1 进分发包的部分
 
-- ✅ `knowledge/README.md`（用户文档）
-- ✅ `knowledge/llm-ingest-template.md`（可复制给大模型的录入模板）
-- ✅ `knowledge/sources/*.md`（**示例源**：`domain-glossary.md`、`project-conventions.md`、`historical-cases.md`）
-- ✅ `knowledge/sources/README.md`（使用说明）
-- ✅ `knowledge/scripts/build_index.py`（构建工具）
-- ✅ `knowledge/scripts/search.py`（检索工具）
+- ✅ `skills/testcase-generator/knowledge/README.md`（用户文档）
+- ✅ `skills/testcase-generator/knowledge/llm-ingest-template.md`（可复制给大模型的录入模板）
+- ✅ `skills/testcase-generator/knowledge/sources/*.md`（**示例源**：`domain-glossary.md`、`project-conventions.md`、`historical-cases.md`）
+- ✅ `skills/testcase-generator/knowledge/sources/README.md`（使用说明）
+- ✅ `skills/testcase-generator/knowledge/scripts/build_index.py`（构建工具）
+- ✅ `skills/testcase-generator/knowledge/scripts/search.py`（检索工具）
 
 ### 6.2 不进分发包的部分
 
-- ❌ `knowledge/index.json`（本地构建产物）
+- ❌ `skills/testcase-generator/knowledge/index.json`（本地构建产物）
 - ❌ 用户后续添加的所有 `.md`（属于个人/项目，不应分发）
 
 ### 6.3 manifest 同步点
 
 `skill.manifest.json` 中：
 
-- `运行时文件` 列表追加 `knowledge/README.md`、`knowledge/llm-ingest-template.md`、`knowledge/sources/**`、`knowledge/scripts/**`
-- `分发排除` 列表追加 `knowledge/index.json`
+- `运行时文件` 列表追加 `skills/testcase-generator/knowledge/README.md`、`skills/testcase-generator/knowledge/llm-ingest-template.md`、`skills/testcase-generator/knowledge/sources/**`、`skills/testcase-generator/knowledge/skills/testcase-generator/scripts/**`
+- `分发排除` 列表追加 `skills/testcase-generator/knowledge/index.json`
 
 ---
 
@@ -241,7 +241,7 @@ python knowledge/scripts/build_index.py --stats        # 看索引统计
 ### v1（当前）✅
 
 - 触发词 + BM25 + 本地 Markdown
-- `knowledge/llm-ingest-template.md` 支持用户手动喂给大模型并生成可索引 Markdown
+- `skills/testcase-generator/knowledge/llm-ingest-template.md` 支持用户手动喂给大模型并生成可索引 Markdown
 - Phase 0/1/5 已定义 `[参考知识]` 消费规则和 `KB:` 追溯引用
 
 ### v1.1（短期） — 注入辅助
@@ -275,7 +275,7 @@ python knowledge/scripts/build_index.py --stats        # 看索引统计
 ### 8.1 基础健康度检查
 
 ```bash
-python knowledge/scripts/build_index.py --stats
+python skills/testcase-generator/knowledge/scripts/build_index.py --stats
 # 期望：sources ≥ 1, sections ≥ 1, vocab ≥ 10
 ```
 
@@ -301,7 +301,7 @@ python knowledge/scripts/build_index.py --stats
 
 ---
 
-## 9. 与现有 v2.1.0 能力的边界
+## 9. 与既有能力的边界
 
 | 能力 | 来源 | 与知识库的关系 |
 |---|---|---|

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """文档结构层护栏：检查 testcase-generator 文档之间的一致性。
 
-执行 6 类检查，输出 markdown 表格报告（pass / warn / fail 三档）：
+执行 9 类检查，输出 markdown 表格报告（pass / warn / fail 三档）：
 
 1. 版本号三处一致：SKILL.md front matter / README.md 标题 / skill.manifest.json "版本"
 2. 能力矩阵覆盖：skill.manifest.json 核心能力 ↔ SKILL.md ↔ prompts/phase*.md ↔ resources/output_artifacts.md
@@ -10,6 +10,9 @@
 5. 运行时分发清单：skill.manifest.json "运行时文件" 实际都存在
 6. 排他规则一致性：DISTRIBUTION.md "建议排除" ↔ skill.manifest.json "分发排除" ↔
    devtools/package_skill.py 的 STATIC_EXCLUDES + FORBIDDEN_ARCHIVE_PATTERNS
+7. 版本↔changelog：当前 manifest 版本必须有对应的正式 changelog
+8. docs/ 技能树路径：docs/ 引用技能内容时必须使用 skills/testcase-generator/ 前缀
+9. docs/ 相对链接：docs/ 下的 Markdown 相对链接必须能解析到真实文件（SKILL.md 已随技能树迁移）
 
 设计原则：
 - 不修改任何文件，只读不写
@@ -886,6 +889,143 @@ def check_changelog_exists() -> CheckResult:
     )
 
 
+# ---------- 检查 8：docs/ 中的技能树路径引用 ----------
+
+# 技能树内的顶层目录。docs/ 里若引用这些目录下的文件，路径必须带 SKILL_DIR 前缀。
+SKILL_TREE_DIRS = (
+    "config", "knowledge", "prompts", "references", "resources", "scripts", "templates",
+)
+
+_DIR_ALT = "|".join(SKILL_TREE_DIRS)
+# 已带正确前缀的引用不再重复判定，否则修好之后还会被反复报出来。
+_GUARD = rf"(?<!{re.escape(SKILL_DIR)}/)"
+
+# 文件级引用：`resources/output_artifacts.md`
+SKILL_TREE_TOKEN_RE = re.compile(_GUARD + rf"`?((?:{_DIR_ALT})/[A-Za-z0-9_./-]+)`?")
+
+# 通配 / 占位引用：`templates/*.md`、`knowledge/sources/<slug>.md`、`resources/*`
+#
+# **只在 `dir/` 后面紧跟通配符或占位符时才判定**。刻意不匹配裸目录名（如 `prompts/`）：
+# 对标报告一类文档会用裸目录名描述**其他项目**的布局（Agent Skills 标准本身就含
+# `scripts/` / `references/` / `assets/`），给它们加本项目的技能树前缀会是错的。
+# 而后接 `*` 或 `<` 必然是"某个具体文件的通配写法"，不存在这种歧义。
+SKILL_TREE_DIR_RE = re.compile(_GUARD + rf"`?((?:{_DIR_ALT})/)(?=[*<])`?")
+
+# Markdown 相对链接。`SKILL.md` 也随技能树迁移了，因此它只作为链接目标时才算路径
+# —— 正文里把 "SKILL.md" 当概念提到的场合很多，不能按路径判失效。
+MARKDOWN_LINK_RE = re.compile(r"\]\((?P<url>[^)\s]+)\)")
+
+# 行内代码段。检查链接前先把它屏蔽掉 —— 否则"解释 Markdown 语法"的文档
+# （例如正文里写 `` `](url)` ``）会被自己的检查当成真链接。
+CODE_SPAN_RE = re.compile(r"`[^`]*`")
+
+
+def mask_code_spans(line: str) -> str:
+    """把行内代码段替换为等长空白，保持其余内容与列位置不变。"""
+    return CODE_SPAN_RE.sub(lambda m: " " * len(m.group(0)), line)
+
+
+def find_broken_docs_links() -> list[str]:
+    """返回 docs/ 下无法解析的相对链接（`file:line → url`）。"""
+    broken: list[str] = []
+    docs_root = ROOT / "docs"
+    if not docs_root.is_dir():
+        return broken
+
+    for path in sorted(docs_root.rglob("*.md")):
+        relative = path.relative_to(ROOT).as_posix()
+        for lineno, line in enumerate(read_text(path).splitlines(), 1):
+            for match in MARKDOWN_LINK_RE.finditer(mask_code_spans(line)):
+                url = match.group("url").split("#", 1)[0].strip()
+                if not url or url.startswith(("http://", "https://", "mailto:", "file://")):
+                    continue
+                if not (path.parent / url).exists():
+                    broken.append(f"{relative}:{lineno} → {url}")
+
+    return broken
+
+
+def find_stale_docs_paths() -> list[str]:
+    """返回 docs/ 下指向技能树、却仍写成根级路径的引用（`file:line → token`）。"""
+    stale: list[str] = []
+    docs_root = ROOT / "docs"
+    if not docs_root.is_dir():
+        return stale
+
+    def misplaced(token: str) -> bool:
+        """技能树下有、仓库根没有 —— 只在这种确定的情况下判为失效。"""
+        return (ROOT / SKILL_DIR / token).exists() and not (ROOT / token).exists()
+
+    for path in sorted(docs_root.rglob("*.md")):
+        relative = path.relative_to(ROOT).as_posix()
+        for lineno, line in enumerate(read_text(path).splitlines(), 1):
+            seen: set[str] = set()
+            for pattern in (SKILL_TREE_TOKEN_RE, SKILL_TREE_DIR_RE):
+                for match in pattern.finditer(line):
+                    token = match.group(1).rstrip(".,;:、。")
+                    if token in seen or not misplaced(token):
+                        continue
+                    seen.add(token)
+                    stale.append(f"{relative}:{lineno} → {token}")
+
+    return stale
+
+
+def check_docs_skill_tree_paths() -> CheckResult:
+    """docs/ 必须以技能树路径引用技能内容。
+
+    判定是**零猜测**的：只有当"该文件在技能树下存在、且在仓库根不存在"时才算失效
+    —— 因此不会误报分析性文字（例如对标报告里描述生态布局的 `prompts/`）。
+    这一项是针对 P1-4 迁移遗漏 78 处 `docs/` 引用的回归守卫。
+    """
+    docs_root = ROOT / "docs"
+    scanned = len(list(docs_root.rglob("*.md"))) if docs_root.is_dir() else 0
+    stale = find_stale_docs_paths()
+
+    if not stale:
+        return CheckResult(
+            "docs_skill_tree_paths",
+            "pass",
+            f"docs/ 下技能树路径引用均带 {SKILL_DIR}/ 前缀（已扫描 {scanned} 个文档）",
+        )
+
+    preview = "；".join(stale[:3])
+    more = f"（另有 {len(stale) - 3} 处）" if len(stale) > 3 else ""
+    return CheckResult(
+        "docs_skill_tree_paths",
+        "fail",
+        f"docs/ 中存在 {len(stale)} 处失效的技能树路径引用：{preview}{more}",
+        stale,
+    )
+
+
+def check_docs_markdown_links() -> CheckResult:
+    """docs/ 下的相对链接必须能解析到真实文件。
+
+    与 `check_docs_skill_tree_paths` 互补：后者管"路径写法"，本项管"链接是否可达"。
+    `SKILL.md` 迁入技能树后曾留下 4 个指向 `../../SKILL.md` 的死链，正是本项要拦的。
+    """
+    docs_root = ROOT / "docs"
+    scanned = len(list(docs_root.rglob("*.md"))) if docs_root.is_dir() else 0
+    broken = find_broken_docs_links()
+
+    if not broken:
+        return CheckResult(
+            "docs_markdown_links",
+            "pass",
+            f"docs/ 下相对链接均可解析（已扫描 {scanned} 个文档）",
+        )
+
+    preview = "；".join(broken[:3])
+    more = f"（另有 {len(broken) - 3} 处）" if len(broken) > 3 else ""
+    return CheckResult(
+        "docs_markdown_links",
+        "fail",
+        f"docs/ 中存在 {len(broken)} 个失效的相对链接：{preview}{more}",
+        broken,
+    )
+
+
 # ---------- 汇总与渲染 ----------
 
 def build_results() -> list[CheckResult]:
@@ -893,6 +1033,8 @@ def build_results() -> list[CheckResult]:
     results: list[CheckResult] = []
     results.append(check_version_alignment())
     results.append(check_changelog_exists())
+    results.append(check_docs_skill_tree_paths())
+    results.append(check_docs_markdown_links())
     results.extend(check_capability_coverage())
     results.extend(check_host_table_consistency())
     results.extend(check_npm_entrypoint())

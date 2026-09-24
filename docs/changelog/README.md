@@ -4,14 +4,13 @@
 
 ## 当前状态
 
-- 历史变更日志在 [`.harness/changelogs/`](../../.harness/changelogs/) 下，但目前只覆盖 harness 体系内部。
-- Skill 本体的版本变更在 [`../../SKILL.md`](../../SKILL.md) 顶部 YAML frontmatter 里记录（`version: 2.1.0`）。
+- 历史变更日志在 [`.harness/changelogs/`](../../.harness/changelogs/) 下，建议以那里为准。
+- Skill 本体的版本变更在 [`../../skills/testcase-generator/SKILL.md`](../../skills/testcase-generator/SKILL.md) 顶部 YAML frontmatter 里记录（`version` 字段）。
 - npm 包版本在 [`../../package.json`](../../package.json) 的 `version` 字段。
 
 ## 待写内容
 
 - [ ] **README.md**：版本索引（v2.x → 主要变化 → 迁移指南）
-- [ ] **v2.2.0.md**：下一个版本的计划变更（待 skill-author 启动）
 - [ ] **migration-v1-to-v2.md**：v1 → v2 的迁移指南（如有 v1 用户）
 
 ## 维护规则

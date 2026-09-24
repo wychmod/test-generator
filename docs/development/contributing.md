@@ -54,7 +54,7 @@
 | 重构 | `refactor/` | `refactor/activation-js-modularize` |
 | 文档 | `docs/` | `docs/pipeline-overview` |
 | 测试 | `test/` | `test/quality-gate-coverage` |
-| 发布 | `release/` | `release/v2.2.0` |
+| 发布 | `release/` | `release/v2.3.0` |
 
 ### Step 3：改 + 自测
 
@@ -101,9 +101,9 @@ PR 描述必须包含：
 | 2 | 顶部 YAML 元数据齐全（版本、阶段目标、输入来源、输出去向、对应核心能力） | 人工 review |
 | 3 | 后续阶段的 prompt 仍引用上一阶段的产物 ID | grep |
 | 4 | 测试基线 `.harness/eval/baselines/` 同步更新 | `python .harness/eval/run_eval.py` |
-| 5 | `resources/output_artifacts.md` 中对应阶段产物列表仍然准确 | 人工 review |
+| 5 | `skills/testcase-generator/resources/output_artifacts.md` 中对应阶段产物列表仍然准确 | 人工 review |
 
-### 3.2 改 `templates/*.md` 或 `resources/*.md`
+### 3.2 改 `skills/testcase-generator/templates/*.md` 或 `skills/testcase-generator/resources/*.md`
 
 | # | 检查项 |
 |---|---|
@@ -200,7 +200,7 @@ PR 描述必须包含：
 | 修改 `devtools/*.py` 的核心逻辑 | 单元测试 |
 | 修改 `bin/test-generator.js` 或 `lib/activation.js` | 单元测试 |
 | 修改 `prompts/phaseN` 的输出结构 | eval/baselines/ 加新基线 |
-| 修改 `templates/*.md` 字段 | eval/baselines/ 加新基线 |
+| 修改 `skills/testcase-generator/templates/*.md` 字段 | eval/baselines/ 加新基线 |
 
 ---
 
@@ -285,8 +285,8 @@ PATCH: 修复与文档更新
 
 ## 8. 不接受的改动
 
-- ❌ 把根目录 4 份 Markdown（SKILL.md / README.md / DISTRIBUTION.md / HOST_COMPATIBILITY.md）移到 `docs/`（会被 `package.json` `files`、`devtools/package_skill.py`、测试用例三处拒绝）
-- ❌ 在 `prompts/` 下添加与 6 个阶段无关的新文件（破坏 capability_audit 的能力标记检索）
+- ❌ 把根级 Markdown（`README.md` / `DISTRIBUTION.md` / `HOST_COMPATIBILITY.md`）与技能入口 `skills/testcase-generator/SKILL.md` 移到 `docs/`（会被 `package.json` `files`、`devtools/package_skill.py`、测试用例三处拒绝）
+- ❌ 在 `skills/testcase-generator/prompts/` 下添加与 6 个阶段无关的新文件（破坏 capability_audit 的能力标记检索）
 - ❌ 直接修改 `node_modules/` 内任何文件（应通过 `package.json` dependencies 升级）
 - ❌ 把 `.opencode/` `.mavis/` `.workbuddy/` 目录的内容提交进仓库（已在 `.gitignore`）
 - ❌ 在 `skill.manifest.json` 中删除 7 项核心能力中的任何一项
