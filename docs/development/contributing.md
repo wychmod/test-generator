@@ -14,9 +14,9 @@
 
 1. **改的是哪个能力？** 对应 `skill.manifest.json` 中的 7 项核心能力之一吗？
 2. **是否影响分发包？** 改完后的产物能正确进入 `.skill` / `.zip` / npm 吗？
-3. **是否影响宿主适配？** 改动会被 8 个适配器中的哪些发现？
+3. **是否影响宿主适配？** 改动会被 26 个适配器中的哪些发现？
 4. **是否有回归保护？** `.harness/eval/baselines/` 下的基线用例是否同步更新？
-5. **是否更新文档？** 涉及 SKILL.md / README.md / DISTRIBUTION.md 哪几个？
+5. **是否更新文档？** 涉及 `skills/testcase-generator/SKILL.md` / `README.md` / `DISTRIBUTION.md` 哪几个？
 
 任何一个回答为"不知道"，先停下来调研；任何一个回答为"否"，需要解释为什么可以不做。
 
@@ -76,13 +76,15 @@ PR 描述必须包含：
 - 业务场景或问题描述
 
 ## 校验
-- [ ] capability_audit.py 通过
-- [ ] node --test test/ 通过
-- [ ] python -m pytest test/ 通过
+- [ ] python devtools/capability_audit.py 通过
+- [ ] python devtools/skill_quality_audit.py 通过
+- [ ] python .harness/scripts/doc_consistency_audit.py 通过
+- [ ] npm test 通过
+- [ ] npm run test:python 通过
 - [ ] python devtools/package_skill.py 通过
-- [ ] 涉及 prompts 时，eval/baselines/ 同步更新
+- [ ] 涉及 prompts / templates 时，run_eval.py 不退化
 - [ ] 涉及 manifest 时，DISTRIBUTION.md / HOST_COMPATIBILITY.md 同步更新
-- [ ] SKILL.md / README.md 顶部声明若受影响已同步
+- [ ] skills/testcase-generator/SKILL.md / README.md 顶部声明若受影响已同步
 ```
 
 ### Step 5：Review + Merge
@@ -93,14 +95,14 @@ PR 描述必须包含：
 
 ## 3. 按改动类型的检查清单
 
-### 3.1 改 `prompts/phaseN_*.md`
+### 3.1 改 `skills/testcase-generator/prompts/phaseN_*.md`
 
 | # | 检查项 | 命令 / 工具 |
 |---|---|---|
 | 1 | capability_audit 仍能找到 7 项核心能力 | `python devtools/capability_audit.py` |
 | 2 | 顶部 YAML 元数据齐全（版本、阶段目标、输入来源、输出去向、对应核心能力） | 人工 review |
 | 3 | 后续阶段的 prompt 仍引用上一阶段的产物 ID | grep |
-| 4 | 测试基线 `.harness/eval/baselines/` 同步更新 | `python .harness/eval/run_eval.py` |
+| 4 | `python .harness/eval/run_eval.py` 不退化 | `python .harness/eval/run_eval.py` |
 | 5 | `skills/testcase-generator/resources/output_artifacts.md` 中对应阶段产物列表仍然准确 | 人工 review |
 
 ### 3.2 改 `skills/testcase-generator/templates/*.md` 或 `skills/testcase-generator/resources/*.md`
@@ -108,8 +110,9 @@ PR 描述必须包含：
 | # | 检查项 |
 |---|---|
 | 1 | 模板字段命名未被下游 prompt 硬编码（破坏一致性） |
-| 2 | `SKILL.md` 中对模板的引用仍然成立 |
+| 2 | `skills/testcase-generator/SKILL.md` 中对模板的引用仍然成立 |
 | 3 | 静态审计 `devtools/skill_quality_audit.py` 通过 |
+| 4 | 改完后路径引用需带 `<技能根>/` 前缀（`doc_consistency_audit.py` 会拦截裸路径） |
 
 ### 3.3 改 `adapters/<host>/`
 
@@ -127,31 +130,31 @@ PR 描述必须包含：
 | 6 | `HOST_COMPATIBILITY.md` 已同步更新（如改适配器） |
 | 7 | `devtools/package_skill.py` 仍能产出有效 `.skill` / `.zip` |
 
-### 3.5 改 `SKILL.md` / `README.md` / `DISTRIBUTION.md` / `HOST_COMPATIBILITY.md`
+### 3.5 改 `skills/testcase-generator/SKILL.md` / `README.md` / `DISTRIBUTION.md` / `HOST_COMPATIBILITY.md`
 
 | # | 检查项 |
 |---|---|
-| 1 | 这 4 份保留在根目录（不可移动） |
+| 1 | 前三者保留在仓库根（不可移动）；`SKILL.md` 位于技能树 `skills/testcase-generator/` 内 |
 | 2 | 内部链接使用相对路径 |
 | 3 | 顶部 YAML frontmatter（仅 SKILL.md）字段完整 |
 | 4 | 中文为主，术语与 `skill.manifest.json` 一致 |
-| 5 | `node --test test/activation.test.js` 通过（测试会校验这 4 份的存在） |
+| 5 | `npm test` 通过（测试会校验技能树入口与分发元数据的存在） |
 
 ### 3.6 改 `devtools/*.py`
 
 | # | 检查项 |
 |---|---|
-| 1 | `python -m pytest test/` 通过 |
+| 1 | `npm run test:python` 通过 |
 | 2 | `python devtools/capability_audit.py` 通过 |
 | 3 | `python devtools/package_skill.py` 成功生成两个产物 |
 | 4 | 双产物 `.skill` 与 `.zip` namelist 完全一致 |
-| 5 | 必需文件（SKILL.md / README.md / DISTRIBUTION.md / manifest）入包 |
+| 5 | 技能入口 `skills/testcase-generator/SKILL.md` 与根级元数据（README.md / DISTRIBUTION.md / HOST_COMPATIBILITY.md / skill.manifest.json）入包 |
 
 ### 3.7 改 `bin/*.js` / `lib/*.js`
 
 | # | 检查项 |
 |---|---|
-| 1 | `node --test test/activation.test.js` 通过 |
+| 1 | `npm test` 通过 |
 | 2 | `package.json` 中 `files` 与 `bin` 仍正确 |
 | 3 | `test-generator activate <env> --dry-run` 行为正确 |
 
@@ -182,8 +185,8 @@ PR 描述必须包含：
 
 | 范围 | 工具 | 位置 |
 |---|---|---|
-| Node.js 激活逻辑 | `node:test` | `test/activation.test.js` |
-| Python 工具链 | `pytest` | `test/test_skill_quality_audit.py` |
+| Node.js 激活逻辑 + 适配路由 | `node:test`（`npm test`） | `test/*.test.js` |
+| Python 工具链与审计 | `unittest`（`npm run test:python`） | `test/test_*.py` |
 
 ### 4.2 端到端评测
 
@@ -210,22 +213,22 @@ reviewer 必须逐项确认：
 
 ### 5.1 分发完整性
 
-- [ ] `python devtools/capability_audit.py` 21/21 通过
+- [ ] `python devtools/capability_audit.py` 全绿
 - [ ] `python devtools/package_skill.py` 成功生成 `.skill` 和 `.zip`，双产物一致
 - [ ] `git ls-files` 没有把不该跟踪的文件带入索引（参考 `.gitignore`）
 
 ### 5.2 测试通过
 
-- [ ] `python -m pytest test/` 5/5 通过
-- [ ] `node --test test/activation.test.js` 7/7 通过
+- [ ] `npm run test:python` 通过（当前 59/59）
+- [ ] `npm test` 通过（当前 27/27）
 - [ ] 若改了 prompts / templates：`python .harness/eval/run_eval.py` 不退化
 
 ### 5.3 文档同步
 
-- [ ] 涉及核心能力 → `SKILL.md` + `skill.manifest.json` 同步
+- [ ] 涉及核心能力 → `skills/testcase-generator/SKILL.md` + `skill.manifest.json` 同步
 - [ ] 涉及适配器 → `HOST_COMPATIBILITY.md` + `lib/activation.js` + `package.json` `files` 同步
 - [ ] 涉及打包边界 → `DISTRIBUTION.md` 同步
-- [ ] 版本号变更 → `SKILL.md` frontmatter + `package.json` + `skill.manifest.json` 三处一致
+- [ ] 版本号变更 → 改 `skill.manifest.json` 后跑 `python devtools/sync_version.py --write` 回写（勿手工各改各的）
 
 ### 5.4 安全与一致性
 
@@ -253,12 +256,13 @@ MINOR: 新增能力（如新增 phase、新增 adapter）
 PATCH: 修复与文档更新
 ```
 
-**三处必须同步**：
-- `SKILL.md` 顶部 YAML：`version: X.Y.Z`
-- `package.json`：`"version": "X.Y.Z"`
-- `skill.manifest.json`：`"版本": "X.Y.Z"`
+**版本号的唯一数据源是 `skill.manifest.json` 的「版本」字段**：
 
-由 `.harness/scripts/doc_consistency_audit.py` 自动校验。
+1. 改 `skill.manifest.json` 的 `"版本"`
+2. 跑 `python devtools/sync_version.py --write` 回写全部身份标记
+3. 跑 `python devtools/sync_version.py` 确认零漂移
+
+由 `.harness/scripts/doc_consistency_audit.py` 的 `version_alignment` 自动校验。
 
 ---
 
@@ -268,15 +272,14 @@ PATCH: 修复与文档更新
 
 ```
 1. 确认 main 分支所有 PR 已合并、CI 全绿
-2. 更新版本号（三处同步）
-3. 在 docs/changelog/vX.Y.Z.md 写变更日志
-4. 在 .harness/changelogs/vX.Y.Z.md 同步记录
-5. python devtools/capability_audit.py
-6. python devtools/package_skill.py（生成 .skill + .zip）
-7. 手动验证：抽样打开 .skill 中每个 phase prompt，无乱码
-8. npm publish（如果 npm 包有变更）
-9. git tag vX.Y.Z && git push --tags
-10. 在 GitHub 创建 Release，附 changelog 摘要
+2. 改 skill.manifest.json 的「版本」，跑 python devtools/sync_version.py --write 回写
+3. 在 .harness/changelogs/vX.Y.Z.md 写变更日志（需由 TEMPLATE 转正）
+4. 跑四层审计 + 两套单测（capability / quality / doc_consistency / run_eval + npm test / test:python）
+5. python devtools/package_skill.py（生成 .skill + .zip）
+6. 手动验证：抽样打开 .skill 中每个 phase prompt，无乱码
+7. npm publish（如果 npm 包有变更）
+8. git tag vX.Y.Z && git push --tags
+9. 在 GitHub 创建 Release，附 changelog 摘要
 ```
 
 发版后任何 hotfix 必须从 main 拉分支，单独 PR 回 main。

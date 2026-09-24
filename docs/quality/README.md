@@ -14,7 +14,7 @@
 
 ## 评测流水线
 
-评测流水线由 `.harness/eval/run_eval.py` 驱动，产出报告写到 `.harness/eval/HEALTH_REPORT.md`。基线用例存放于 `.harness/eval/baselines/`，**任何对 `skills/testcase-generator/prompts/` 或 `skills/testcase-generator/templates/` 的修改都必须同步更新基线**。
+评测流水线由 `.harness/eval/run_eval.py` 驱动，默认把报告打到 stdout；如需落盘用 `--output=<path>`（`HEALTH_REPORT.md` 是 v2.1.0 期的历史快照，不再自动更新）。基线用例存放于 `.harness/eval/baselines/`，**任何对 `skills/testcase-generator/prompts/` 或 `skills/testcase-generator/templates/` 的修改都必须同步更新基线**。
 
 ## 与 devtools/ 的关系
 

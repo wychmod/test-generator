@@ -168,19 +168,22 @@ const ENVIRONMENTS = {
 ### Step 7：审计 + 测试
 
 ```bash
-# 1. 能力审计（必须 21/21 PASS）
+# 1. 能力审计（必须全绿）
 python devtools/capability_audit.py
 
-# 2. Node 测试（必须 7/7 PASS，含新环境）
-node --test test/activation.test.js
+# 2. Node 测试（含新环境；用 npm test，勿写成 glob）
+npm test
 
 # 3. Python 测试
-python -m pytest test/
+npm run test:python
 
-# 4. 打包验证（必须生成两个产物）
+# 4. 文档护栏（宿主表三方一致）
+python .harness/scripts/doc_consistency_audit.py
+
+# 5. 打包验证（必须生成两个产物）
 python devtools/package_skill.py
 
-# 5. dry-run 验证激活逻辑
+# 6. dry-run 验证激活逻辑
 node bin/test-generator.js activate <host> --dry-run
 ```
 
@@ -254,8 +257,8 @@ cat .<entry_filename>
 | 4 | `HOST_COMPATIBILITY.md` | 入口表 + 激活表 + （必要时）降级策略章节 |
 | 5 | `package.json` | `files`（通常无需改动，`adapters/` 已涵盖） |
 | 6 | `README.md` | 触发命令示例中提到新环境名 |
-| 7 | `SKILL.md` 顶部 YAML | `description` 中括号备注新环境（如有空间） |
-| 8 | `dist/manifest 测试` | `node --test test/activation.test.js` 自动覆盖 |
+| 7 | `skills/testcase-generator/SKILL.md` 顶部 YAML | `description` 中括号备注新环境（如有空间） |
+| 8 | `dist/manifest 测试` | `npm test` 自动覆盖 |
 
 漏掉任何一处都会导致：
 

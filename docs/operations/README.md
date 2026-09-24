@@ -11,7 +11,7 @@
 - [ ] **distribution.md**：与根目录 `DISTRIBUTION.md` 互为补充，侧重运维视角
 - [ ] **host-compatibility.md**：与根目录 `HOST_COMPATIBILITY.md` 互为补充，侧重激活命令在不同平台的差异
 - [ ] **release-checklist.md**：发版流程（版本号更新 → manifest → 评测 → 打包 → npm publish → GitHub release）
-- [ ] **ci.md**：本地如何跑 `.harness/hooks/` 下的钩子、`.harness/eval/run_eval.py` 流水线
+- [ ] **ci.md**：本地如何复现 CI 的四层审计（capability / quality / doc_consistency）与 `.harness/eval/run_eval.py` 流水线
 
 ## 与根目录 4 份文档的关系
 
@@ -23,6 +23,6 @@
 
 ## 工具
 
-- [`../../devtools/package_skill.py`](../../devtools/package_skill.py) — 打包脚本（必须存在 `SKILL.md` / `README.md` / `DISTRIBUTION.md` / `skill.manifest.json`）
+- [`../../devtools/package_skill.py`](../../devtools/package_skill.py) — 打包脚本（必需 `README.md` / `DISTRIBUTION.md` / `HOST_COMPATIBILITY.md` / `skill.manifest.json`，以及技能入口 `skills/testcase-generator/SKILL.md`）
 - [`../../bin/test-generator.js`](../../bin/test-generator.js) — Node.js CLI 入口
 - [`../../lib/activation.js`](../../lib/activation.js) — 宿主激活逻辑
