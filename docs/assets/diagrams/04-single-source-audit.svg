@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 450" width="720" height="450" role="img" aria-labelledby="diagTitle diagDesc">
 <title id="diagTitle">单一数据源与三层审计闭环</title>
-<desc id="diagDesc">skill.manifest.json 作为版本单一数据源，经同步器与生成器发散，再由三层共 51 项审计与 CI 门禁收敛校验。</desc>
+<desc id="diagDesc">skill.manifest.json 作为版本单一数据源，经同步器与生成器发散，再由三层审计与 CI 门禁收敛校验。</desc>
 <rect width="720" height="450" fill="#FFFFFF"/>
 <defs>
 <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -28,8 +28,8 @@
 <path d="M534 168 L534 204" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 
 <rect x="40" y="208" width="640" height="62" rx="12" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
-<text x="360" y="230" font-family="'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif" font-size="13" font-weight="500" fill="#04342C" text-anchor="middle" dominant-baseline="central">三层审计 —— 共 51 项，全部只读、可独立运行</text>
-<text x="360" y="252" font-family="'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#085041" text-anchor="middle" dominant-baseline="central">capability_audit(30) · skill_quality_audit(6) · doc_consistency_audit(15)</text>
+<text x="360" y="230" font-family="'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif" font-size="13" font-weight="500" fill="#04342C" text-anchor="middle" dominant-baseline="central">三层审计 —— 合计 50+ 项，全部只读、可独立运行</text>
+<text x="360" y="252" font-family="'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#085041" text-anchor="middle" dominant-baseline="central">capability_audit(30) · skill_quality_audit(6) · doc_consistency_audit(20 起，动态)</text>
 
 <path d="M360 270 L360 306" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 

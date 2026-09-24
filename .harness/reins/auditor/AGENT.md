@@ -17,8 +17,10 @@
 | `devtools/skill_quality_audit.py` | 内容质量层 | 用例必填字段；阶段流水线；标准引用（ISO/IEC/IEEE 29119-3:2021）；版本漂移；质量门禁规则 |
 | `.harness/scripts/doc_consistency_audit.py` | 文档结构层 | 版本号三处一致；能力矩阵覆盖；宿主表三方一致；npm 入口三处出现；运行时清单存在；排他规则一致；技能树内路径写法；**`.harness/` 自身一致性** |
 
-> 三层共 52 项检查（capability 30 + quality 6 + doc_consistency 16）。
-> 其中 `doc_consistency_audit.py` 的 `harness_self_consistency` 专门守卫 `.harness/` 自身
+> 三层合计 50+ 项检查（capability 30 + quality 6 + doc_consistency 20 起）。
+> 前两层项数固定；`doc_consistency_audit.py` 的项数是**动态的**——全部通过时每类归并
+> 为一行，出现告警时按类别展开成多行，故此处只写**下界**（20），不写死具体数字。
+> 其中 `harness_self_consistency` 专门守卫 `.harness/` 自身
 > （宿主数、版本号、命令写法、`reins/` 角色数），所以 `.harness/` 的改动同样会被拦。
 
 ### 不在本 reins 范围

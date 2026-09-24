@@ -136,7 +136,7 @@
 - **版本单一数据源**:`skill.manifest.json` 的"版本"是唯一来源,`devtools/sync_version.py --write` 回写全部身份标记;插件清单同样由 `devtools/gen_plugin_manifests.py` **生成**,不再手工维护
 - **渐进披露层**:新增 `skills/testcase-generator/references/`,把交付协议、质量评审动作、知识库消费规则从入口下沉按需加载;`SKILL.md` 正文**瘦身 35%**
 - **进程内自检**:Node 单测新增适配路由与测试发现守卫;Python 测试 15 → 38 例;CI 引入 **Node 18 / 20 / 22 矩阵**,让 `engines: >=18` 的声明真正被验证
-- **三层审计扩至 51 项**:`capability_audit`(30)+ `skill_quality_audit`(6)+ `doc_consistency_audit`(15),其中 `docs/` 与 npm 发布载荷首次被纳入机器守卫
+- **三层审计扩至 50+ 项**:`capability_audit`(30)+ `skill_quality_audit`(6)+ `doc_consistency_audit`(20 起,随告警增多),其中 `docs/` 与 npm 发布载荷首次被纳入机器守卫
 - **发布载荷收口**:npm `files` 由裸目录改为精确条目,发布体积 **216.8 kB → 165.8 kB**(未压缩 636.2 → 472.7 kB),不再夹带 `__pycache__` 与本地索引
 - **面向 AI agent 的根 `AGENTS.md`**:Codex / Cursor / Copilot / Gemini CLI / Windsurf 等 20+ 工具原生读取
 
@@ -392,11 +392,13 @@ v2.3.0 起,本 Skill 支持一键激活到 **26 个 AI 宿主**:
 ### 单一数据源与三层审计
 
 <p align="center">
-  <img src="./docs/assets/diagrams/04-single-source-audit.svg" alt="单一数据源与三层审计闭环：manifest 经 sync_version 与 gen_plugin_manifests 发散，再由三层共 51 项审计与 CI 门禁收敛" width="900">
+  <img src="./docs/assets/diagrams/04-single-source-audit.svg" alt="单一数据源与三层审计闭环：manifest 经 sync_version 与 gen_plugin_manifests 发散，再由三层审计与 CI 门禁收敛" width="900">
 </p>
 
 凡可由源生成的内容一律不手写——版本号、插件清单都是**生成物**,
-再由三层审计(声明 30 / 内容 6 / 结构 15)与 CI 门禁收敛,把"声明漂移"变成机器可拦截的失败。
+再由三层审计(声明 30 / 内容 6 / 结构 20+)与 CI 门禁收敛,把"声明漂移"变成机器可拦截的失败。
+
+> 结构层的检查项数是**动态的**:所有检查都通过时每类归并为一行,出现告警时会按类别展开成多行。因此文档只承诺下界(20),不写死具体数字——写死必然漂移。
 
 ---
 
@@ -581,7 +583,9 @@ python devtools/skill_quality_audit.py
 python .harness/scripts/doc_consistency_audit.py
 ```
 
-三层共 **51 项检查**(30 + 6 + 15),覆盖:
+三层审计合计 **50+ 项检查**(声明层 30 + 内容层 6 + 结构层 20 起),覆盖:
+
+> 前两层项数固定;结构层项数动态(全绿时每类一行,出现告警按类别展开),故取**下界**表述。
 
 - **声明层** —— `SKILL.md` / `README.md` / `skill.manifest.json` 的版本与能力声明是否一致;
   Prompt、模板、资源文件是否齐全;Schema 是否有效;示例配置是否能被 Schema 验证;
@@ -692,7 +696,7 @@ testcase-generator/
 - **原生插件通路**:`.claude-plugin/plugin.json` + `marketplace.json`,支持 marketplace 一行安装
 - **生成物取代手写**:插件清单由 `devtools/gen_plugin_manifests.py` 生成、版本标记由 `devtools/sync_version.py` 回写,消除手工漂移
 - **`references/` 渐进披露层**:交付协议 / 质量评审 / 知识库用法从入口下沉,`SKILL.md` 正文瘦身 **-35%**
-- **三层审计扩至 51 项**:新增 `docs/` 技能树路径、`docs/` 相对链接、npm 发布载荷三项机器守卫,并全部并入 CI
+- **三层审计新增结构层守卫**:新增 `docs/` 技能树路径、`docs/` 相对链接、npm 发布载荷三项机器守卫,并全部并入 CI
 - **CI 加固**:拆为审计与 Node 测试两个 job,后者引入 **Node 18/20/22 矩阵**;新增测试发现守卫,断言脚本与测试文件集合一致
 - **发布载荷收口**:npm `files` 由裸目录改为精确条目,体积 216.8 kB → 165.8 kB,不再夹带 `__pycache__` 与本地索引
 - **激活器对齐清理**:重复激活幂等,旧版本残留的过期文件自动清理,共享目录与 `--target` 目录不误删
