@@ -79,6 +79,7 @@ SCOPES: list[tuple[str, list[str]]] = [
     ("package.json", ["package_version"]),
     ("config/*.json", ["config_description"]),
     ("prompts/*.md", ["doc_header", "tool_version_ref", "generator_label"]),
+    ("references/*.md", ["doc_header", "tool_version_ref"]),
     ("resources/*.md", ["doc_header", "tool_version_ref", "doc_title", "generator_label"]),
     ("templates/*.md", ["doc_header", "template_version", "tool_version_ref", "doc_title", "generator_label"]),
 ]

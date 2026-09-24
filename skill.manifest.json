@@ -60,6 +60,7 @@
     "adapters/**",
     "config/**",
     "prompts/**",
+    "references/**",
     "resources/**",
     "templates/**",
     "scripts/prd_reader.py",

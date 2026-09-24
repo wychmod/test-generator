@@ -37,6 +37,7 @@ testcase-generator-skill
 | `README.md` | 面向使用者和维护者的说明文档 |
 | `config/` | 配置 Schema 与示例配置 |
 | `prompts/` | 六阶段分析与生成提示词 |
+| `references/` | 交付协议、质量评审动作、知识库使用等按需加载的补充参考（渐进披露第三层） |
 | `resources/` | 质量检查、格式规范、反馈模板与阶段产物协议 |
 | `templates/` | 需求、状态图、测试用例等标准输出模板 |
 | `scripts/prd_reader.py` | 本地 PRD / Markdown / PDF 文件读取辅助工具 |
@@ -97,7 +98,7 @@ testcase-generator-skill
 | `bin/test-generator.js` | `bin/test-generator.js` | npm CLI 入口，只进入 npm 包，不进入 `.skill` / `.zip` |
 | `lib/activation.js` | `lib/activation.js` | npm 激活逻辑，只进入 npm 包，不进入 `.skill` / `.zip` |
 | `run_package.bat` | `devtools/run_package.bat` | Windows 打包入口，不属于运行时资产 |
-| `PACKAGING.md` | `docs/PACKAGING.md` 或保留根目录 | 发布维护说明，不属于 Skill 执行资产 |
+| `PACKAGING.md` | `docs/operations/packaging.md`（**已搬入**，根目录不再保留） | 发布维护说明，不属于 Skill 执行资产 |
 
 当前阶段已经完成开发工具迁移；后续如需进一步收口，可再将 `run_package.bat` 与发布文档统一收纳到 `devtools/` / `docs/`。
 
@@ -145,6 +146,10 @@ testcase-generator/
 │   ├── phase3_domain_analysis_prompt.md
 │   ├── phase4_mbt_design_prompt.md
 │   └── phase5_testcase_generation_prompt.md
+├── references/
+│   ├── delivery-protocol.md
+│   ├── quality-review.md
+│   └── knowledge-base-usage.md
 ├── resources/
 │   ├── feedback_template.md
 │   ├── output_artifacts.md
@@ -167,7 +172,7 @@ testcase-generator/
 - [ ] `SKILL.md` 主体内容为中文。
 - [ ] `SKILL.md` 的 description 能覆盖主要触发场景。
 - [ ] `resources/output_artifacts.md` 存在，且承接详细阶段产物说明。
-- [ ] `config/`、`prompts/`、`resources/`、`templates/` 均已入包。
+- [ ] `config/`、`prompts/`、`references/`、`resources/`、`templates/` 均已入包。
 - [ ] 本地验证产物 `test-output/` 未入包。
 - [ ] 多宿主镜像目录未入包。
 - [ ] 本地工作记忆 `.workbuddy/` 未入包。

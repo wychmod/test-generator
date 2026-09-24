@@ -447,11 +447,15 @@ python devtools/capability_audit.py --format json
 
 ```text
 testcase-generator/
-├── SKILL.md                              # 🔑 Skill 主文件(核心入口)
+├── SKILL.md                              # 🔑 Skill 主文件(核心入口，只做能力声明与路由)
+├── AGENTS.md                             # 🤖 面向 AI agent 的仓库操作说明(≤100 行)
 ├── README.md                             # 📖 本文件
 ├── DISTRIBUTION.md                       # 📦 分发边界与发布检查项
 ├── HOST_COMPATIBILITY.md                 # 🧩 宿主兼容性说明
-├── skill.manifest.json                   # 🗂️ 分发元数据与入包规则
+├── skill.manifest.json                   # 🗂️ 分发元数据与入包规则(版本的唯一数据源)
+├── .claude-plugin/                       # 🔌 客户端插件清单(由 devtools 生成)
+│   ├── plugin.json
+│   └── marketplace.json
 ├── run_package.bat                       # 🛠️ Windows 打包入口
 │
 ├── adapters/                             # 🔌 多宿主适配入口
@@ -474,6 +478,11 @@ testcase-generator/
 │   ├── phase3_domain_analysis_prompt.md
 │   ├── phase4_mbt_design_prompt.md
 │   └── phase5_testcase_generation_prompt.md
+│
+├── references/                           # 📎 按需加载的补充参考(渐进披露第三层)
+│   ├── delivery-protocol.md              #   最小交付协议、输出字段、交付深度
+│   ├── quality-review.md                 #   交付前必做的质量评审动作与边界
+│   └── knowledge-base-usage.md           #   知识库录入、触发词与消费规则
 │
 ├── scripts/                              # 🐍 运行时辅助脚本
 │   ├── prd_reader.py                     #   PRD / Markdown / PDF 读取辅助
