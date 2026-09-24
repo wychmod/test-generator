@@ -49,6 +49,23 @@
 
 可通过 `-g` 安装到用户本地目录，或通过 `--target <path>` 指定单个平台目标目录。`--target` 不支持 `activate all`，避免多个宿主写入同一个精确目录。`--global` 仍作为兼容写法保留。
 
+### 大小写不敏感文件系统上的入口冲突
+
+OpenClaw 的约定入口是 `skill.md`，而 canonical 入口是 `SKILL.md`。在 Windows / macOS
+这类**大小写不敏感**的文件系统上，两者指向**同一个文件**——照常写入适配器会把
+canonical `SKILL.md` 直接覆盖掉。
+
+因此 `test-generator activate openclaw` 检测到该冲突时会**跳过**写入 `skill.md`，
+保留 canonical `SKILL.md`，并输出明确提示：
+
+```text
+Host entry: skipped 'skill.md' — on case-insensitive filesystems it is the same file
+as 'SKILL.md'; the canonical file was kept.
+```
+
+适配器本身仍随运行时文件落到目标目录的 `adapters/openclaw/skill.md`，能力不受影响。
+在大小写敏感的 Linux 上两个文件可以共存，不会触发该保护。
+
 ## 能力差异与降级策略
 
 不同宿主对 Skill 的支持能力不同，必须允许优雅降级。

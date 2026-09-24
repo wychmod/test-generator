@@ -77,6 +77,12 @@ function printActivationResult(result, dryRun) {
   if (result.entry) {
     console.log(`Host entry: ${result.entry}`);
   }
+  if (result.entryCollision) {
+    const { target, conflict } = result.entryCollision;
+    console.log(
+      `Host entry: skipped '${target}' — on case-insensitive filesystems it is the same file as '${conflict}'; the canonical file was kept.`,
+    );
+  }
 }
 
 function run(argv = process.argv.slice(2)) {
