@@ -20,24 +20,43 @@
 
 | 编号 | 事项 | 状态 |
 |---|---|---|
-| P0-1 | `.claude-plugin/` 插件清单（`skills: ["."]` 零迁移） | ✅ 已完成，由 `devtools/gen_plugin_manifests.py` 生成并纳入 CI |
+> **本节记录截至 v2.3.0 的实施状态。** 表中"已完成"项均已落地并通过 CI。
+
+| 编号 | 事项 | 状态 |
+|---|---|---|
+| P0-1 | `.claude-plugin/` 插件清单 | ✅ 已完成，由 `devtools/gen_plugin_manifests.py` 生成并纳入 CI；**已在真机通过 `claude plugin validate`** |
 | P0-2 | 根 `AGENTS.md`（≤100 行） | ✅ 已完成 |
-| P0-3 | GitHub Actions CI（7 项必跑） | ✅ 已完成 |
+| P0-3 | GitHub Actions CI | ✅ 已完成（Guards + Node 18/20/22 矩阵） |
+| P1-4 | 技能树迁入 `skills/testcase-generator/`，替换镜像复制 | ✅ **已完成（v2.3.0）** —— 见下方"P1-4 实施说明" |
 | P1-5 | manifest 作为 plugin.json 的生成源 | ✅ 已完成（生成器 + `--check` + CI 门禁） |
 | P1-6 | SKILL.md 瘦身到路由层 | ✅ 已完成：正文 6,045 → 3,906 字符（-35%），细则下沉 `references/` |
-| P1-4 | 单一树 + 每客户端 manifest，替换 8 份镜像复制 | ⏸ **暂缓**（见下方"为何暂缓"） |
+| P2-7 | 发布到 skills.sh | ⏸ 布局依赖（`skills/<name>/`）**已就绪**，仅剩发布动作 |
 | P2-8 | 引入 agnix lint | ⏸ 未做：外部工具，需评估与自研审计的重叠度 |
-| P2-9 | devtools 单测 | ✅ 已完成（`sync_version` / `gen_plugin_manifests` 共 20 例，Python 用例 15 → 36） |
+| P2-9 | devtools 单测 | ✅ 已完成（Python 用例 15 → 38，Node 15 → 27） |
 | P2-10 | 收口 changelog + 版本↔changelog 守卫 | ✅ 已完成（新增 `changelog_exists` 审计项，已验证能拦截） |
 | P2-11 | `.agents/skills/` 兼容层 | ✅ 已满足：`codex` 宿主的本地目标本就是 `.agents/skills/testcase-generator` |
-| P2-7 | 发布到 skills.sh | ⏸ 依赖 P1-4 的 `skills/<name>/` 布局 |
 
-**为何 P1-4 暂缓**：该改造需要同时改动 manifest 运行时路径、`lib/activation.js`、
-4 个审计脚本中的硬编码路径、`package.json` 的 `files`、`README`/`DISTRIBUTION` 的目录树、
-以及 skill 自身的资源路由（`prompts/` 是否改名 `references/`）。本地镜像虽达 4.8 MB，
-但**全部在 `.gitignore` 内、不进入任何分发包**，因此它是"漂移风险"而非"分发缺陷"。
-在 P0 的原生安装通路尚未在真机验证（`claude plugin validate`）之前就动结构，
-会在生产 skill 上留下半破状态。建议作为独立版本（v2.3.0）推进。
+### P1-4 实施说明
+
+原计划作为独立版本推进（理由是"原生安装通路尚未真机验证前不应动结构"）。实际执行时
+发现该顾虑可以消除：**技能内部的相对引用随整棵树一起移动，因此全部保持有效**，
+需要改的只是技能树**之外**的引用点（manifest 运行时路径、`lib/activation.js`、
+4 个审计脚本、`package.json` `files`、目录树文档）。
+
+落地后：
+- 8 个宿主镜像由"整树复制"降级为"客户端原生发现 + 薄适配"，`openclaw` 的本地目标
+  改为 `.openclaw/skills/testcase-generator`（原目标已成为 canonical 本体）。
+- 顺带消除了 `skill.md` / `SKILL.md` 的大小写同路冲突（两者不再同层）。
+- 顺带消除了 `plugin.json` 里 `skills: ["."]` 这个无法在本机验证的字段语义假设。
+- `activate` 增加目录对齐清理 —— 镜像只增不删会让升级后的宿主目录残留旧版
+  `SKILL.md`，实测清理出 35 个陈旧文件。
+
+### 遗留缺口（截至 v2.3.0）
+
+**`docs/` 不在任何一致性审计覆盖范围内。** P1-4 的路径迁移因此遗漏了 `docs/` 下的
+48 处技能树路径引用（11 个文件），它们仍指向迁移前的 `prompts/` / `resources/` /
+`knowledge/` 等根级路径。这是本版留下的真实缺陷，需要在补齐 `docs/` 审计后统一修正 ——
+否则同类遗漏会反复发生。
 
 ---
 
