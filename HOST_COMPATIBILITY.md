@@ -64,7 +64,13 @@ as 'SKILL.md'; the canonical file was kept.
 ```
 
 适配器本身仍随运行时文件落到目标目录的 `adapters/openclaw/skill.md`，能力不受影响。
-在大小写敏感的 Linux 上两个文件可以共存，不会触发该保护。
+
+> **已知取舍**：冲突判定是**基于文件名**（而非探测文件系统大小写敏感性）的，因此该保护在
+> **所有平台**上一致生效 —— 包括大小写敏感的 Linux。代价是 Linux 上的 OpenClaw 宿主导出目录
+> 里不会出现根级 `skill.md`。这样做的理由是**跨平台行为可预测**：同一条 `activate` 命令在
+> CI（Linux）与开发者机器（Windows/macOS）上产出完全一致的结果，避免"本地能跑、CI 挂掉"。
+> 若需要 Linux 上的根级入口，可用 `test-generator activate openclaw --target <dir>` 指向一个
+> 专门的目录，或直接读取 `adapters/openclaw/skill.md`。
 
 ## 能力差异与降级策略
 

@@ -38,7 +38,7 @@
 - `.harness/hooks/README.md`：hooks 说明
 - `.harness/changelogs/README.md`：命名规范 + 必含字段
 - `.harness/changelogs/v2.1.0.md`：当前版本回填
-- `.harness/changelogs/v2.2.0-TEMPLATE.md`：发版模板
+- `.harness/changelogs/v2.3.0-TEMPLATE.md`：发版模板（下一版基线）
 - `.harness/eval/run_eval.py`：端到端 eval 流水线（fixture → prompt → 期望产物三维校验，离线可跑）
 - `.harness/eval/README.md` + `EXPECTED_OUTPUTS.md` + `baselines/README.md`
 

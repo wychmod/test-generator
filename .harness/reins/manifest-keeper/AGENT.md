@@ -15,7 +15,7 @@
 |---|---|
 | `skill.manifest.json` | 改运行时分发清单、分发排除、宿主适配入口、Node.js 安装入口 |
 | `DISTRIBUTION.md` | 改必须入包表、建议排除表、开发工具处理表、推荐分发包内容树、发布前检查项 |
-| `PACKAGING.md` | 改打包详细说明（与 manifest / DISTRIBUTION 同步） |
+| `docs/operations/packaging.md` | 改打包详细说明（与 manifest / DISTRIBUTION 同步；原根目录 `PACKAGING.md` 已搬入） |
 
 ### 不在本 reins 范围
 
@@ -59,7 +59,7 @@ python -c "import json; json.load(open('skill.manifest.json', encoding='utf-8'))
 ### 同步更新的文件
 - skill.manifest.json: <是否更新>
 - DISTRIBUTION.md: <是否更新>
-- PACKAGING.md: <是否更新>
+- docs/operations/packaging.md: <是否更新>
 
 ### 跨 reins 通知
 - skill-author: <如果改"核心能力"清单>

@@ -33,7 +33,7 @@
 | `skill.manifest.json` | 机器可读的中文分发元数据（运行时文件、分发排除、宿主入口） | 是 | 入包根目录 |
 | `DISTRIBUTION.md` | 人工可读的分发清单与发布检查项 | 是 | 入包根目录 |
 | `HOST_COMPATIBILITY.md` | 宿主兼容性矩阵与能力降级说明 | 是 | 入包根目录 |
-| `PACKAGING.md` | 打包与发布说明 | **否** | dev 工具说明文档 |
+| `docs/operations/packaging.md` | 打包与发布说明 | **否** | dev 工具说明文档（原根目录 `PACKAGING.md`，已搬入 `docs/operations/`） |
 | `adapters/` | 多宿主薄适配层（claude / codex / qoder / openclaw / trae / codebuddy / cursor / windsurf） | 是 | 不复制核心 prompts/templates |
 | `config/` | JSON Schema 与示例配置 | 是 | `testcase-config-schema.json` + `example-config.json` |
 | `prompts/` | 6 个阶段提示词（phase0..phase5） | 是 | AI 实际执行的指令源 |
@@ -58,6 +58,7 @@
 | 命令 | 用途 | 何时跑 |
 |---|---|---|
 | `python devtools/sync_version.py` | 版本单一数据源（以 `skill.manifest.json` 为准，`--check` 报漂移 / `--write` 一键回写） | 任何改版本号的动作前必跑 |
+| `python devtools/gen_plugin_manifests.py` | 客户端插件清单生成（`.claude-plugin/plugin.json` + `marketplace.json`，源同为 `skill.manifest.json`） | 改 manifest / package.json 后必跑 |
 | `python devtools/capability_audit.py` | 能力矩阵审计（Schema 有效、必需路径、版本对齐、版本同步、能力标记、宿主入口） | 改动 SKILL.md / prompts / resources / templates 后必跑 |
 | `python devtools/skill_quality_audit.py` | Skill 字段质量审计（用例字段、阶段流水线、标准引用、版本漂移） | 改动 prompt / template / quality_checklist 后必跑 |
 | `python devtools/package_skill.py` | 打包（先跑能力审计预检，再生成 `.skill` + `.zip` 并交叉校验） | 发布前必跑；改 manifest 排除规则后必跑 |
@@ -138,7 +139,7 @@ adapter **不能**：
 
 - `SKILL.md` 主体内容必须为中文（front matter 的 `description` 可以包含中英双语）
 - 所有 reins 的 `AGENT.md` 必须中文
-- `DISTRIBUTION.md` / `HOST_COMPATIBILITY.md` / `PACKAGING.md` 必须中文
+- `DISTRIBUTION.md` / `HOST_COMPATIBILITY.md` / `docs/operations/packaging.md` 必须中文
 - `README.md` 主体中文，代码块内可含英文命令
 - 适配器中：Claude / Qoder 中文优先；Codex / OpenClaw 英文优先但需中文补充
 
@@ -230,7 +231,7 @@ adapter **不能**：
 | [`.harness/scripts/README.md`](./scripts/README.md) | 护栏脚本使用说明 |
 | [`../DISTRIBUTION.md`](../DISTRIBUTION.md) | 分发清单与发布检查项 |
 | [`../HOST_COMPATIBILITY.md`](../HOST_COMPATIBILITY.md) | 宿主兼容性矩阵 |
-| [`../PACKAGING.md`](../PACKAGING.md) | 打包与发布详细说明 |
+| [`../docs/operations/packaging.md`](../docs/operations/packaging.md) | 打包与发布详细说明 |
 | [`../SKILL.md`](../SKILL.md) | 中文主入口 |
 | [`../README.md`](../README.md) | 面向使用者的说明 |
 | [`../skill.manifest.json`](../skill.manifest.json) | 机器可读的分发元数据 |
