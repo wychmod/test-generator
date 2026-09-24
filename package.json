@@ -28,7 +28,16 @@
     "access": "public"
   },
   "files": [
-    "skills",
+    "skills/testcase-generator/SKILL.md",
+    "skills/testcase-generator/config/*.json",
+    "skills/testcase-generator/prompts/*.md",
+    "skills/testcase-generator/references/*.md",
+    "skills/testcase-generator/resources/*.md",
+    "skills/testcase-generator/templates/*.md",
+    "skills/testcase-generator/scripts/*.py",
+    "skills/testcase-generator/knowledge/*.md",
+    "skills/testcase-generator/knowledge/sources/*.md",
+    "skills/testcase-generator/knowledge/scripts/*.py",
     "adapters",
     "bin",
     "lib",

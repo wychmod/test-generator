@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """文档结构层护栏：检查 testcase-generator 文档之间的一致性。
 
-执行 9 类检查，输出 markdown 表格报告（pass / warn / fail 三档）：
+执行 10 类检查，输出 markdown 表格报告（pass / warn / fail 三档）：
 
 1. 版本号三处一致：SKILL.md front matter / README.md 标题 / skill.manifest.json "版本"
 2. 能力矩阵覆盖：skill.manifest.json 核心能力 ↔ SKILL.md ↔ prompts/phase*.md ↔ resources/output_artifacts.md
@@ -13,6 +13,7 @@
 7. 版本↔changelog：当前 manifest 版本必须有对应的正式 changelog
 8. docs/ 技能树路径：docs/ 引用技能内容时必须使用 skills/testcase-generator/ 前缀
 9. docs/ 相对链接：docs/ 下的 Markdown 相对链接必须能解析到真实文件（SKILL.md 已随技能树迁移）
+10. npm 发布载荷：package.json 的 files 目录条目不得牵连被 gitignore 的本地/生成物
 
 设计原则：
 - 不修改任何文件，只读不写
@@ -28,8 +29,11 @@ import argparse
 import ast
 import json
 import re
+import shutil
+import subprocess
 import sys
 from dataclasses import asdict, dataclass, field
+from fnmatch import fnmatch
 from pathlib import Path
 from typing import Iterable
 
@@ -1026,6 +1030,89 @@ def check_docs_markdown_links() -> CheckResult:
     )
 
 
+# ---------- 检查 10：npm 发布载荷 ----------
+
+def ignored_by_git(paths: list[str]) -> set[str]:
+    """返回其中被 git 忽略的路径（相对仓库根）。git 不可用时返回空集。"""
+    if not paths or shutil.which("git") is None:
+        return set()
+    try:
+        # 刻意用字节模式：text=True 会把写入子进程的 "\n" 转成 os.linesep，
+        # 在 Windows 上会让 git 收到带 "\r" 的路径，输出也随之变脏。
+        proc = subprocess.run(
+            ["git", "check-ignore", "--stdin"],
+            cwd=ROOT,
+            input=("\n".join(paths) + "\n").encode("utf-8"),
+            capture_output=True,
+        )
+    except OSError:
+        return set()
+    # 退出码 1 表示"没有任何路径被忽略"，属正常情况
+    output = proc.stdout.decode("utf-8", errors="replace")
+    return {line.strip() for line in output.splitlines() if line.strip()}
+
+
+def check_npm_files_payload() -> CheckResult:
+    """`package.json` 的 `files` 不得把被 gitignore 的内容带进 npm 包。
+
+    `files` 是白名单，但**一旦列出目录，该目录下所有内容都会进包** —— 实测确认
+    `.npmignore` 对它无效（`__pycache__/`、`*.pyc`、本地构建的
+    `knowledge/index.json` 都会被静默发布，曾占发布体积的 75%）。
+
+    判定以 `.gitignore` 为单一可信源：**凡被 git 忽略的路径都是本地/生成物，
+    绝不该出现在发布包里**。这样既覆盖 Python 缓存这类通用产物，也覆盖项目自有的
+    构建产物，无需在审计里硬编码清单，也不会误伤"该进 npm 但不进 .skill/.zip"
+    的运行时文件（如 `bin/`、`lib/` —— 它们并未被忽略）。
+    """
+    pkg = read_json(ROOT / "package.json")
+    entries = list(pkg.get("files") or [])
+    if not entries:
+        return CheckResult(
+            "npm_files_payload", "warn", "package.json 未声明 files，npm 将回落到 .gitignore 规则"
+        )
+
+    problems: list[str] = []
+    candidates: list[str] = []
+    dir_owner: dict[str, str] = {}
+
+    for entry in entries:
+        hits = sorted(ROOT.glob(entry))
+        if not hits:
+            problems.append(f"{entry}（未匹配到任何文件）")
+            continue
+        # 通配条目只能匹配指定形态，不可能牵连产物
+        if any(ch in entry for ch in "*?["):
+            continue
+        for hit in hits:
+            if not hit.is_dir():
+                continue
+            for path in hit.rglob("*"):
+                if not path.is_file():
+                    continue
+                relative = path.relative_to(ROOT).as_posix()
+                candidates.append(relative)
+                dir_owner[relative] = entry
+
+    for relative in sorted(ignored_by_git(candidates)):
+        problems.append(f"{dir_owner.get(relative, '?')}/ 牵连 {relative}（被 .gitignore 排除）")
+
+    if problems:
+        preview = "；".join(problems[:4])
+        more = f"（另有 {len(problems) - 4} 处）" if len(problems) > 4 else ""
+        return CheckResult(
+            "npm_files_payload",
+            "fail",
+            f"package.json 的 files 目录条目会把 gitignore 的本地/生成物打进 npm 包：{preview}{more}",
+            problems,
+        )
+
+    return CheckResult(
+        "npm_files_payload",
+        "pass",
+        f"package.json 的 {len(entries)} 个 files 条目未牵连被 gitignore 的内容",
+    )
+
+
 # ---------- 汇总与渲染 ----------
 
 def build_results() -> list[CheckResult]:
@@ -1035,6 +1122,7 @@ def build_results() -> list[CheckResult]:
     results.append(check_changelog_exists())
     results.append(check_docs_skill_tree_paths())
     results.append(check_docs_markdown_links())
+    results.append(check_npm_files_payload())
     results.extend(check_capability_coverage())
     results.extend(check_host_table_consistency())
     results.extend(check_npm_entrypoint())

@@ -73,6 +73,7 @@ python devtools/package_skill.py
 - **`capability_audit.py` 的部分能力标记扫描的是 `skills/testcase-generator/resources/output_artifacts.md`**，不是 `SKILL.md`。把 SKILL.md 的章节下沉到 `references/` 时，请先确认标记仍可被审计发现。
 - **技能树内的文件引用技能树外的文件要跨三层。** 例如 `references/x.md` 指向仓库的 `docs/` 需要写 `../../../docs/...`（`references` → `testcase-generator` → `skills` → 仓库根）。
 - **文档里的可复制命令要放进围栏代码块，不要用「行内代码 + 全角句号」收尾。** 形如 `` `cmd`。 `` 的写法，从行尾拖选时会把 `。` 一起带走，粘进终端就是坏命令。真实踩过：`claude plugin marketplace add wychmod/test-generator。` → git 报 `is not a valid repository name`。
+- **`package.json` 的 `files` 不要列裸目录。** npm 会把该目录**所有**内容打进包，且 **`.npmignore` 对它无效**（实测确认）。曾经因此把 `__pycache__/*.pyc` 与本地构建的 `knowledge/index.json` 一起发布出去，占发布体积的 75%。用精确条目（`dir/*.md`、`dir/*.py`）。审计项 `npm_files_payload` 会拦住"目录条目牵连 gitignore 内容"。
 
 ---
 
