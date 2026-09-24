@@ -44,12 +44,10 @@
     "templates"
   ],
   "scripts": {
-    "test": "node --test test"
+    "test": "node --test \"test/**/*.test.js\"",
+    "test:python": "python -m unittest discover -s test -p \"test_*.py\""
   },
   "engines": {
     "node": ">=18"
-  },
-  "dependencies": {
-    "@wychmod-cn/testcase-generator-skill": "^2.1.0"
   }
 }
