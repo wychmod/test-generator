@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Guards & tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # The package has zero third-party dependencies (Node and Python alike),
+      # so there is deliberately no install step. If that ever changes, add it
+      # here and update package.json.
+
+      - name: Version markers are in sync
+        run: python devtools/sync_version.py
+
+      - name: Client plugin manifests are generated from the skill manifest
+        run: python devtools/gen_plugin_manifests.py
+
+      - name: Capability matrix audit
+        run: python devtools/capability_audit.py
+
+      - name: Skill quality audit
+        run: python devtools/skill_quality_audit.py
+
+      - name: Documentation consistency audit
+        run: python .harness/scripts/doc_consistency_audit.py
+
+      - name: Node tests (activation & adapter routing)
+        run: npm test
+
+      - name: Python tests (scan / knowledge / devtools)
+        run: npm run test:python
