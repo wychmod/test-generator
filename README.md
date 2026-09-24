@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>🔬 让大模型真正"写出能跑"的测试用例</strong><br>
-  <em>基于 MBT 方法论的六阶段智能流水线 · 一键激活到 8 个主流 AI 宿主</em>
+  <em>基于 MBT 方法论的六阶段智能流水线 · Agent Skills 标准布局 · 一键激活到 8 个主流 AI 宿主</em>
 </p>
 
 <p align="center">
@@ -10,6 +10,7 @@
   <a href="#-what"><strong>What</strong></a> ·
   <a href="#-how"><strong>How</strong></a> ·
   <a href="#-特性">特性</a> ·
+  <a href="#-安装与下载">安装与下载</a> ·
   <a href="#-快速开始">快速开始</a> ·
   <a href="#-架构">架构</a> ·
   <a href="#-使用指南">使用指南</a> ·
@@ -61,7 +62,7 @@
 
 ## 🎯 What · 它是什么
 
-**Test Generator** 是一个面向 AI Agent 的 **Skill 元件库 + 六阶段流水线框架**。
+**Test Generator** 是一个面向 AI Agent 的 **Agent Skill 包 + 六阶段流水线框架**。
 
 它做的事情可以一句话概括:
 
@@ -69,9 +70,13 @@
 > 通过 **六阶段流水线(输入预处理 → 需求预处理 → 代码分析 → 领域建模 → MBT 设计 → 用例生成)**,
 > 输出 **结构化、可评审、可追溯**的测试用例。
 
-它**不是一个 CLI 工具**,而是一个 **Skill 包**——安装后会被注入到你正在使用的 AI 宿主
+它**不是一个独立 CLI 工具**,而是一个 **Skill 包**——安装后会被注入到你正在使用的 AI 宿主
 (Claude Code / Codex / Qoder / CodeBuddy / Cursor / Windsurf / OpenClaw / Trae)中,
 让宿主 AI 按照这套方法论帮你生成用例。
+
+技能内容按 **Agent Skills 标准布局**放在 `skills/testcase-generator/`,因此支持标准布局的
+客户端(如 Claude Code)**克隆仓库或安装后即可自动发现**,无需任何额外激活步骤;
+`test-generator activate` 则负责其余不读标准布局的宿主。
 
 ---
 
@@ -87,7 +92,8 @@
 
 每一阶段都有独立 prompt + 质量门禁 + 双向追溯,而不是把一切都丢给大模型自由发挥。
 
-📖 **架构详解见** [docs/architecture/](./docs/architecture/) | **六阶段产出物详解** [resources/output_artifacts.md](./resources/output_artifacts.md)
+📖 **架构详解见** [docs/architecture/](./docs/architecture/) |
+**六阶段产出物详解** [skills/testcase-generator/resources/output_artifacts.md](./skills/testcase-generator/resources/output_artifacts.md)
 
 ---
 
@@ -122,10 +128,20 @@
 - **多宿主一键激活**:`test-generator activate all` 可一次性激活 Claude / Codex / Qoder / OpenClaw / Trae / CodeBuddy / Cursor / Windsurf
 
 ### 📚 v2.2.0 新增能力
-- **知识库辅助层**:新增 `knowledge/`,可维护项目术语、规范、历史用例和合规规则;支持 `build_index.py` 构建本地索引、`search.py` 检索命中片段、`ingest.py` 接入用户自定义 LLM 命令录入知识
-- **Phase 2 增量分析辅助**:新增 `scripts/incremental_code_scan.py`,可对 diff / patch 做新增行解析、PRD 需求 ID 匹配和潜在缺陷雷达输出
+- **知识库辅助层**:新增 `skills/testcase-generator/knowledge/`,可维护项目术语、规范、历史用例和合规规则;支持 `build_index.py` 构建本地索引、`search.py` 检索命中片段、`ingest.py` 接入用户自定义 LLM 命令录入知识
+- **Phase 2 增量分析辅助**:新增 `skills/testcase-generator/scripts/incremental_code_scan.py`,可对 diff / patch 做新增行解析、PRD 需求 ID 匹配和潜在缺陷雷达输出
 - **文档中心**:新增 `docs/`,集中维护架构、开发、发布、质量与 changelog 文档,根目录只保留分发必需入口
 - **激活体验优化**:npm CLI 支持 `activate all`,并保留 `activate <environment>`、`-g`、`--dry-run` 等单平台能力
+
+### 🧱 v2.3.0 新增能力(当前版本)
+- **Agent Skills 标准布局**:技能内容迁入 `skills/testcase-generator/`,客户端可**自动发现**,不再依赖自定义激活流程;仓库根只保留分发元数据、适配层与开发工具
+- **原生插件安装通路**:新增 `.claude-plugin/plugin.json` + `marketplace.json`,Claude Code 可一行 marketplace 安装,取代"先 `npm i` 再 `activate`"两步通路
+- **版本单一数据源**:`skill.manifest.json` 的"版本"是唯一来源,`devtools/sync_version.py --write` 回写全部身份标记;插件清单同样由 `devtools/gen_plugin_manifests.py` **生成**,不再手工维护
+- **渐进披露层**:新增 `skills/testcase-generator/references/`,把交付协议、质量评审动作、知识库消费规则从入口下沉按需加载;`SKILL.md` 正文**瘦身 35%**
+- **进程内自检**:Node 单测新增适配路由与测试发现守卫;Python 测试 15 → 38 例;CI 引入 **Node 18 / 20 / 22 矩阵**,让 `engines: >=18` 的声明真正被验证
+- **三层审计扩至 51 项**:`capability_audit`(30)+ `skill_quality_audit`(6)+ `doc_consistency_audit`(15),其中 `docs/` 与 npm 发布载荷首次被纳入机器守卫
+- **发布载荷收口**:npm `files` 由裸目录改为精确条目,发布体积 **216.8 kB → 165.8 kB**(未压缩 636.2 → 472.7 kB),不再夹带 `__pycache__` 与本地索引
+- **面向 AI agent 的根 `AGENTS.md`**:Codex / Cursor / Copilot / Gemini CLI / Windsurf 等 20+ 工具原生读取
 
 ---
 
@@ -145,14 +161,62 @@
 
 ---
 
-## 📦 安装
+## 📦 安装与下载
+
+四条通路,**按你的宿主挑一条**即可(可以叠加,互不冲突)。
+
+### 通路一:Claude Code 原生插件(**推荐**)
+
+Claude Code 支持 Agent Skills 标准布局与插件市场,这是**唯一不需要任何激活步骤**的安装方式
+——技能会被自动发现。两条命令,先加市场再装插件:
 
 ```bash
-# 方式一:Node.js/npm 安装并激活到宿主环境(最推荐)
-npm i @wychmod-cn/testcase-generator-skill
-test-generator activate all
+claude plugin marketplace add wychmod/test-generator
+claude plugin install testcase-generator@wychmod-testcase-generator
+```
 
-# 如需只激活单个平台,也可以使用:
+安装后插件名是 `testcase-generator`,市场名是 `wychmod-testcase-generator`
+(格式为 `<owner>-<包名>`,不要写反)。
+
+<details>
+<summary>遇到问题时先自检</summary>
+
+```bash
+# 校验清单元数据是否合规
+claude plugin validate .
+
+# 确认市场已加入
+claude plugin marketplace list
+```
+
+`claude plugin validate .` 会优先校验 `.claude-plugin/marketplace.json`。
+若报 `No manifest found in directory`,说明当前目录不是本项目根目录。
+
+</details>
+
+### 通路二:Vercel skills CLI(跨宿主)
+
+适合非 Claude 宿主,或想直接吃 GitHub 上的最新主干:
+
+```bash
+npx skills add https://github.com/wychmod/test-generator -y
+```
+
+### 通路三:npm CLI + 激活(**8 个宿主通用**)
+
+装 npm 包,再用 `test-generator` 命令把技能运行时文件复制到各宿主目录:
+
+```bash
+# 全局安装(推荐,之后在任何目录都能调用)
+npm i -g @wychmod-cn/testcase-generator-skill
+
+# 一次性激活全部 8 个宿主
+test-generator activate all
+```
+
+只想激活单个平台就换个环境名:
+
+```bash
 test-generator activate claude
 test-generator activate codex
 test-generator activate qoder
@@ -161,23 +225,48 @@ test-generator activate trae
 test-generator activate codebuddy
 test-generator activate cursor
 test-generator activate windsurf
-
-# 方式二:Vercel skills CLI
-npm install -g skills
-npx skills add https://github.com/wychmod/test-generator -y
-
-# 方式三:本地 ZIP 安装
-npx skills add ./testcase-generator.zip
-
-# 方式四:手动安装
-# 通过已打包的 Skill 文件安装
-# 在支持 .skill 的宿主平台中导入
-./testcase-generator.skill
-./testcase-generator.zip
 ```
 
-> 最推荐使用 `npm i @wychmod-cn/testcase-generator-skill` 安装;仅在无法使用 npm 时再选择 `testcase-generator.skill` 或 `testcase-generator.zip`。
-> npm 方式不会改变 `.skill` / `.zip` 产物,只是提供 `test-generator activate all` 和 `test-generator activate <environment>` 将 Skill 运行时文件复制到对应宿主目录。
+先看看会写哪些文件、不落盘:
+
+```bash
+test-generator activate claude --dry-run
+test-generator environments
+```
+
+`activate` 会**声明式对齐**目标目录:重复执行是幂等的,旧版本残留的过期文件会被清理,
+共享目录(如 `.cursor/rules`、`.windsurf/rules`)与 `--target` 指定的目录不会被误删。
+
+### 通路四:本地产物导入(离线 / 内网)
+
+发布产物是 `.skill`(标准)与 `.zip`(兼容),两者内容一致。从 GitHub Releases 下载后,
+在支持导入的宿主中直接导入:
+
+```text
+testcase-generator.skill
+testcase-generator.zip
+```
+
+也可以先克隆仓库,再走通路一(仓库根就是插件根):
+
+```bash
+git clone https://github.com/wychmod/test-generator.git
+cd test-generator
+claude plugin marketplace add ./
+```
+
+### 该选哪一条
+
+| 你的情况 | 选通路 | 是否需要激活 |
+|---|---|---|
+| 用 Claude Code | 一 | 否,自动发现 |
+| 用 Cursor / Windsurf / Qoder 等 | 二 或 三 | 二不需要,三需要 |
+| 内网、无法访问 GitHub / npm | 四 | 视宿主而定 |
+| 想固定版本、可回滚 | 三 或 四 | 三需要 |
+
+> **两种安装语义不同,别混用。** 通路一是"客户端按标准布局发现技能";
+> 通路三的 npm 入口是把技能文件**复制**到宿主目录,不会改变 `.skill` / `.zip` 产物,
+> 也不会让宿主去读 `skills/`。宿主缓存了旧版 `SKILL.md` 时,重新跑一次 `activate` 即可。
 
 ---
 
@@ -278,8 +367,8 @@ v2.2.0 起,本 Skill 支持一键激活到 **8 个主流 AI 宿主**:
 | API 契约测试 | `/testcase-generator openapi.yaml` | 重点查看契约与边界分析 |
 | 状态流专项分析 | `/testcase-generator [业务流程]` | 重点查看 Phase 3 / Phase 4 |
 | 合规交付 | `/testcase-generator [需求文档] --traceability=full` | 确保追溯矩阵完整 |
-| 知识库辅助生成 | `/testcase-generator 参考知识库 [功能描述]` | 先用 `knowledge/scripts/search.py` 检索相关规范或历史用例 |
-| 增量回归分析 | `/testcase-generator [diff/patch + PRD]` | 可先运行 `scripts/incremental_code_scan.py` 获取新增行、需求对齐与风险信号 |
+| 知识库辅助生成 | `/testcase-generator 参考知识库 [功能描述]` | 先用 `skills/testcase-generator/knowledge/scripts/search.py` 检索相关规范或历史用例 |
+| 增量回归分析 | `/testcase-generator [diff/patch + PRD]` | 可先运行 `skills/testcase-generator/scripts/incremental_code_scan.py` 获取新增行、需求对齐与风险信号 |
 
 ### 输出格式选择
 
@@ -329,15 +418,20 @@ test-output/
 └── quality_report.md
 ```
 
-更完整的阶段产物说明可参考:[`resources/output_artifacts.md`](./resources/output_artifacts.md)。
+更完整的阶段产物说明可参考:[`skills/testcase-generator/resources/output_artifacts.md`](./skills/testcase-generator/resources/output_artifacts.md)。
 
 ---
 
 ## 📚 知识库
 
-v2.2.0 新增本地知识库辅助层,用于保存生成测试用例时会反复参考的稳定信息,例如项目术语、命名规范、错误码约定、历史用例和合规规则。
+v2.2.0 引入本地知识库辅助层,用于保存生成测试用例时会反复参考的稳定信息,例如项目术语、命名规范、错误码约定、历史用例和合规规则。
+
+v2.3.0 起它位于技能树内 `skills/testcase-generator/knowledge/`。**在技能树目录下执行**下列命令
+(索引与检索脚本会按相对路径解析 `knowledge/`):
 
 ```bash
+cd skills/testcase-generator
+
 # 首次或修改 knowledge/sources 后重建索引
 python knowledge/scripts/build_index.py --rebuild
 
@@ -349,18 +443,21 @@ python knowledge/scripts/search.py "支付回调" --json --top-k 5
 
 录入新知识时,推荐复制 `knowledge/llm-ingest-template.md` 给大模型,让模型输出可索引 Markdown,再保存到 `knowledge/sources/<slug>.md`。使用知识库生成用例时,命令中写明"参考知识库""按规范""参考历史用例"即可;最终用例应在追溯引用中保留 `KB:` 来源。
 
+> `knowledge/index.json` 是**本地构建产物**,不随包分发、不提交到 git,首次使用必须先在技能树目录下重建索引。
+
 ---
 
 ## 🔎 增量代码扫描
 
-v2.2.0 新增 `scripts/incremental_code_scan.py`,用于 Phase 2 代码分析前的轻量辅助。它会解析 unified diff,提取新增行,尝试按 token overlap 匹配 PRD 需求,并标记常见高风险代码模式。
+v2.2.0 引入 `skills/testcase-generator/scripts/incremental_code_scan.py`,用于 Phase 2 代码分析前的轻量辅助。它会解析 unified diff,提取新增行,尝试按 token overlap 匹配 PRD 需求,并标记常见高风险代码模式。
 
 ```bash
+cd skills/testcase-generator
 python scripts/incremental_code_scan.py --diff-file changes.patch --prd requirements/coupon.md
 python scripts/incremental_code_scan.py --diff-file changes.patch --prd requirements/coupon.md --format markdown
 ```
 
-该脚本不是完整静态分析器,适合在 PR / patch 语境中快速给出"本次变更影响了什么、可能漏测什么、哪些新增行需要重点回归"的结构化上下文。
+该脚本不是完整静态分析器,适合在 PR / patch 语境中快速给出"本次变更影响了什么、可能漏测什么、哪些新增行需要重点回归"的结构化上下文。它是**可选依赖**:宿主不支持 Python 时会自动降级为纯文本分析。
 
 ---
 
@@ -403,8 +500,8 @@ python scripts/incremental_code_scan.py --diff-file changes.patch --prd requirem
 
 详细配置见:
 
-- [`config/example-config.json`](./config/example-config.json)
-- [`config/testcase-config-schema.json`](./config/testcase-config-schema.json)
+- [`skills/testcase-generator/config/example-config.json`](./skills/testcase-generator/config/example-config.json)
+- [`skills/testcase-generator/config/testcase-config-schema.json`](./skills/testcase-generator/config/testcase-config-schema.json)
 
 ---
 
@@ -425,21 +522,43 @@ python scripts/incremental_code_scan.py --diff-file changes.patch --prd requirem
 
 ### 一致性审计
 
-可使用开发审计脚本检查能力矩阵是否落地:
+本项目对"声明 / 内容 / 结构"三层分别设防,任何改动都要让三层全绿才能合并。
+三项都只读不写、可独立运行,也因此被接入 CI 作为 required check:
 
 ```bash
+# 声明层:能力矩阵、必需路径、版本对齐与否
 python devtools/capability_audit.py
 python devtools/capability_audit.py --format json
+
+# 内容层:Skill 标准字段、用例字段、阶段流水线、标准引用
+python devtools/skill_quality_audit.py
+
+# 结构层:文档之间的跨文件一致性
+python .harness/scripts/doc_consistency_audit.py
 ```
 
-审计会检查:
+三层共 **51 项检查**(30 + 6 + 15),覆盖:
 
-- `SKILL.md` / `README.md` / `skill.manifest.json` 的版本与能力声明是否一致
-- Prompt、模板、资源文件是否齐全
-- Schema 是否有效
-- 示例配置是否能被 Schema 验证
-- 反馈闭环与阶段产物资源是否存在
-- 分发层关键文件是否齐全
+- **声明层** —— `SKILL.md` / `README.md` / `skill.manifest.json` 的版本与能力声明是否一致;
+  Prompt、模板、资源文件是否齐全;Schema 是否有效;示例配置是否能被 Schema 验证;
+  反馈闭环与阶段产物资源是否存在;分发层关键文件是否齐全;版本标记是否漂移
+- **内容层** —— Skill frontmatter 标准字段、用例必备字段、六阶段流水线完整性、
+  标准引用规范(ISO/IEC/IEEE 29119 等)、陈旧版本字面量
+- **结构层** —— 版本号在 `SKILL.md` / `README.md` / `manifest` 三处一致;宿主表与
+  `adapters/` 与实际激活逻辑三方一致;npm 入口在文档中可查;入包边界的三份清单
+  (`DISTRIBUTION.md` / manifest / `package_skill.py`)互不矛盾;
+  `docs/` 内的技能树路径与相对链接可达;npm 发布载荷不夹带本地/生成物
+
+### 测试与 CI
+
+```bash
+npm test            # Node 单测:激活解析、适配路由、测试发现守卫
+npm run test:python # Python 单测:增量扫描、知识库、审计脚本
+```
+
+CI 分两个 job:**Guards (python)** 跑上述三项审计与 Python 测试,
+**Node tests** 用 **18 / 20 / 22 三档矩阵**跑 Node 单测 —— 这个矩阵不是装饰,
+`engines: >=18` 的声明正是靠它被真正验证。
 
 ---
 
@@ -484,33 +603,61 @@ testcase-generator/
 │   ├── qoder/                            #   Qoder / IDE 集成类宿主
 │   └── windsurf/                         #   Windsurf / Antigravity 软适配
 │
-├── docs/                                 # 🧭 内部文档中心
+├── bin/test-generator.js                 # ⌨️ npm CLI 入口(activate / environments)
+├── lib/activation.js                     # 🔁 宿主激活逻辑与目标目录解析
+│
+├── docs/                                 # 🧭 内部文档中心(不进包)
 │   ├── architecture/                     #   架构设计
 │   ├── development/                      #   开发指南
 │   ├── operations/                       #   打包与发布
 │   └── quality/                          #   质量与测试计划
 │
-├── devtools/                             # 🧪 开发与发布工具
-│   ├── capability_audit.py               #   能力矩阵与资产一致性审计
-│   ├── skill_quality_audit.py            #   Skill 标准字段与质量门禁审计
+├── test/                                 # ✅ Node 单测 + Python 审计测试(不进包)
+│
+├── devtools/                             # 🧪 开发与发布工具(不进包)
+│   ├── capability_audit.py               #   声明层审计(30 项)
+│   ├── skill_quality_audit.py            #   内容层审计(6 项)
 │   ├── sync_version.py                   #   版本单一数据源同步器
 │   ├── gen_plugin_manifests.py           #   客户端插件清单生成器
 │   └── package_skill.py                  #   Skill 打包脚本
 │
-├── .github/workflows/ci.yml              # ✅ CI(7 项必跑检查)
+├── .harness/                             # 🧠 AI 协作宪法 / reins / 文档护栏(不进包)
+│   └── scripts/doc_consistency_audit.py  #   结构层审计(15 项)
+│
+├── .github/workflows/ci.yml              # ✅ CI(审计 + Python 测试 + Node 18/20/22 矩阵)
 │
 └── test-output/                          # 🧾 本地测试输出示例(不参与分发)
 ```
+
+> `skills/` 是**技能内容的唯一来源(canonical)**,必须被 git 跟踪;
+> 而 `.claude/` `.codebuddy/` `.cursor/` 等宿主目录里的是 `activate` 生成的**镜像**,
+> 已被 gitignore,不要手工编辑、也不要提交。
 
 ---
 
 ## 🔄 版本历史
 
-### v2.2.0 (2026-06)
-- 新增 `knowledge/` 本地知识库:支持项目术语、项目规范、历史用例、API 速查和合规规则的 Markdown 化管理
-- 新增 BM25 本地检索工具:`knowledge/scripts/build_index.py`、`knowledge/scripts/search.py`,支持触发词检索、source 过滤、JSON 输出和 Top-K 命中片段
-- 新增知识录入链路:`knowledge/llm-ingest-template.md` 支持手动喂给大模型,`knowledge/scripts/ingest.py` 支持通过用户配置的 LLM 命令自动写入 `knowledge/sources/`
-- 新增 `scripts/incremental_code_scan.py`:支持 diff 新增行解析、PRD 需求 ID / token 对齐、潜在 bug 规则扫描和 Markdown / JSON 输出
+> **v2.3.0 之前**与**之后**的路径不同。v2.3.0 是一次**破坏性重构**:技能内容从仓库根
+> 迁入 `skills/testcase-generator/`,凡硬编码过 `prompts/`、`resources/`、`templates/`、
+> `config/`、`scripts/`、`knowledge/` 根路径的外部脚本都要补上前缀。详见
+> [`.harness/changelogs/v2.3.0.md`](./.harness/changelogs/v2.3.0.md)。
+
+### v2.3.0 (2026-09)
+- **Agent Skills 标准布局**:技能内容迁入 `skills/testcase-generator/`,客户端自动发现,不再依赖自定义激活流程
+- **原生插件通路**:`.claude-plugin/plugin.json` + `marketplace.json`,支持 marketplace 一行安装
+- **生成物取代手写**:插件清单由 `devtools/gen_plugin_manifests.py` 生成、版本标记由 `devtools/sync_version.py` 回写,消除手工漂移
+- **`references/` 渐进披露层**:交付协议 / 质量评审 / 知识库用法从入口下沉,`SKILL.md` 正文瘦身 **-35%**
+- **三层审计扩至 51 项**:新增 `docs/` 技能树路径、`docs/` 相对链接、npm 发布载荷三项机器守卫,并全部并入 CI
+- **CI 加固**:拆为审计与 Node 测试两个 job,后者引入 **Node 18/20/22 矩阵**;新增测试发现守卫,断言脚本与测试文件集合一致
+- **发布载荷收口**:npm `files` 由裸目录改为精确条目,体积 216.8 kB → 165.8 kB,不再夹带 `__pycache__` 与本地索引
+- **激活器对齐清理**:重复激活幂等,旧版本残留的过期文件自动清理,共享目录与 `--target` 目录不误删
+- **根 `AGENTS.md`**:面向 AI coding agent 的仓库操作说明,20+ 工具原生读取
+
+### v2.2.0 (2026-06-15)
+- 新增 `skills/testcase-generator/knowledge/` 本地知识库:支持项目术语、项目规范、历史用例、API 速查和合规规则的 Markdown 化管理
+- 新增 BM25 本地检索工具:`build_index.py`、`search.py`,支持触发词检索、source 过滤、JSON 输出和 Top-K 命中片段
+- 新增知识录入链路:`llm-ingest-template.md` 支持手动喂给大模型,`ingest.py` 支持通过用户配置的 LLM 命令自动写入 `knowledge/sources/`
+- 新增 `skills/testcase-generator/scripts/incremental_code_scan.py`:支持 diff 新增行解析、PRD 需求 ID / token 对齐、潜在 bug 规则扫描和 Markdown / JSON 输出
 - 新增 `docs/` 文档中心,补充架构、开发、发布、质量与 changelog 文档入口
 - npm 激活命令支持 `test-generator activate all`,可一次性激活全部支持宿主;`--target` 保持为单平台激活专用
 
@@ -559,20 +706,6 @@ MIT License © 2024-2026 Test Generator Team
 
 ---
 
-## 🌟 相关项目
-
-如果你对 AI 工具链感兴趣,以下项目可能也对你有帮助:
-
-| 项目 | 简介 | Star |
-|---|---|---|
-| [**openai-gateway**](https://github.com/wychmod/openai-gateway) | ChatGPT 网关服务 · 多 API Key 负载均衡 · 飞书 OAuth | ⭐ 38 |
-| [**agent-v**](https://github.com/wychmod/agent-v) | AI Agent 实验场 · Tool-use / 多 Agent / RAG | — |
-| [**mini-spring**](https://github.com/wychmod/mini-spring) | 手写 Spring 源码学习项目 | ⭐ 23 |
-| [**db-router-springboot-starter**](https://github.com/wychmod/db-router-springboot-starter) | 自研分库分表 Spring Boot Starter | ⭐ 2 |
-| [**wychmod.github.io**](https://github.com/wychmod/wychmod.github.io) | 个人知识站 · 300+ 篇技术笔记 | ⭐ 3 |
-
----
-
 ## 🤝 贡献
 
 我们欢迎任何形式的贡献:
@@ -582,7 +715,7 @@ MIT License © 2024-2026 Test Generator Team
 - 💬 **Discussion** — 分享你的用例生成场景、最佳实践、踩坑经验
 - ⭐ **Star** — 你的 Star 是这个项目持续迭代的最大动力
 
-详细贡献指南见 [`CONTRIBUTING.md`](./CONTRIBUTING.md)。
+详细贡献指南见 [`docs/development/contributing.md`](./docs/development/contributing.md)。
 
 ---
 

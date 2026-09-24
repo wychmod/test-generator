@@ -122,7 +122,7 @@ npx skills add ./testcase-generator.zip
 发布 npm 包后，可通过全局安装获得 `test-generator` 命令：
 
 ```bash
-npm install -g testcase-generator-skill
+npm install -g @wychmod-cn/testcase-generator-skill
 
 # 激活到当前项目的宿主目录
 test-generator activate all

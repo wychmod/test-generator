@@ -65,11 +65,11 @@
 | `python devtools/skill_quality_audit.py` | Skill 字段质量审计（用例字段、阶段流水线、标准引用、版本漂移） | 改动 prompt / template / quality_checklist 后必跑 |
 | `python devtools/package_skill.py` | 打包（先跑能力审计预检，再生成 `.skill` + `.zip` 并交叉校验） | 发布前必跑；改 manifest 排除规则后必跑 |
 | `python .harness/scripts/doc_consistency_audit.py` | 文档护栏（版本号一致、能力矩阵覆盖、宿主表三方一致、npm 入口、排他规则一致、运行时清单） | 改动 SKILL.md / README / manifest / HOST_COMPATIBILITY / DISTRIBUTION / 任何 adapter 后必跑 |
-| `node --test "test/**/*.test.js"` | node 单测（`activation.test.js` 覆盖激活解析与复制；`adapter-routing.test.js` 覆盖 manifest ↔ ENVIRONMENTS ↔ adapters 三方一致） | 改 `lib/activation.js` / `bin/test-generator.js` / `skill.manifest.json` 的宿主入口后必跑 |
+| `node --test <显式文件列表>` | node 单测（`activation.test.js` 覆盖激活解析与复制；`adapter-routing.test.js` 覆盖 manifest ↔ ENVIRONMENTS ↔ adapters 三方一致；`test-discovery.test.js` 守卫脚本与测试文件集合一致） | 改 `lib/activation.js` / `bin/test-generator.js` / `skill.manifest.json` 的宿主入口后必跑 |
 | `node bin/test-generator.js environments` | 列出所有支持的宿主（claude / codebuddy / codex / cursor / openclaw / qoder / trae / windsurf） | 改动 `ENVIRONMENTS` 常量后必跑 |
 | `node bin/test-generator.js activate <env> --dry-run` | dry-run 激活，输出目标目录和文件数，不写盘 | 改激活逻辑后必跑 |
-| `npm test` | node 单测套件（`node --test "test/**/*.test.js"`） | CI / 发布前 |
-| `npm run test:python` | Python 单测套件（`unittest discover test/`，覆盖增量扫描、知识库、质量审计） | 改 `scripts/` / `knowledge/` / `devtools/` 后必跑 |
+| `npm test` | node 单测套件（**显式文件列表**，见 `package.json`；不要写成 glob —— `node --test` 的 glob 支持是 Node v21 才有的，会挂掉 CI 的 18/20） | CI / 发布前 |
+| `npm run test:python` | Python 单测套件（`unittest discover test/`，覆盖增量扫描、知识库、质量审计） | 改 `skills/testcase-generator/scripts/` / `.../knowledge/` / `devtools/` 后必跑 |
 
 > 三层防御：capability_audit（声明层） + skill_quality_audit（内容层） + doc_consistency_audit（结构层），
 > 任何改动都要让这三层全绿，否则不能合并。

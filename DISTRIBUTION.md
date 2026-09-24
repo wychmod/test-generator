@@ -18,10 +18,10 @@ testcase-generator.skill
 testcase-generator.zip
 ```
 
-Node.js/npm 产物名：
+Node.js/npm 产物名（npm 包名带 `@wychmod-cn/` scope）：
 
 ```text
-testcase-generator-skill
+@wychmod-cn/testcase-generator-skill
 ```
 
 > 如果宿主平台支持标准 Skill 包，优先使用 `.skill`；仅在宿主平台只接受 ZIP 时再使用 `.zip`。
