@@ -2,9 +2,15 @@
 
 > 本目录描述 testcase-generator 的设计意图、模块边界和数据流。
 
+## 本目录已有文档
+
+- ✅ [`pipeline-overview.md`](pipeline-overview.md)：六阶段流水线详解
+- ✅ [`knowledge-base.md`](knowledge-base.md)：本地知识库（触发式 BM25）
+- ✅ [`incremental-code-analysis-design.md`](incremental-code-analysis-design.md)：增量代码分析设计
+- ✅ [`skill-ecosystem-benchmark.md`](skill-ecosystem-benchmark.md)：Skill 生态对标与改进方案（Agent Skills / Agent Plugins / 多客户端组织方式）
+
 ## 待写内容
 
-- [ ] **pipeline-overview.md**：六阶段流水线详解（输入预处理 → 需求 → 代码分析 → 领域建模 → MBT 设计 → 用例生成）
 - [ ] **data-model.md**：核心数据结构（需求条目 / 用例条目 / 追溯矩阵 / 状态机）
 - [ ] **prompts-vs-templates.md**：prompts/ 与 templates/ 的职责边界
 - [ ] **quality-gate-flow.md**：阶段间质量门禁如何触发、各阶段产物的最低验收标准
