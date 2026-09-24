@@ -44,8 +44,9 @@
 4 个审计脚本、`package.json` `files`、目录树文档）。
 
 落地后：
-- 8 个宿主镜像由"整树复制"降级为"客户端原生发现 + 薄适配"，`openclaw` 的本地目标
+- 宿主镜像由"整树复制"降级为"客户端原生发现 + 薄适配"，`openclaw` 的本地目标
   改为 `.openclaw/skills/testcase-generator`（原目标已成为 canonical 本体）。
+  （v2.3.0 时为 8 个宿主，v2.3.0 后扩至 26 个，见 `HOST_COMPATIBILITY.md`。）
 - 顺带消除了 `skill.md` / `SKILL.md` 的大小写同路冲突（两者不再同层）。
 - 顺带消除了 `plugin.json` 里 `skills: ["."]` 这个无法在本机验证的字段语义假设。
 - `activate` 增加目录对齐清理 —— 镜像只增不删会让升级后的宿主目录残留旧版

@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>🔬 让大模型真正"写出能跑"的测试用例</strong><br>
-  <em>基于 MBT 方法论的六阶段智能流水线 · Agent Skills 标准布局 · 一键激活到 8 个主流 AI 宿主</em>
+  <em>基于 MBT 方法论的六阶段智能流水线 · Agent Skills 标准布局 · 一键激活到 26 个主流 AI 宿主</em>
 </p>
 
 <p align="center">
@@ -53,7 +53,7 @@
 |---|---|---|
 | **用例产出慢** | 4 小时/功能,迭代跟不上 | **15 分钟内一版能用** |
 | **AI 生成用例不敢用** | 幻觉严重、覆盖率不可控 | **结构化、可追溯、可评审** |
-| **多工具协作成本高** | Claude / Codex / Qoder / Cursor 各玩各的 | **一套 Skill 8 个宿主通用** |
+| **多工具协作成本高** | Claude / Codex / Qoder / Cursor 各玩各的 | **一套 Skill 26 个宿主通用** |
 
 **Test Generator 把"AI 生成测试用例"从 demo 拉到工程级**——不是 prompt 调优的玩具,
 是基于 ISTQB MBT 方法论,带质量门禁、双向追溯、反馈闭环的生产级方案。
@@ -82,15 +82,12 @@
 
 ## ⚙️ How · 它怎么工作
 
-```text
-用户输入 → [输入预处理] → [六阶段流水线] → [输出层]
-              ↓                ↓               ↓
-         格式规范化     P0→1→2→3→4→5      多阶段文档产物
-         质量评分         ↓               追溯矩阵
-         缺口识别      [Quality Gate]    反馈闭环
-```
+<p align="center">
+  <img src="./docs/assets/diagrams/02-pipeline.svg" alt="六阶段流水线与质量门禁：Phase 0 输入预处理 → Phase 1 需求分析 → Phase 2 代码分析 → Phase 3 领域建模 → Phase 4 MBT 设计 → Phase 5 用例生成，每阶段后接质量门禁，末端接反馈闭环与降级路径" width="900">
+</p>
 
 每一阶段都有独立 prompt + 质量门禁 + 双向追溯,而不是把一切都丢给大模型自由发挥。
+门禁阈值随阶段递增(80 → 90)。信息不足时不强行出全量用例,而是走**降级路径**输出测试点清单与风险摘要。
 
 📖 **架构详解见** [docs/architecture/](./docs/architecture/) |
 **六阶段产出物详解** [skills/testcase-generator/resources/output_artifacts.md](./skills/testcase-generator/resources/output_artifacts.md)
@@ -202,7 +199,7 @@ claude plugin marketplace list
 npx skills add https://github.com/wychmod/test-generator -y
 ```
 
-### 通路三:npm CLI + 激活(**8 个宿主通用**)
+### 通路三:npm CLI + 激活(**26 个宿主通用**)
 
 装 npm 包,再用 `test-generator` 命令把技能运行时文件复制到各宿主目录:
 
@@ -210,7 +207,7 @@ npx skills add https://github.com/wychmod/test-generator -y
 # 全局安装(推荐,之后在任何目录都能调用)
 npm i -g @wychmod-cn/testcase-generator-skill
 
-# 一次性激活全部 8 个宿主
+# 一次性激活全部 26 个宿主
 test-generator activate all
 ```
 
@@ -310,7 +307,7 @@ claude plugin marketplace add ./
 
 ## 🌐 多宿主支持
 
-v2.2.0 起,本 Skill 支持一键激活到 **8 个主流 AI 宿主**:
+v2.3.0 起,本 Skill 支持一键激活到 **26 个 AI 宿主**:
 
 | 宿主 | 适配方式 | 激活命令 |
 |---|---|---|
@@ -318,11 +315,33 @@ v2.2.0 起,本 Skill 支持一键激活到 **8 个主流 AI 宿主**:
 | **Codex** | 完整适配 | `test-generator activate codex` |
 | **Qoder** | 完整适配 | `test-generator activate qoder` |
 | **CodeBuddy**(腾讯云 AI 代码助手) | 完整适配 | `test-generator activate codebuddy` |
-| **Cursor** | 软适配(`.cursorrules`) | `test-generator activate cursor` |
-| **Windsurf / Antigravity** | 软适配(`.windsurfrules`) | `test-generator activate windsurf` |
-| **OpenClaw** | 兼容适配 | `test-generator activate openclaw` |
+| **OpenCode** | 完整适配 | `test-generator activate opencode` |
+| **Command Code** | 完整适配 | `test-generator activate commandcode` |
 | **Trae** | 完整适配 | `test-generator activate trae` |
+| **Cline** | 完整适配 | `test-generator activate cline` |
+| **Roo Code** | 完整适配 | `test-generator activate roo` |
+| **Kilo Code** | 完整适配 | `test-generator activate kilocode` |
+| **Gemini CLI** | 完整适配 | `test-generator activate gemini` |
+| **Qwen Code** | 完整适配 | `test-generator activate qwen` |
+| **Kiro** | 完整适配 | `test-generator activate kiro` |
+| **Factory Droid** | 完整适配 | `test-generator activate droid` |
+| **Goose**(Block) | 完整适配 | `test-generator activate goose` |
+| **OpenHands** | 完整适配 | `test-generator activate openhands` |
+| **GitHub Copilot** | 完整适配 | `test-generator activate githubcopilot` |
+| **Amp**(Sourcegraph) | 完整适配 | `test-generator activate amp` |
+| **Google Antigravity** | 完整适配 | `test-generator activate antigravity` |
+| **Pi** | 完整适配 | `test-generator activate pi` |
+| **MCPJam** | 完整适配 | `test-generator activate mcpjam` |
+| **Zencoder** | 完整适配 | `test-generator activate zencoder` |
+| **OpenClaw** | 兼容适配 | `test-generator activate openclaw` |
+| **Clawdbot** | 兼容适配 | `test-generator activate clawdbot` |
+| **Cursor** | 软适配(`.cursorrules`) | `test-generator activate cursor` |
+| **Windsurf** | 软适配(`.windsurfrules`) | `test-generator activate windsurf` |
 
+> **收录标准**:仅登记**有宿主官方文档佐证**的技能目录路径;第三方 CLI 的汇总清单
+> (如 Vercel `add-skill` 的 25 个 agent)只用于交叉核对,不作为收录依据。
+> 完整路径表与兼容性细节见 [`HOST_COMPATIBILITY.md`](./HOST_COMPATIBILITY.md)。
+>
 > 想全部激活?一行命令搞定:
 >
 > ```bash
@@ -333,15 +352,20 @@ v2.2.0 起,本 Skill 支持一键激活到 **8 个主流 AI 宿主**:
 
 ## 🏛️ 架构
 
+### 分层架构
+
+<p align="center">
+  <img src="./docs/assets/diagrams/01-architecture.svg" alt="分层架构：分发与安装层（npm CLI / 插件市场 / .skill 产物）→ 宿主适配层（26 个宿主）→ 技能树（SKILL.md / prompts / references / templates / resources / config / scripts / knowledge）→ 开发与质量保障层" width="900">
+</p>
+
+`skill.manifest.json` 是贯穿全层的契约文件——版本唯一数据源 + 分发边界定义,
+被 `lib/activation.js`、`package_skill.py` 与审计脚本共同读取。
+
 ### 整体流程
 
-```text
-用户输入 → [输入预处理] → [六阶段流水线] → [输出层]
-              ↓                ↓               ↓
-         格式规范化     P0→1→2→3→4→5      多阶段文档产物
-         质量评分         ↓               追溯矩阵
-         缺口识别      [Quality Gate]    反馈闭环
-```
+<p align="center">
+  <img src="./docs/assets/diagrams/02-pipeline.svg" alt="六阶段流水线与质量门禁" width="900">
+</p>
 
 ### 六阶段详解
 
@@ -353,6 +377,26 @@ v2.2.0 起,本 Skill 支持一键激活到 **8 个主流 AI 宿主**:
 | **Phase 3** | 领域建模 | 领域模型 + 状态机 + 参数空间 | 实体建模、状态完备性验证、组合优化 |
 | **Phase 4** | MBT 设计 | 测试模型 + 覆盖准则 + 路径集 | 风险导向设计、覆盖裁剪、错误猜测 |
 | **Phase 5** | 用例生成 | 用例集 + 套件摘要 + 追溯矩阵 | 结构化用例生成、去重、产物汇总 |
+
+### 宿主激活流程
+
+`test-generator activate` 把技能运行时文件声明式地对齐到宿主目录:
+
+<p align="center">
+  <img src="./docs/assets/diagrams/03-activation-flow.svg" alt="宿主激活流程：解析环境与目标目录 → 收集运行时文件 → 两级清理 → 复制文件写状态 → 写宿主入口，含安全边界说明" width="900">
+</p>
+
+两级清理是升级路径的关键:仅靠状态文件无法覆盖"从未装过状态文件的存量用户",
+因此对**归属明确**的目录再做一次声明式对齐。共享目录与 `--target` 目录一律只按状态文件精确删。
+
+### 单一数据源与三层审计
+
+<p align="center">
+  <img src="./docs/assets/diagrams/04-single-source-audit.svg" alt="单一数据源与三层审计闭环：manifest 经 sync_version 与 gen_plugin_manifests 发散，再由三层共 51 项审计与 CI 门禁收敛" width="900">
+</p>
+
+凡可由源生成的内容一律不手写——版本号、插件清单都是**生成物**,
+再由三层审计(声明 30 / 内容 6 / 结构 15)与 CI 门禁收敛,把"声明漂移"变成机器可拦截的失败。
 
 ---
 
@@ -608,6 +652,7 @@ testcase-generator/
 │
 ├── docs/                                 # 🧭 内部文档中心(不进包)
 │   ├── architecture/                     #   架构设计
+│   ├── assets/diagrams/                  #   📊 架构 / 流程图 SVG(README 引用)
 │   ├── development/                      #   开发指南
 │   ├── operations/                       #   打包与发布
 │   └── quality/                          #   质量与测试计划
@@ -651,6 +696,9 @@ testcase-generator/
 - **CI 加固**:拆为审计与 Node 测试两个 job,后者引入 **Node 18/20/22 矩阵**;新增测试发现守卫,断言脚本与测试文件集合一致
 - **发布载荷收口**:npm `files` 由裸目录改为精确条目,体积 216.8 kB → 165.8 kB,不再夹带 `__pycache__` 与本地索引
 - **激活器对齐清理**:重复激活幂等,旧版本残留的过期文件自动清理,共享目录与 `--target` 目录不误删
+- **宿主适配扩至 26 个**:在原有 8 个宿主基础上新增 OpenCode、Command Code、Cline、Roo Code、Kilo Code、Gemini CLI、Qwen Code、Kiro、Factory Droid、Goose、OpenHands、GitHub Copilot、Amp、Google Antigravity、Pi、MCPJam、Zencoder、Clawdbot。仅登记**有官方文档佐证**的路径;第三方 agent 清单只作交叉核对
+- **单一数据源收敛**:新增 `devtools/manifest.py` 作为 manifest 唯一访问层,`package_skill.py` / `capability_audit.py` / `doc_consistency_audit.py` / `gen_plugin_manifests.py` 不再各自 `json.load`
+- **`docs/**` 显式进入分发排除**:此前仅靠运行时白名单的副作用被排除,现由 `skill.manifest.json` 与 `DISTRIBUTION.md` 双向声明
 - **根 `AGENTS.md`**:面向 AI coding agent 的仓库操作说明,20+ 工具原生读取
 
 ### v2.2.0 (2026-06-15)
