@@ -322,6 +322,86 @@ def check_phase0_threshold_doc() -> CheckOutcome:
 
 
 # ---------------------------------------------------------------------------
+# Product naming contract (bidirectional)
+# ---------------------------------------------------------------------------
+
+
+# 产物名的形态：`<两位数序号>_<snake_case>.md`，加上无序号前缀的全局产物。
+# 这里刻意不扫带路径前缀的引用（如 `../../../docs/x.md`）——契约只管产物**文件名**。
+PRODUCT_NAME_RE = re.compile(r"\b(\d{2}_[a-z0-9_]+\.md)\b")
+GLOBAL_PRODUCTS = ("quality_report.md",)
+
+OUTPUT_ARTIFACTS_DOC = SKILL_DIR / "resources" / "output_artifacts.md"
+
+
+def _collect_product_names(text: str) -> set[str]:
+    names = set(PRODUCT_NAME_RE.findall(text))
+    for name in GLOBAL_PRODUCTS:
+        if name in text:
+            names.add(name)
+    return names
+
+
+def check_product_contract() -> CheckOutcome:
+    """Bidirectional product-name contract.
+
+    ``resources/output_artifacts.md`` is the **authoritative declaration**
+    of每阶段产物；每个 phase prompt 的「输出规范」是**生产侧**。
+
+    两个方向都必须闭合：
+
+    * 声明了但没有任何 prompt 认领 → ``fail``（孤儿声明，模型不知道该
+      在哪个阶段生成它，等于空头承诺）。
+    * prompt 认领了但声明里没有 → ``warn``（先于声明产出的新产物，
+      应回填 output_artifacts.md）。
+
+    这条检查的存在理由：Phase 0 的 `00_input_analysis.md` 与 Phase 5 的
+    `04/05` 编号颠倒，都是"声明侧与生产侧各写各的"导致的真实事故，
+    而三层审计都没有覆盖这个交叉面。
+    """
+
+    if not OUTPUT_ARTIFACTS_DOC.exists():
+        return CheckOutcome(
+            "product_contract",
+            "warn",
+            "resources/output_artifacts.md 不存在，跳过产物契约校验",
+        )
+    if not all(p.exists() for p in PROMPT_FILES):
+        missing = [p.name for p in PROMPT_FILES if not p.exists()]
+        return CheckOutcome(
+            "product_contract",
+            "warn",
+            "缺失 phase prompt，跳过产物契约校验: " + ", ".join(missing),
+        )
+
+    declared = _collect_product_names(_read_text(OUTPUT_ARTIFACTS_DOC))
+    produced: set[str] = set()
+    for prompt_path in PROMPT_FILES:
+        produced |= _collect_product_names(_read_text(prompt_path))
+
+    orphans = sorted(declared - produced)
+    undeclared = sorted(produced - declared)
+
+    if orphans:
+        return CheckOutcome(
+            "product_contract",
+            "fail",
+            "output_artifacts.md 声明了但无任何 prompt 认领的产物: " + ", ".join(orphans),
+        )
+    if undeclared:
+        return CheckOutcome(
+            "product_contract",
+            "warn",
+            "prompt 已认领但 output_artifacts.md 未声明的产物: " + ", ".join(undeclared),
+        )
+    return CheckOutcome(
+        "product_contract",
+        "pass",
+        f"产物契约双向闭合（声明 {len(declared)} 项，均被 phase prompt 认领）",
+    )
+
+
+# ---------------------------------------------------------------------------
 # Report
 # ---------------------------------------------------------------------------
 
@@ -418,7 +498,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return 2
 
     fixture_reports = [evaluate(spec) for spec in specs]
-    global_checks = [check_phase0_threshold_doc()]
+    global_checks = [check_phase0_threshold_doc(), check_product_contract()]
 
     if args.format == "json":
         payload = {
@@ -443,9 +523,15 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     failed = [fr for fr in fixture_reports if fr.status == "fail"]
     warned = [fr for fr in fixture_reports if fr.status == "warn"]
 
-    if failed:
+    # 全局检查同样参与退出码。此前只统计 fixture_reports，导致
+    # phase0_threshold_doc 等全局项无论 fail/warn 都不影响 CI——
+    # 新增的 product_contract 若被忽略，产物命名断层会静默复发。
+    global_failed = [c for c in global_checks if c.status == "fail"]
+    global_warned = [c for c in global_checks if c.status == "warn"]
+
+    if failed or global_failed:
         return 1
-    if args.strict and warned:
+    if args.strict and (warned or global_warned):
         return 1
     return 0
 

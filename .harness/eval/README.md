@@ -1,12 +1,14 @@
 # .harness/eval/ — 离线端到端 eval 流水线
 
 本目录提供 `testcase-generator` Skill 的**离线**回归流水线。它不调
-LLM、不连网络，只回答三个问题：
+LLM、不连网络，只回答四个问题：
 
 1. 每个 `test-fixtures/skill-eval/` 里的样本文件，phase0-5 的提示词
    是否都覆盖了对应的输入类型？
 2. `SKILL.md` / `skill.manifest.json` 是否声明了处理该类型的能力？
 3. 对每个 fixture 期望的产物路径，是否在 `test-output/` 里出现过？
+4. `output_artifacts.md` 声明的产物名与各 prompt 认领的产物名是否
+   双向闭合？
 
 跑分结果在 CI 入口与本地均可重现。
 
@@ -81,6 +83,23 @@ fixture 登记的 `capability_tokens`（如 `根据 API 规范生成接口测试
 在 `README.md` / `.harness/AGENTS.md` / `prompts/phase0_*.md` /
 `resources/quality_checklist.md` 中扫这个阈值是否被明文声明。如果
 没有，全局 `warn`——`AGENTS.md` §3 要求所有"必跑命令"的阈值都明确。
+
+### 5. 产物命名契约（全局）
+
+`resources/output_artifacts.md` 是产物的**权威声明**，各 phase prompt
+的「输出规范」是**生产侧**。两者必须双向闭合：
+
+| 方向 | 判定 | 含义 |
+|---|---|---|
+| 声明了、无 prompt 认领 | `fail` | 孤儿声明：模型不知道在哪个阶段生成它 |
+| prompt 认领了、未声明 | `warn` | 新产物先于声明落地，应回填声明 |
+
+> 这条检查来自两次真实事故：Phase 0 的 `00_input_analysis.md` 与
+> Phase 5 的 `04`/`05` 编号颠倒，都是"声明侧与生产侧各写各的"。
+> 三层审计各自只看单侧，覆盖不到这个交叉面。
+
+**全局检查同样参与退出码**：任一全局项 `fail` → 退出码 1；`--strict`
+下全局 `warn` 也阻断。
 
 ## 离线保证
 
