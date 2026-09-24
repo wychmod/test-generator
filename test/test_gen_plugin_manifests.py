@@ -66,11 +66,19 @@ class CommittedManifestTests(unittest.TestCase):
             marketplace.get("metadata", {}).get("description"),
             "marketplace.json 必须提供 metadata.description",
         )
-        self.assertTrue(marketplace.get("description"), "顶层 description 也应存在")
-        self.assertEqual(
-            marketplace["metadata"]["description"],
-            marketplace["description"],
-            "两个位置的描述必须一致（由同一 manifest 字段生成）",
+
+    def test_marketplace_avoids_keys_the_validator_rejects(self):
+        """校验器对未知顶层键是**报错**而非忽略 —— 多给字段会直接弄坏构建。
+
+        真实报错：`✘ root: Unrecognized key: "description"`。
+        曾因"两个位置都给更保险"的思路在顶层也写了一份 description。
+        """
+        marketplace = read_json(".claude-plugin/marketplace.json")
+
+        self.assertNotIn(
+            "description",
+            marketplace,
+            "顶层 description 会被 claude plugin validate 判为 Unrecognized key，只能写在 metadata.description",
         )
 
     def test_manifests_live_only_inside_the_plugin_directory(self):
@@ -154,11 +162,10 @@ class GeneratorUnitTests(unittest.TestCase):
             )
             self.assertEqual(marketplace["name"], "tester-demo-skill")
             self.assertEqual(marketplace["owner"]["name"], "tester")
-            # 市场级描述来自 manifest 的「市场说明」，两个位置给同一个值
+            # 市场级描述来自 manifest 的「市场说明」（只写 metadata，见上）
             self.assertEqual(
                 marketplace["metadata"]["description"], "Demo marketplace description."
             )
-            self.assertEqual(marketplace["description"], "Demo marketplace description.")
 
     def test_stale_plugin_json_is_detected(self):
         with tempfile.TemporaryDirectory() as tmp:

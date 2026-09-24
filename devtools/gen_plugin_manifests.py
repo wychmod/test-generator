@@ -87,13 +87,15 @@ def build_marketplace(skill: dict, pkg: dict) -> dict:
     name = first(skill["名称"])
     # 市场级描述与插件描述是两回事：前者说明"这个市场提供什么"，后者说明
     # "这个技能做什么"。缺失时 `claude plugin validate` 会发出告警。
-    # 规范把 `description` 定义在顶层，但校验器读取的是 `metadata.description`
-    # —— 两个位置给同一个值，避免依赖某一种读法。
+    #
+    # 位置**只能**是 `metadata.description`。曾经同时写过顶层 `description`
+    # （某些社区规范称其为正式位置），但校验器对未知顶层键是**报错**而非忽略：
+    #     ✘ root: Unrecognized key: "description"
+    # 因此这里严格只给一个位置 —— 多给字段不是冗余，是会直接弄坏构建。
     marketplace_description = first(skill["市场说明"])
     return {
         "name": f"{owner}-{name}",
         "owner": {"name": owner},
-        "description": marketplace_description,
         "metadata": {"description": marketplace_description},
         "plugins": [
             {
