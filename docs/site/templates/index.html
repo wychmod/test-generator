@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testcase Generator v{{VERSION}} · AI 驱动的测试用例生成 Skill</title>
+<meta name="description" content="基于 MBT 方法论的六阶段智能流水线：从需求、PRD、API 规范或源码生成结构化、可追溯、可执行的测试用例。一键激活到 26 个主流 AI 宿主。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%236366F1'/%3E%3Cpath d='M13 6h6v3h-2v6.2l6.4 10.2A2.4 2.4 0 0 1 21.3 29H10.7a2.4 2.4 0 0 1-2.1-3.6L15 15.2V9h-2V6z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/site/site.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">
+      <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#6366F1"/><path d="M13 6h6v3h-2v6.2l6.4 10.2A2.4 2.4 0 0 1 21.3 29H10.7a2.4 2.4 0 0 1-2.1-3.6L15 15.2V9h-2V6z" fill="#fff"/></svg>
+      Testcase Generator <span class="logo-badge">v{{VERSION}}</span>
+    </a>
+    <button class="nav-toggle" aria-label="打开导航">☰</button>
+    <nav class="nav-links">
+      <a href="#features">功能</a>
+      <a href="#pipeline">流水线</a>
+      <a href="#architecture">架构</a>
+      <a href="agents.html">Agent 提示词</a>
+      <a href="#hosts">多宿主</a>
+      <a href="#quickstart">快速开始</a>
+      <a class="nav-cta" href="https://github.com/wychmod/test-generator" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ Hero ============ -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badges">
+      <span class="badge">MBT · <b>ISO/IEC/IEEE 29119</b></span>
+      <span class="badge">Agent Skills 标准布局</span>
+      <span class="badge"><b>{{HOST_COUNT}}</b> 个 AI 宿主</span>
+      <span class="badge">MIT License</span>
+    </div>
+    <h1>让大模型真正写出<br><span class="grad">能跑的测试用例</span></h1>
+    <p class="hero-sub">
+      基于 ISTQB MBT 方法论的六阶段智能流水线：输入预处理 → 需求分析 → 代码分析 → 领域建模 →
+      MBT 设计 → 用例生成。带质量门禁、双向追溯、反馈闭环的生产级方案——不是 prompt 调优的玩具。
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="https://github.com/wychmod/test-generator" target="_blank" rel="noopener">在 GitHub 查看</a>
+      <a class="btn btn-ghost" href="agents.html">浏览 Agent 提示词 →</a>
+    </div>
+    <div class="cmd-bar">
+      <code>npm i -g @wychmod-cn/testcase-generator-skill</code>
+      <button class="copy-mini" data-copy-text="npm i -g @wychmod-cn/testcase-generator-skill">复制</button>
+    </div>
+    <div class="hero-gates">
+      <div class="gate-chip"><span class="p">P0 输入预处理</span><span class="v">≥ 80</span></div>
+      <div class="gate-chip"><span class="p">P1 需求分析</span><span class="v">≥ 80</span></div>
+      <div class="gate-chip"><span class="p">P2 代码分析</span><span class="v">≥ 80</span></div>
+      <div class="gate-chip hi"><span class="p">P3 领域建模</span><span class="v">≥ 85</span></div>
+      <div class="gate-chip hi"><span class="p">P4 MBT 设计</span><span class="v">≥ 85</span></div>
+      <div class="gate-chip top"><span class="p">P5 用例生成</span><span class="v">≥ 90</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Why ============ -->
+<section id="why">
+  <div class="container">
+    <p class="eyebrow">Why · 为什么会有这个项目</p>
+    <h2 class="section-title">测试工程师每天绕不开的三个痛点</h2>
+    <p class="section-lead">Test Generator 把「AI 生成测试用例」从 demo 拉到工程级——结构化、可追溯、可评审。</p>
+    <div class="pain-grid">
+      <div class="pain-card reveal">
+        <span class="pain-tag">PAIN 01</span>
+        <h3>用例产出慢</h3>
+        <p>4 小时/功能，手写用例的速度永远追不上迭代节奏。</p>
+        <span class="pain-goal">→ 15 分钟内产出一版能用的用例</span>
+      </div>
+      <div class="pain-card reveal">
+        <span class="pain-tag">PAIN 02</span>
+        <h3>AI 生成用例不敢用</h3>
+        <p>幻觉严重、覆盖率不可控，生成的用例没法直接进评审。</p>
+        <span class="pain-goal">→ 结构化、可追溯、可评审的产物</span>
+      </div>
+      <div class="pain-card reveal">
+        <span class="pain-tag">PAIN 03</span>
+        <h3>多工具协作成本高</h3>
+        <p>Claude / Codex / Qoder / Cursor 各玩各的，方法论无法复用。</p>
+        <span class="pain-goal">→ 一套 Skill，{{HOST_COUNT}} 个宿主通用</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 核心能力 ============ -->
+<section id="features">
+  <div class="container">
+    <p class="eyebrow">Features · 核心能力</p>
+    <h2 class="section-title">七项核心能力，覆盖测试设计全链路</h2>
+    <p class="section-lead">能力声明与 <code>skill.manifest.json</code> 逐字对齐——改一处，三层审计立即拦截。</p>
+    <div class="cap-grid">
+{{CORE_CAP_CARDS}}
+    </div>
+
+    <div class="feature-cols">
+      <div class="feature-col reveal">
+        <h3><span class="dot"></span>生产级架构</h3>
+        <ul>
+          <li><b>六阶段流水线</b>：输入预处理 → 需求预处理 → 代码分析 → 领域建模 → MBT 设计 → 用例生成</li>
+          <li><b>质量门禁系统</b>：关键阶段完成后可进行质量检查与一致性校验</li>
+          <li><b>双向可追溯</b>：需求 ↔ 测试用例之间可建立追溯矩阵</li>
+          <li><b>反馈闭环</b>：根据执行结果、漏测场景和规则修正持续优化产物</li>
+        </ul>
+      </div>
+      <div class="feature-col reveal">
+        <h3><span class="dot"></span>智能 AI 能力</h3>
+        <ul>
+          <li><b>多格式输入</b>：需求文档、PRD、API 规范、源代码、自然语言描述</li>
+          <li><b>输入质量预处理</b>：规范化、质量评分与缺口识别先行</li>
+          <li><b>歧义与风险识别</b>：发现模糊需求、边界遗漏、潜在冲突与测试盲区</li>
+          <li><b>本地知识库检索</b>：术语表 / 项目规范 / 历史用例的触发式 BM25 检索，用例追溯保留 <code>KB:</code> 引用</li>
+          <li><b>增量代码扫描</b>：从 unified diff 提取新增行，识别硬编码密钥、裸 <code>except</code>、SQL 拼接等风险信号</li>
+        </ul>
+      </div>
+      <div class="feature-col reveal">
+        <h3><span class="dot"></span>专业测试工程</h3>
+        <ul>
+          <li><b>MBT 方法论</b>：围绕领域模型、状态迁移、覆盖准则组织测试设计（对齐 ISO/IEC/IEEE 29119-3:2021）</li>
+          <li><b>边界值 + 等价类</b>：系统化支持 BVA / EP / 决策表等分析方法</li>
+          <li><b>状态机推导</b>：自动构建状态转换规格与路径集合</li>
+          <li><b>参数空间优化</b>：Pairwise、组合裁剪与风险导向覆盖</li>
+        </ul>
+      </div>
+      <div class="feature-col reveal">
+        <h3><span class="dot"></span>多场景覆盖</h3>
+        <ul>
+          <li><b>正向 / 负向</b>：Happy Path 与异常场景结合</li>
+          <li><b>接口 / 领域 / 状态</b>：API、业务流程、状态型系统测试</li>
+          <li><b>回归 / 审计 / 标准化</b>：测试补齐、测试审计、统一格式化输出</li>
+          <li><b>自动化适配</b>：为 Pytest / Playwright / Cucumber 落地提供基础骨架</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 六阶段流水线 ============ -->
+<section id="pipeline">
+  <div class="container">
+    <p class="eyebrow">Pipeline · 六阶段智能流水线</p>
+    <h2 class="section-title">每一阶段都有独立提示词 + 质量门禁</h2>
+    <p class="section-lead">门禁阈值随阶段递增（80 → 90）。信息不足时不强行出全量用例，而是走降级路径输出测试点清单与风险摘要。点击任意阶段查看详情。</p>
+
+    <div class="pipeline-tabs" role="tablist">
+      <button class="pipe-tab active" data-phase="p0"><span class="pt-phase">PHASE 0</span><span class="pt-name">输入预处理</span><span class="pt-gate">门禁 ≥ 80</span></button>
+      <button class="pipe-tab" data-phase="p1"><span class="pt-phase">PHASE 1</span><span class="pt-name">需求分析</span><span class="pt-gate">门禁 ≥ 80</span></button>
+      <button class="pipe-tab" data-phase="p2"><span class="pt-phase">PHASE 2</span><span class="pt-name">代码分析</span><span class="pt-gate">门禁 ≥ 80</span></button>
+      <button class="pipe-tab" data-phase="p3"><span class="pt-phase">PHASE 3</span><span class="pt-name">领域建模</span><span class="pt-gate">门禁 ≥ 85</span></button>
+      <button class="pipe-tab" data-phase="p4"><span class="pt-phase">PHASE 4</span><span class="pt-name">MBT 设计</span><span class="pt-gate">门禁 ≥ 85</span></button>
+      <button class="pipe-tab" data-phase="p5"><span class="pt-phase">PHASE 5</span><span class="pt-name">用例生成</span><span class="pt-gate">门禁 ≥ 90</span></button>
+    </div>
+    <div class="pipe-arrows"><span>↓</span><span>↓</span><span>↓</span><span>↓</span><span>↓</span><span>↓</span></div>
+    <div class="pipe-panel" id="pipe-panel"></div>
+
+    <div class="pipe-note" style="margin-top:28px">
+      六个阶段不是强串行链：只有 PRD → P0 → P1 → P5；只有 API 规范 → P0 → P2 → P5；
+      状态机 / 复杂规则 → 叠加 P3 → P4。编排者必须先做输入识别再决定路径——
+      详见 <a href="agents.html#orchestration">多 Agent 划分参考</a>。
+    </div>
+  </div>
+</section>
+
+<!-- ============ 架构 ============ -->
+<section id="architecture">
+  <div class="container">
+    <p class="eyebrow">Architecture · 分层架构</p>
+    <h2 class="section-title">一份 manifest 贯穿全层的契约式设计</h2>
+    <p class="section-lead">
+      <code>skill.manifest.json</code> 是版本唯一数据源 + 分发边界定义，被激活器、打包脚本与三层审计共同读取；
+      凡可由源生成的内容一律不手写。
+    </p>
+    <div class="diagram-grid">
+      <figure class="figure reveal">
+        <img src="assets/diagrams/01-architecture.svg" alt="分层架构：分发与安装层 → 宿主适配层 → 技能树 → 开发与质量保障层" loading="lazy">
+        <figcaption>分层架构：分发安装层 → 26 宿主适配层 → 技能树 → 质量保障层</figcaption>
+      </figure>
+      <figure class="figure reveal">
+        <img src="assets/diagrams/02-pipeline.svg" alt="六阶段流水线与质量门禁" loading="lazy">
+        <figcaption>六阶段流水线与质量门禁，末端接反馈闭环与降级路径</figcaption>
+      </figure>
+      <figure class="figure reveal">
+        <img src="assets/diagrams/03-activation-flow.svg" alt="宿主激活流程" loading="lazy">
+        <figcaption>宿主激活流程：声明式对齐 + 两级清理，重复执行幂等</figcaption>
+      </figure>
+      <figure class="figure reveal">
+        <img src="assets/diagrams/04-single-source-audit.svg" alt="单一数据源与三层审计闭环" loading="lazy">
+        <figcaption>单一数据源与三层审计闭环：声明漂移变成机器可拦截的失败</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Agent 提示词入口 ============ -->
+<section id="agents">
+  <div class="container">
+    <p class="eyebrow">Agent Prompts · 多 Agent 划分参考</p>
+    <h2 class="section-title">把六阶段流水线拆成多 Agent 系统</h2>
+    <p class="section-lead">
+      编排者（输入路由 / 门禁判定 / 回退降级）+ P0-P5 六个阶段 Agent（七节同构契约）+ 独立评审 Agent
+      （裁判席三原则、verdict 协议），附 30 项产物契约字典。全部提示词开放浏览、可直接复制。
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="agents.html">进入提示词库</a>
+      <a class="btn btn-ghost" href="agents.html#division-readme">先看划分总览</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 多宿主 ============ -->
+<section id="hosts">
+  <div class="container">
+    <p class="eyebrow">Multi-Host · 一套 Skill 处处可用</p>
+    <h2 class="section-title">{{HOST_COUNT}} 个主流 AI 宿主，一行命令全激活</h2>
+    <p class="section-lead">
+      收录标准：仅登记有宿主官方文档佐证的路径。
+    </p>
+    <div class="cmd-bar" style="margin:0 0 28px">
+      <code>test-generator activate all</code>
+      <button class="copy-mini" data-copy-text="test-generator activate all">复制</button>
+    </div>
+    <div class="host-wall">
+{{HOST_CHIPS}}
+    </div>
+    <div class="host-legend">
+      <span><i style="background:#6366F1"></i>完整适配（22）</span>
+      <span><i style="background:#64748B"></i>兼容适配（2）</span>
+      <span><i style="background:#FBBF24"></i>软适配 · rules 文件（2）</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 快速开始 ============ -->
+<section id="quickstart">
+  <div class="container">
+    <p class="eyebrow">Quick Start · 快速开始</p>
+    <h2 class="section-title">一句话，开始生成</h2>
+    <p class="section-lead">支持自然语言描述、PRD / 需求文档路径、模块名、接口说明、源代码或代码目录作为输入。</p>
+    <div class="quick-grid">
+      <div class="cmd-list reveal">
+        <div class="cmd-item"><code>/testcase-generator 为用户登录功能生成测试用例</code><button class="copy-mini" data-copy-text="/testcase-generator 为用户登录功能生成测试用例">复制</button></div>
+        <div class="cmd-item"><code>/testcase-generator ./requirements/order-system.md</code><button class="copy-mini" data-copy-text="/testcase-generator ./requirements/order-system.md">复制</button></div>
+        <div class="cmd-item"><code>/testcase-generator --format=gherkin --priority=P0,P1 支付模块完整测试</code><button class="copy-mini" data-copy-text="/testcase-generator --format=gherkin --priority=P0,P1 支付模块完整测试">复制</button></div>
+        <div class="cmd-item"><code>/testcase-generator 参考知识库,按项目规范生成登录密码强度测试用例</code><button class="copy-mini" data-copy-text="/testcase-generator 参考知识库,按项目规范生成登录密码强度测试用例">复制</button></div>
+        <div class="cmd-item"><code>/testcase-generator 根据本次 diff 和 PRD 生成优惠券模块回归测试</code><button class="copy-mini" data-copy-text="/testcase-generator 根据本次 diff 和 PRD 生成优惠券模块回归测试">复制</button></div>
+      </div>
+      <div class="reveal">
+        <table class="ref">
+          <thead><tr><th>测试深度</th><th>用例数量（估）</th><th>用时（估）</th><th>适用时机</th></tr></thead>
+          <tbody>
+            <tr><td><code>--depth=smoke</code></td><td>5-15</td><td>5-10 min</td><td>每次 CI 构建</td></tr>
+            <tr><td><code>--depth=standard</code></td><td>30-100</td><td>20-60 min</td><td>每日/每周构建</td></tr>
+            <tr><td><code>--depth=full</code></td><td>100-300</td><td>1-3 hr</td><td>版本发布前</td></tr>
+            <tr><td><code>--depth=exploratory</code></td><td>50-150</td><td>1-2 hr</td><td>安全/性能专项</td></tr>
+          </tbody>
+        </table>
+        <table class="ref" style="margin-top:24px">
+          <thead><tr><th>输出格式</th><th>适用场景</th></tr></thead>
+          <tbody>
+            <tr><td><code>--format=markdown</code></td><td>正式文档交付、人工评审（默认）</td></tr>
+            <tr><td><code>--format=gherkin</code></td><td>敏捷团队、Cucumber/Behave</td></tr>
+            <tr><td><code>--format=json</code></td><td>CI/CD 集成、工具链处理</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 质量保障 ============ -->
+<section id="quality">
+  <div class="container">
+    <p class="eyebrow">Quality · 质量保障</p>
+    <h2 class="section-title">门禁递增 + 三层审计，让声明漂移无处藏身</h2>
+    <div class="quality-grid" style="margin-top:40px">
+      <div class="reveal">
+        <div class="qgate-row"><span class="qname">P0 输入预处理</span><div class="qbar"><span style="width:80%"></span></div><span class="qval">≥ 80</span></div>
+        <div class="qgate-row"><span class="qname">P1 需求预处理</span><div class="qbar"><span style="width:80%"></span></div><span class="qval">≥ 80</span></div>
+        <div class="qgate-row"><span class="qname">P2 代码分析</span><div class="qbar"><span style="width:80%"></span></div><span class="qval">≥ 80</span></div>
+        <div class="qgate-row"><span class="qname">P3 领域建模</span><div class="qbar"><span style="width:85%"></span></div><span class="qval">≥ 85</span></div>
+        <div class="qgate-row"><span class="qname">P4 MBT 设计</span><div class="qbar"><span style="width:85%"></span></div><span class="qval">≥ 85</span></div>
+        <div class="qgate-row"><span class="qname">P5 用例生成</span><div class="qbar"><span style="width:90%"></span></div><span class="qval">≥ 90</span></div>
+        <p style="color:var(--faint);font-size:.84rem;margin-top:18px">
+          P5 的 90 分对应 skill_quality_audit 的 FORMAL_SCORE_THRESHOLD——只有达到它，产物才可声明为「正式测试用例」，低于阈值只能交付草稿。
+        </p>
+      </div>
+      <div class="audit-card reveal">
+        <h3>三层一致性审计 · 50+ 项机器检查</h3>
+        <ul style="margin:0;padding-left:18px">
+          <li><b>声明层</b> · <code>capability_audit</code>（30 项）：能力矩阵、必需路径、版本对齐、Schema 有效性</li>
+          <li><b>内容层</b> · <code>skill_quality_audit</code>（6 项）：frontmatter 标准字段、用例必备字段、流水线完整性</li>
+          <li><b>结构层</b> · <code>doc_consistency_audit</code>（20 起）：跨文件一致性、宿主三方一致、npm 发布载荷守卫</li>
+          <li><b>CI 矩阵</b>：Node 18 / 20 / 22 三档，让 <code>engines: &gt;=18</code> 的声明真正被验证</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 版本时间线 ============ -->
+<section id="changelog">
+  <div class="container">
+    <p class="eyebrow">Changelog · 版本历史</p>
+    <h2 class="section-title">从五阶段流程到多宿主 Skill 生态</h2>
+    <div class="timeline" style="margin-top:40px">
+      <div class="tl-item latest reveal">
+        <span class="tl-ver">v2.3.0 · 2026-09 · 当前版本</span>
+        <h3>Agent Skills 标准布局 + 原生插件通路</h3>
+        <p>技能内容迁入标准布局，客户端自动发现；插件清单与版本标记全部由生成物取代手写；references/ 渐进披露层让入口瘦身 35%；宿主扩至 26 个；发布载荷 216.8 kB → 165.8 kB。</p>
+      </div>
+      <div class="tl-item reveal">
+        <span class="tl-ver">v2.2.0 · 2026-06</span>
+        <h3>本地知识库 + 增量代码扫描</h3>
+        <p>知识库辅助层（术语 / 规范 / 历史用例，BM25 触发式检索）；incremental_code_scan 支持 diff 新增行解析与缺陷雷达；docs/ 文档中心建立；activate all 一键全宿主。</p>
+      </div>
+      <div class="tl-item reveal">
+        <span class="tl-ver">v2.1.0 · 2026-04</span>
+        <h3>六阶段成型 + 分发契约确立</h3>
+        <p>新增 Phase 0 输入预处理，升级为六阶段流水线；引入 skill.manifest.json 作为分发元数据；adapters/ 统一收口多宿主入口。</p>
+      </div>
+      <div class="tl-item reveal">
+        <span class="tl-ver">v2.0.0 · 2026-04</span>
+        <h3>质量门禁系统上线</h3>
+        <p>五阶段流水线 + 质量门禁；完整配置系统与模板/资源体系；歧义、冲突、幻觉检测；双向追溯矩阵与用例去重。</p>
+      </div>
+      <div class="tl-item reveal">
+        <span class="tl-ver">v1.0.0 → v1.1.0</span>
+        <h3>起点</h3>
+        <p>五阶段基础流程；随后增加网络调研能力、模板系统和资源文件。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Footer ============ -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <p style="color:var(--text-strong);font-weight:500">Testcase Generator</p>
+        <p>让 AI 真正写出能跑、能用、能信的测试用例。</p>
+        <p>作者：韦语轩（wychmod）· MIT License © 2024-2026</p>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/wychmod/test-generator" target="_blank" rel="noopener">GitHub 仓库</a>
+        <a href="https://www.npmjs.com/package/@wychmod-cn/testcase-generator-skill" target="_blank" rel="noopener">npm 包</a>
+        <a href="https://wychmod.github.io" target="_blank" rel="noopener">作者博客</a>
+        <a href="agents.html">Agent 提示词库</a>
+      </div>
+    </div>
+    <p class="copyright">致谢：ISTQB · ISO/IEC/IEEE 29119-3:2021 · INCOSE · OWASP · 以及每一位提交 Issue、PR 和讨论的同行</p>
+  </div>
+</footer>
+
+<script>
+window.PIPELINE_DATA = {
+  p0: { title: "Phase 0 · 输入预处理", sub: "唯一必经阶段 · 智能输入处理器 + 数据质量专家", gate: 80,
+    outputs: ["输入质量评估报告 00_input_validation_report.md", "规范化输入 00_normalized_input.md", "缺口识别与输入增强建议"],
+    skills: ["输入类型识别与路由（PDF / Word / Markdown / OpenAPI / 纯文本 / URL）", "质量评分、安全扫描与自动脱敏", "知识库上下文识别（[参考知识] 块，KB: 来源标识）", "前置校验：有效内容 < 50 字符 / 文件 > 10MB / 注入检测"],
+    note: "" },
+  p1: { title: "Phase 1 · 需求预处理", sub: "可测试需求抽取 · 冲突检测 · NFR 分析", gate: 80,
+    outputs: ["结构化需求 01_requirements_summary.md", "可测需求 02_testable_requirements.md", "边界条件 03_boundary_conditions.md"],
+    skills: ["从原始输入提取结构化需求、约束与关键业务规则", "歧义与冲突检测，模糊需求显式标记", "非功能需求（NFR）分析与验收条件推导"],
+    note: "" },
+  p2: { title: "Phase 2 · 代码分析", sub: "可跳过旁路 · 仅在提供代码 / API / diff 时启用", gate: 80,
+    outputs: ["代码结构 01_code_structure.md", "数据流分析 02_data_flow_analysis.md", "缺陷雷达 03_defect_radar.md"],
+    skills: ["控制流 / 数据流 / 异常路径静态分析", "接口契约推导与并发风险识别", "增量扫描：diff 新增行解析、PRD 对齐、硬编码密钥 / SQL 拼接等风险信号"],
+    note: "P2 是可跳过的旁路，而非必经环节——把 P0-P5 硬编码成依次全跑是多 agent 化最常见的误实现。" },
+  p3: { title: "Phase 3 · 领域建模", sub: "存在状态流转或复杂业务规则时启用", gate: 85,
+    outputs: ["领域模型 01_business_domain_model.md", "状态机规格 02_state_machine_spec.md", "测试参数空间 03_test_parameter_space.md"],
+    skills: ["业务实体建模与关系梳理", "状态机推导与状态完备性验证", "参数空间组合优化（Pairwise / 组合裁剪）"],
+    note: "" },
+  p4: { title: "Phase 4 · MBT 设计", sub: "复杂度足够高时的模型化测试设计", gate: 85,
+    outputs: ["测试模型规格 01_test_model_specification.md", "状态转换图 02_state_transition_graph.md", "覆盖准则 03_coverage_criteria.md"],
+    skills: ["风险导向测试设计与覆盖裁剪", "状态转换路径集合推导", "错误猜测与非法路径设计"],
+    note: "" },
+  p5: { title: "Phase 5 · 用例生成", sub: "结构化产物汇总 · 门禁最严的一环", gate: 90,
+    outputs: ["用例集 01_testcase_collection.md", "套件摘要 02_test_suite_summary.md", "追溯矩阵 03_traceability_matrix.md"],
+    skills: ["结构化用例生成（标准 / Gherkin / JSON / 数据驱动）", "用例去重与优先级标注", "需求 ↔ 用例双向追溯矩阵汇总"],
+    note: "达到 90 分才可声明为「正式测试用例」；低于阈值只能交付测试草稿并附风险摘要。" }
+};
+</script>
+<script src="assets/site/site.js"></script>
+</body>
+</html>
