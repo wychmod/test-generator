@@ -33,7 +33,7 @@
 
 ## 模板
 
-复制 `v2.3.0-TEMPLATE.md` 重命名为目标版本号（去掉 `-TEMPLATE`），
+复制 `v2.4.0-TEMPLATE.md` 重命名为目标版本号（去掉 `-TEMPLATE`），
 然后逐节填入。
 
 ## 何时回填
@@ -45,11 +45,16 @@
 
 ## 例子
 
-仓库当前已回填 `v2.1.0.md` 与 `v2.2.0.md`（项目当前版本）。
+仓库当前已回填 `v2.1.0.md`、`v2.2.0.md`（已发布，2026-06-15）与
+`v2.3.0.md`（当前版本）。
 
-`v2.2.0.md` 的内容已经收口，`status` 仍为 `draft` —— 只差发布动作
+`v2.3.0.md` 的内容已经收口，`status` 仍为 `draft` —— 只差发布动作
 （`npm publish` + GitHub Release）。发布当日把 `status` 改为 `stable`
 并补 `released` 日期即可。
 
-下一版的工作基线是 `v2.3.0-TEMPLATE.md`。如果想看更早的历史，请参考
+下一版的工作基线是 `v2.4.0-TEMPLATE.md`。如果想看更早的历史，请参考
 `README.md` 的「版本历史」章节。
+
+> **注意**：`version_alignment` 只比对版本字符串，无法发现"版本升了但发版日志没回填"。
+> 这类问题由 `changelog_exists` 检查兜底 —— 当前 manifest 版本必须有对应的正式
+> `v<版本>.md`，只存在 `-TEMPLATE` / `-draft` 会直接 fail。
