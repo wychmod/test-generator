@@ -1,6 +1,6 @@
 # Phase 1: 需求预处理引擎 (Requirements Preprocessing Engine)
 
-> **版本**: 2.1.0 | **阶段目标**: 将任意格式的原始输入转化为结构化、可测试、可追溯的需求规格
+> **版本**: 2.2.0 | **阶段目标**: 将任意格式的原始输入转化为结构化、可测试、可追溯的需求规格
 > **对应核心能力**: 可测试需求抽取、输入质量预处理
 > **输入来源**: Phase 0 (规范化输入) | **输出去向**: Phase 2 (代码分析)
 >
@@ -454,7 +454,7 @@ graph TD
 
 ```markdown
 ---
-generated_by: testcase-generator v2.1.0
+generated_by: testcase-generator v2.2.0
 phase: 1
 timestamp: {ISO8601}
 source_input_summary: "{输入摘要，50字以内}"

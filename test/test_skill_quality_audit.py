@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -6,9 +9,20 @@ from devtools import skill_quality_audit
 
 
 class SkillQualityAuditTests(unittest.TestCase):
-    def write_minimal_runtime_docs(self, root: Path) -> None:
+    # 版本漂移的判定基准来自 skill.manifest.json（单一数据源），
+    # 而不是审计脚本里写死的字面量。因此测试夹具必须先提供 manifest。
+    MANIFEST_VERSION = "2.1.0"
+
+    def write_minimal_manifest(self, root: Path, version: str | None = None) -> None:
+        (root / "skill.manifest.json").write_text(
+            json.dumps({"版本": version or self.MANIFEST_VERSION}, ensure_ascii=False),
+            encoding="utf-8",
+        )
+
+    def write_minimal_runtime_docs(self, root: Path, version: str | None = None) -> None:
+        current = version or self.MANIFEST_VERSION
         runtime_text = (
-            "testcase-generator 2.1.0\n"
+            f"testcase-generator v{current}\n"
             "Phase 0 Phase 1 Phase 5\n"
             "ISO/IEC/IEEE 29119-3:2021\n"
             "用例ID 用例标题 前置条件 测试数据 执行步骤 预期结果 "
@@ -34,6 +48,7 @@ class SkillQualityAuditTests(unittest.TestCase):
     def test_static_audit_scans_prompt_runtime_assets_for_version_drift(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
+            self.write_minimal_manifest(root)
             self.write_minimal_runtime_docs(root)
             prompt = root / "prompts" / "phase1_requirements_prompt.md"
             prompt.parent.mkdir(parents=True, exist_ok=True)
@@ -48,6 +63,31 @@ class SkillQualityAuditTests(unittest.TestCase):
         self.assertIsNotNone(version_drift)
         self.assertEqual(version_drift.status, "fail")
         self.assertIn("phase1_requirements_prompt.md", version_drift.detail)
+        self.assertIn(self.MANIFEST_VERSION, version_drift.detail)
+
+    def test_static_audit_treats_manifest_version_as_single_source_of_truth(self):
+        """Bumping the manifest version must not require editing the audit."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            self.write_minimal_manifest(root, "9.9.9")
+            self.write_minimal_runtime_docs(root, "9.9.9")
+
+            results = skill_quality_audit.build_static_results(root)
+
+        by_name = {item.name: item for item in results}
+        self.assertEqual(by_name["runtime_version_drift"].status, "pass")
+        self.assertEqual(by_name["version_consistency"].status, "pass")
+        self.assertIn("9.9.9", by_name["version_consistency"].detail)
+
+    def test_static_audit_flags_missing_manifest_as_version_drift(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            self.write_minimal_runtime_docs(root)
+
+            results = skill_quality_audit.build_static_results(root)
+
+        by_name = {item.name: item for item in results}
+        self.assertEqual(by_name["runtime_version_drift"].status, "fail")
 
     def test_output_audit_scores_formal_cases_against_quality_threshold(self):
         with tempfile.TemporaryDirectory() as temp_dir:

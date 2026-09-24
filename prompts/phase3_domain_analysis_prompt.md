@@ -1,6 +1,6 @@
 # Phase 3: 领域建模引擎 (Domain Modeling Engine)
 
-> **版本**: 2.1.0 | **阶段目标**: 建立业务领域的形式化模型，定义测试参数空间，为 MBT 提供坚实基础
+> **版本**: 2.2.0 | **阶段目标**: 建立业务领域的形式化模型，定义测试参数空间，为 MBT 提供坚实基础
 > **对应核心能力**: 领域模型与状态模型构建
 > **输入来源**: Phase 1 (需求) + Phase 2 (代码分析) | **输出去向**: Phase 4 (MBT设计)
 >
@@ -416,7 +416,7 @@ PARAM-A 的取值影响 PARAM-B:
 ### Step 4: 业务规则形式化
 
 ```markdown
-### 业务规则库 v2.1 (增强版)
+### 业务规则库 v2.2.0 (增强版)
 
 ## BR-[NNN]: [RuleName]
 
@@ -468,7 +468,7 @@ ENDWHEN
 
 ```markdown
 ---
-generated_by: testcase-generator v2.1.0
+generated_by: testcase-generator v2.2.0
 phase: 3
 timestamp: {ISO8601}
 total_entities: N

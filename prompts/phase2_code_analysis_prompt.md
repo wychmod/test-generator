@@ -1,6 +1,6 @@
 # Phase 2: 代码分析引擎 (Code Analysis Engine)
 
-> **版本**: 2.1.0 | **阶段目标**: 理解系统实现逻辑，识别测试路径、数据流、控制流和潜在缺陷点
+> **版本**: 2.2.0 | **阶段目标**: 理解系统实现逻辑，识别测试路径、数据流、控制流和潜在缺陷点
 > **对应核心能力**: 代码与接口契约辅助分析
 > **输入来源**: Phase 1 (需求预处理) + 用户提供的源代码/API规范 | **输出去向**: Phase 3 (领域建模)
 >
@@ -663,7 +663,7 @@ pie title 缺陷按严重性分布
 
 ```markdown
 ---
-generated_by: testcase-generator v2.1.0
+generated_by: testcase-generator v2.2.0
 phase: 2
 timestamp: {ISO8601}
 analysis_mode: actual_analysis / contract_analysis / logical_modeling / hybrid_analysis / incremental_analysis / incremental_hybrid_analysis

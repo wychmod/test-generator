@@ -61,11 +61,11 @@ python .harness/scripts/doc_consistency_audit.py
 
 | Check | Status | Detail |
 | --- | --- | --- |
-| version_alignment | pass | 三处版本号一致：2.1.0 |
+| version_alignment | pass | 三处版本号一致：2.2.0 |
 | ... | ... | ... |
 
-- Passed: 12
-- Warned: 0
+- Passed: 10
+- Warned: 1
 - Failed: 0
 ```
 

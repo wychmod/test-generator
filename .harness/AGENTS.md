@@ -9,7 +9,7 @@
 
 ## 1. 项目是什么
 
-`testcase-generator` 是一个**生产级 AI 测试用例生成 Skill**，当前版本 **v2.1.0**。
+`testcase-generator` 是一个**生产级 AI 测试用例生成 Skill**，当前版本 **v2.2.0**。
 
 - 它是一个 Skill 包（不是普通库），由根目录 `SKILL.md` 作为中文主入口，`skill.manifest.json` 作为统一分发与宿主路由元数据。
 - 核心方法论是 **MBT（Model-Based Testing）+ 六阶段流水线**：
@@ -57,14 +57,16 @@
 
 | 命令 | 用途 | 何时跑 |
 |---|---|---|
-| `python devtools/capability_audit.py` | 能力矩阵审计（Schema 有效、必需路径、版本对齐、v2.1 能力标记） | 改动 SKILL.md / prompts / resources / templates 后必跑 |
+| `python devtools/sync_version.py` | 版本单一数据源（以 `skill.manifest.json` 为准，`--check` 报漂移 / `--write` 一键回写） | 任何改版本号的动作前必跑 |
+| `python devtools/capability_audit.py` | 能力矩阵审计（Schema 有效、必需路径、版本对齐、版本同步、能力标记、宿主入口） | 改动 SKILL.md / prompts / resources / templates 后必跑 |
 | `python devtools/skill_quality_audit.py` | Skill 字段质量审计（用例字段、阶段流水线、标准引用、版本漂移） | 改动 prompt / template / quality_checklist 后必跑 |
 | `python devtools/package_skill.py` | 打包（先跑能力审计预检，再生成 `.skill` + `.zip` 并交叉校验） | 发布前必跑；改 manifest 排除规则后必跑 |
 | `python .harness/scripts/doc_consistency_audit.py` | 文档护栏（版本号一致、能力矩阵覆盖、宿主表三方一致、npm 入口、排他规则一致、运行时清单） | 改动 SKILL.md / README / manifest / HOST_COMPATIBILITY / DISTRIBUTION / 任何 adapter 后必跑 |
-| `node --test test/` | node 单测（`activation.test.js` 覆盖 `lib/activation.js` 在所有宿主下的解析与复制） | 改 `lib/activation.js` / `bin/test-generator.js` 后必跑 |
+| `node --test "test/**/*.test.js"` | node 单测（`activation.test.js` 覆盖激活解析与复制；`adapter-routing.test.js` 覆盖 manifest ↔ ENVIRONMENTS ↔ adapters 三方一致） | 改 `lib/activation.js` / `bin/test-generator.js` / `skill.manifest.json` 的宿主入口后必跑 |
 | `node bin/test-generator.js environments` | 列出所有支持的宿主（claude / codebuddy / codex / cursor / openclaw / qoder / trae / windsurf） | 改动 `ENVIRONMENTS` 常量后必跑 |
 | `node bin/test-generator.js activate <env> --dry-run` | dry-run 激活，输出目标目录和文件数，不写盘 | 改激活逻辑后必跑 |
-| `npm test` | 同 `node --test test/`，加上 Python 审计测试 | CI / 发布前 |
+| `npm test` | node 单测套件（`node --test "test/**/*.test.js"`） | CI / 发布前 |
+| `npm run test:python` | Python 单测套件（`unittest discover test/`，覆盖增量扫描、知识库、质量审计） | 改 `scripts/` / `knowledge/` / `devtools/` 后必跑 |
 
 > 三层防御：capability_audit（声明层） + skill_quality_audit（内容层） + doc_consistency_audit（结构层），
 > 任何改动都要让这三层全绿，否则不能合并。
@@ -99,13 +101,24 @@
 
 ### 4.2 版本号三处一致铁律
 
-`SKILL.md` / `README.md` / `skill.manifest.json` 三个地方的版本号必须一致：
+版本号的唯一数据源是 **`skill.manifest.json` 的"版本"字段**，其余位置一律由同步器回写，不允许手工各改各的：
 
-- `SKILL.md` front matter 必须有 `version: X.Y.Z` 字段（当前缺失，新版本必须补上）
-- `README.md` 第一行标题必须包含 `vX.Y.Z`（当前是 `v2.1.0`）
-- `skill.manifest.json` 的"版本"字段必须是 `X.Y.Z`（当前是 `2.1.0`）
+- `SKILL.md` front matter 必须有 `version: X.Y.Z`
+- `README.md` 第一行标题必须包含 `vX.Y.Z`
+- `skill.manifest.json` 的"版本"字段必须是 `X.Y.Z`（**数据源**）
+- `prompts/` / `resources/` / `templates/` 里的 `> **版本**` 抬头、`template_version`、`generated_by`、文档 H1 标题等身份标记同样必须一致
 
-任何一次发版前，**必须**先跑 `python .harness/scripts/doc_consistency_audit.py` 验证三处一致。
+升级版本的**唯一正确姿势**：
+
+1. 改 `skill.manifest.json` 的"版本"。
+2. 跑 `python devtools/sync_version.py --write` 回写全部身份标记。
+3. 跑 `python devtools/sync_version.py` 确认零漂移。
+
+发版前**必须**跑 `python .harness/scripts/doc_consistency_audit.py` 验证三处一致；
+`capability_audit.py` 的 `version_sync` 项会在打包预检阶段再次拦截漂移。
+
+> 注意：`[vX.Y 新增]` / `vX.Y 增强内容` 属于**历史归属标记**，记录"该能力是哪一版引入的"，
+> 禁止随版本号一起改；外链里的 `v2.1.0`（Postman / SARIF 规范 URL）同样不得改动。
 
 ### 4.3 adapter 薄适配铁律
 

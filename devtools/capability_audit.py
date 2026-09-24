@@ -138,7 +138,7 @@ def check_v21_capabilities(skill_path: Path) -> CheckResult:
     missing = [token for token in required_tokens if token not in combined_text]
     if missing:
         return CheckResult("skill_capability_matrix", "fail", f"Skill resources missing: {', '.join(missing)}")
-    return CheckResult("skill_capability_matrix", "pass", "Chinese SKILL.md and resource files include the declared v2.1 capability markers")
+    return CheckResult("skill_capability_matrix", "pass", "SKILL.md and resource files include the declared capability markers")
 
 
 def check_host_adapter_consistency(manifest_path: Path) -> CheckResult:
@@ -173,6 +173,40 @@ def check_host_adapter_consistency(manifest_path: Path) -> CheckResult:
     )
 
 
+def check_version_sync() -> CheckResult:
+    """Reuse the single-source synchronizer so packaging cannot ship drift.
+
+    The version is necessarily duplicated across SKILL.md / package.json /
+    prompts / templates. `sync_version.py` owns that mapping; this check just
+    asks it whether every marker still matches `skill.manifest.json`.
+    """
+    try:
+        from sync_version import Finding, collect, read_source_version
+    except ImportError as exc:  # e.g. the file was copied out of devtools/
+        return CheckResult("version_sync", "warn", f"sync_version.py not importable: {exc}")
+
+    try:
+        version = read_source_version()
+    except SystemExit as exc:
+        return CheckResult("version_sync", "fail", str(exc))
+
+    findings: List[Finding] = []
+    collect(findings, version)
+    drifted = [item for item in findings if not item.ok]
+    if drifted:
+        preview = "; ".join(
+            f"{item.path}:{item.rule}={item.found or '(missing)'}" for item in drifted[:5]
+        )
+        suffix = "" if len(drifted) <= 5 else f" (+{len(drifted) - 5} more)"
+        return CheckResult(
+            "version_sync",
+            "fail",
+            f"{len(drifted)} version markers out of sync with manifest {version}: {preview}{suffix}",
+        )
+
+    return CheckResult("version_sync", "pass", f"All identity version markers match {version}")
+
+
 def build_results() -> List[CheckResult]:
     skill_path = ROOT / "SKILL.md"
     readme_path = ROOT / "README.md"
@@ -182,6 +216,7 @@ def build_results() -> List[CheckResult]:
 
     results = [
         check_version_alignment(skill_path, readme_path, manifest_path),
+        check_version_sync(),
         check_v21_capabilities(skill_path),
         validate_schema(schema_path),
         validate_example_config(config_path, schema_path),

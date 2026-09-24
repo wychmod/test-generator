@@ -1,7 +1,7 @@
 # Phase 0-Ingest: 知识库录入引擎 (Knowledge Ingest Engine)
 
-> **版本**: 2.1.0 | **阶段目标**: 从用户提供的任意源材料（PDF / Markdown / TXT / 图片 OCR / 粘贴文本）抽取结构化知识条目，写入 `knowledge/sources/<slug>.md`，自动触发索引重建。
-> **对应辅助能力**: 本地知识库触发式检索（v2.1 可选辅助层）
+> **版本**: 2.2.0 | **阶段目标**: 从用户提供的任意源材料（PDF / Markdown / TXT / 图片 OCR / 粘贴文本）抽取结构化知识条目，写入 `knowledge/sources/<slug>.md`，自动触发索引重建。
+> **对应辅助能力**: 本地知识库触发式检索（v2.2.0 可选辅助层）
 > **输入来源**: 用户源材料（任意格式） | **输出去向**: `knowledge/sources/<slug>.md`
 
 ---
@@ -364,7 +364,7 @@ updated: 2026-06-13
 
 ---
 
-## 9. 与现有 v2.1.0 的关系
+## 9. 与现有 v2.2.0 的关系
 
 - 本 prompt 是 `prompts/` 目录下的第 7 个 prompt，**不进 capability_audit 的 phase0-5 硬检查**
 - 调用方式：用户调用 `python knowledge/scripts/ingest.py <file>` 或在 Phase 0 中显式触发

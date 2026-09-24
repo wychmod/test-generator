@@ -1,14 +1,14 @@
-﻿# 需求摘要模板 v2.1 (生产级)
+﻿# 需求摘要模板 v2.2.0 (生产级)
 
-> **模板版本**: 2.1.0 | **标准**: IEEE 830 + INCOSE + Agile hybrid | **用途**: Phase 1 需求预处理输出
+> **模板版本**: 2.2.0 | **标准**: IEEE 830 + INCOSE + Agile hybrid | **用途**: Phase 1 需求预处理输出
 
 ---
 
 ```markdown
 ---
 document_type: "requirements_summary"
-template_version: "2.1.0"
-generated_by: "testcase-generator v2.1.0"
+template_version: "2.2.0"
+generated_by: "testcase-generator v2.2.0"
 project:
   name: "[项目名称]"
   code: "[项目代号]"
@@ -29,7 +29,7 @@ quality:
 change_history:
   - version: "1.0"
     date: "{date}"
-    author: "AI Generator v2.1"
+    author: "AI Generator v2.2.0"
     change: "Initial creation"
 sources:
   primary: "[主要输入源描述]"
@@ -462,5 +462,5 @@ So that [获得什么价值/解决什么问题]
 
 ---
 
-*本文档由 testcase-generator v2.1 自动生成，遵循 IEEE 830 / INCOSE 标准。*
+*本文档由 testcase-generator v2.2.0 自动生成，遵循 IEEE 830 / INCOSE 标准。*
 *请在使用前进行人工审核确认。*

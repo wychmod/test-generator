@@ -1,4 +1,4 @@
-# 🧪 Test Generator · AI 驱动的测试用例生成 Skill
+# 🧪 Test Generator v2.2.0 · AI 驱动的测试用例生成 Skill
 
 <p align="center">
   <strong>🔬 让大模型真正"写出能跑"的测试用例</strong><br>

@@ -1,6 +1,6 @@
-﻿# 质量检查指南 v2.1 (生产级)
+﻿# 质量检查指南 v2.2.0 (生产级)
 
-> **版本**: 2.1.0 | **标准**: ISTQB + ISO/IEC/IEEE 29119-3:2021 + CMMI DEV 3.0 | **用途**: 全流程质量保障
+> **版本**: 2.2.0 | **标准**: ISTQB + ISO/IEC/IEEE 29119-3:2021 + CMMI DEV 3.0 | **用途**: 全流程质量保障
 
 ---
 
@@ -320,7 +320,7 @@
 | # | 检查项 | 标准 | 权重 |
 |---|-------|------|------|
 | G5-5-1 | ID 全局唯一 | TC-ID 无重复 | 3 |
-| G5-5-2 | 格式符合模板 | 使用 v2.1 模板格式 | 3 |
+| G5-5-2 | 格式符合模板 | 使用 v2.2.0 模板格式 | 3 |
 | G5-5-3 | 元数据完整 | 头部 metadata 字段齐全 | 3 |
 
 ---
@@ -367,7 +367,7 @@ Overall_Quality =
 ```markdown
 ---
 report_type: "quality_assurance_report"
-generator: "testcase-generator v2.1.0"
+generator: "testcase-generator v2.2.0"
 project: "[Project Name]"
 date: "{YYYY-MM-DD}"
 overall_score: {N}/{100}
@@ -430,7 +430,7 @@ verdict: "PASS / PASS_WITH_WARNINGS / FAIL"
 
 | 角色 | 姓名 | 日期 | 结论 |
 |------|------|------|------|
-| 质量检查执行者 | AI Generator v2.1 | {date} | — |
+| 质量检查执行者 | AI Generator v2.2.0 | {date} | — |
 | 人工审核(如需要) | | | |
 | 最终批准 | | | |
 ```
@@ -467,5 +467,5 @@ verdict: "PASS / PASS_WITH_WARNINGS / FAIL"
 
 ---
 
-*本指南由 testcase-generator v2.1 提供。*
+*本指南由 testcase-generator v2.2.0 提供。*
 *质量是交付的第一优先级。*

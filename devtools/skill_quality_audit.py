@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable
@@ -46,12 +47,10 @@ QUALITY_RULE_TOKENS = [
     "状态流转",
     "推断",
 ]
-STALE_VERSION_MARKERS = [
-    "testcase-generator v2.0.0",
-    "AI Generator v2.0",
-    "业务规则库 v2.0",
-    "v2.0 对",
-]
+# 任何与 skill.manifest.json 当前版本不一致的 `testcase-generator vX.Y[.Z]`
+# 自引用都算版本漂移。用动态比对替代写死的旧版本字面量清单 —— 否则审计脚本
+# 自己就会成为下一个漂移点（此前这里硬编码了 "2.1.0"，升级后必然误报）。
+VERSION_REF_RE = re.compile(r"testcase-generator v(?P<ver>\d+\.\d+(?:\.\d+)?)")
 FORMAL_SCORE_THRESHOLD = 90
 EXECUTABLE_STEP_TOKENS = ["执行步骤", "操作描述", "输入数据"]
 BINARY_EXPECTED_TOKENS = ["判定标准", "验证方法", "Pass/Fail", "等于", "应当", "状态码", "非空"]
@@ -99,16 +98,30 @@ def combined_runtime_text(root: Path) -> str:
     return "\n".join(chunks)
 
 
+def manifest_version(root: Path) -> str:
+    """当前版本以 skill.manifest.json 为单一数据源。"""
+    path = root / "skill.manifest.json"
+    if not path.exists():
+        return ""
+    try:
+        return str(json.loads(read_text(path)).get("版本", "")).strip()
+    except json.JSONDecodeError:
+        return ""
+
+
 def find_stale_runtime_markers(root: Path) -> list[str]:
+    current = manifest_version(root)
+    if not current:
+        return ["skill.manifest.json: 版本 字段缺失或不可解析"]
     findings: list[str] = []
     for relative_path in RUNTIME_DOCS:
         path = root / relative_path
         if not path.exists():
             continue
         text = read_text(path)
-        for marker in STALE_VERSION_MARKERS:
-            if marker in text:
-                findings.append(f"{relative_path}: {marker}")
+        for match in VERSION_REF_RE.finditer(text):
+            if match.group("ver") != current:
+                findings.append(f"{relative_path}: {match.group(0)} -> expected v{current}")
     return findings
 
 
@@ -123,16 +136,21 @@ def build_static_results(root: Path = ROOT) -> list[AuditResult]:
     quality_text = read_text(root / "resources/quality_checklist.md") if (root / "resources/quality_checklist.md").exists() else ""
     stale_markers = find_stale_runtime_markers(root)
 
+    current = manifest_version(root)
     results = [
         result(
             "version_consistency",
-            "2.1.0" in text,
-            "Runtime docs include testcase-generator v2.1.0 terminology",
+            bool(current) and VERSION_REF_RE.search(text) is not None,
+            f"Runtime docs carry testcase-generator v{current} provenance markers"
+            if current
+            else "skill.manifest.json 版本 字段缺失",
         ),
         result(
             "runtime_version_drift",
             not stale_markers,
-            "No stale v2.0 generator labels found" if not stale_markers else "; ".join(stale_markers),
+            f"No version drift; every provenance marker matches v{current}"
+            if not stale_markers
+            else "; ".join(stale_markers),
         ),
         result(
             "six_phase_pipeline",
