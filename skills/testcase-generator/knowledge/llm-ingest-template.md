@@ -1,6 +1,8 @@
 # 大模型知识库录入模板
 
-把本文件完整复制给大模型，然后把你的项目资料粘贴到最后的“待录入资料”区域。大模型应输出一个可保存到 `knowledge/sources/<slug>.md` 的 Markdown 文件。
+把本文件完整复制给大模型，然后把你的项目资料粘贴到最后的“待录入资料”区域。大模型应输出一个可保存到 `<技能根>/knowledge/sources/<slug>.md` 的 Markdown 文件。
+
+> **路径约定**：本文中的 `<技能根>` 指技能目录 `skills/testcase-generator/`。激活到宿主后，它就是宿主技能目录（如 `.claude/skills/testcase-generator/`）。
 
 ---
 
@@ -21,7 +23,7 @@
 建议保存路径：
 
 ```text
-knowledge/sources/<slug>.md
+<技能根>/knowledge/sources/<slug>.md
 ```
 
 ---

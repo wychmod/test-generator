@@ -1,8 +1,8 @@
 # Phase 0-Ingest: 知识库录入引擎 (Knowledge Ingest Engine)
 
-> **版本**: 2.3.0 | **阶段目标**: 从用户提供的任意源材料（PDF / Markdown / TXT / 图片 OCR / 粘贴文本）抽取结构化知识条目，写入 `knowledge/sources/<slug>.md`，自动触发索引重建。
+> **版本**: 2.3.0 | **阶段目标**: 从用户提供的任意源材料（PDF / Markdown / TXT / 图片 OCR / 粘贴文本）抽取结构化知识条目，写入 `<技能根>/knowledge/sources/<slug>.md`，自动触发索引重建。
 > **对应辅助能力**: 本地知识库触发式检索（v2.2.0 可选辅助层）
-> **输入来源**: 用户源材料（任意格式） | **输出去向**: `knowledge/sources/<slug>.md`
+> **输入来源**: 用户源材料（任意格式） | **输出去向**: `<技能根>/knowledge/sources/<slug>.md`
 
 ---
 
@@ -14,7 +14,7 @@
 
 - 阅读任意格式的源材料（PDF / Markdown / TXT / OCR / 用户粘贴的对话截图 / API 文档片段）
 - 区分**业务知识**与**测试元知识**
-- 按 `knowledge/` 的 4 类知识源自动分类
+- 按 `<技能根>/knowledge/` 的 4 类知识源自动分类
 - 输出符合 BM25 检索友好的结构化 Markdown
 - 保留原文核心信息，不杜撰、不省略关键限定词
 
@@ -315,7 +315,7 @@ tags 用于未来扩展（如按 tag 过滤检索），建议：
 - 密码至少 8 位，必须含大小写字母和数字
 ```
 
-### 8.2 输出（写入 `knowledge/sources/team-conventions.md`）
+### 8.2 输出（写入 `<技能根>/knowledge/sources/team-conventions.md`）
 
 ```markdown
 ---
@@ -367,7 +367,7 @@ updated: 2026-06-13
 ## 9. 与现有 v2.2.0 的关系
 
 - 本 prompt 是 `prompts/` 目录下的第 7 个 prompt，**不进 capability_audit 的 phase0-5 硬检查**
-- 调用方式：用户调用 `python knowledge/scripts/ingest.py <file>` 或在 Phase 0 中显式触发
+- 调用方式：用户调用 `python <技能根>/knowledge/scripts/ingest.py <file>` 或在 Phase 0 中显式触发
 - 不影响六阶段主流程；是辅助层的"录入"侧，与"检索"侧（`search.py`）对应
 
 ---

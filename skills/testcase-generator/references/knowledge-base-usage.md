@@ -14,19 +14,19 @@
 
 优先使用手动喂给大模型的方式：
 
-1. 复制 `knowledge/llm-ingest-template.md`。
+1. 复制 `<技能根>/knowledge/llm-ingest-template.md`。
 2. 把模板和项目资料一起发给大模型。
 3. 让大模型输出可索引 Markdown。
-4. 保存到 `knowledge/sources/<slug>.md`。
-5. 运行 `python knowledge/scripts/build_index.py --rebuild`。
+4. 保存到 `<技能根>/knowledge/sources/<slug>.md`。
+5. 运行 `python <技能根>/knowledge/scripts/build_index.py --rebuild`。
 
-可选自动化方式：配置 `TEST_GEN_LLM_CMD` 后运行 `python knowledge/scripts/ingest.py <file>`，由脚本调用大模型、写入 sources 并重建索引。
+可选自动化方式：配置 `TEST_GEN_LLM_CMD` 后运行 `python <技能根>/knowledge/scripts/ingest.py <file>`，由脚本调用大模型、写入 sources 并重建索引。
 
 ---
 
 ## 2. 检索触发
 
-如果当前工作目录存在 `knowledge/sources/*.md`，可在以下场景中显式引用知识库：
+如果当前工作目录存在 `<技能根>/knowledge/sources/*.md`，可在以下场景中显式引用知识库：
 
 | 触发词 | 检索源 | 用途 |
 |---|---|---|
@@ -36,8 +36,8 @@
 | "查一下知识库" / "参考知识库" / "kb:" | 所有源 | 综合检索 |
 
 ```bash
-python knowledge/scripts/build_index.py --rebuild
-python knowledge/scripts/search.py "关键词"
+python <技能根>/knowledge/scripts/build_index.py --rebuild
+python <技能根>/knowledge/scripts/search.py "关键词"
 ```
 
 ---
@@ -69,8 +69,8 @@ python knowledge/scripts/search.py "关键词"
 
 ## 4. 边界
 
-- 知识库索引 `knowledge/index.json` 是**本地构建产物，不入分发包**。
-- 用户后续填充的 `knowledge/sources/*.md` 属于个人 / 项目数据，不进分发包；仅示例源随包分发。
+- 知识库索引 `<技能根>/knowledge/index.json` 是**本地构建产物，不入分发包**。
+- 用户后续填充的 `<技能根>/knowledge/sources/*.md` 属于个人 / 项目数据，不进分发包；仅示例源随包分发。
 - 宿主不支持 Python 时，知识库检索降级为"用户手工提供术语与规范文本"。
 
 ---

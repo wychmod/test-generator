@@ -14,6 +14,7 @@
 8. docs/ 技能树路径：docs/ 引用技能内容时必须使用 skills/testcase-generator/ 前缀
 9. docs/ 相对链接：docs/ 下的 Markdown 相对链接必须能解析到真实文件（SKILL.md 已随技能树迁移）
 10. npm 发布载荷：package.json 的 files 目录条目不得牵连被 gitignore 的本地/生成物
+11. 技能树内路径写法：技能树 Markdown 引用的 `knowledge/` 等顶层目录路径必须带 `<技能根>/` 前缀
 
 设计原则：
 - 不修改任何文件，只读不写
@@ -425,23 +426,55 @@ def extract_hosts_from_activation_js() -> list[str]:
     return keys
 
 
+# 宿主显示名 -> ENVIRONMENTS 键的显式映射（只在「取第一个英文词」会取错时才需要）。
+# 例如 "Google Antigravity" 的首词是 Google、"Command Code" 的首词是 Command、
+# "Factory Droid" 的首词是 Factory —— 都不是真正的环境键，必须显式纠正。
+HOST_NAME_PREFIX_OVERRIDES = {
+    "google": "antigravity",
+    "command": "commandcode",
+    "factory": "droid",
+    "github": "githubcopilot",
+    "kilo": "kilocode",
+}
+
+# 提取 cell 中的英文 token（忽略大小写）时使用的正则。
+_ENGLISH_TOKEN_RE = re.compile(r"[A-Za-z][\w-]*")
+# 裸英文键判定。
+_BARE_KEY_RE = re.compile(r"^[a-z][a-z0-9]*$")
+
+
 def normalize_host_name(cell: str) -> str:
     """把 HOST_COMPATIBILITY.md 表格里的中文/混合名称规整为 ENVIRONMENTS 中使用的英文小写键。
 
-    规则：
-    - 优先匹配裸英文小写（直接是 `claude`、`codex` 等）
-    - 否则找中文短语中嵌入的英文单词，**忽略大小写**
-    - 找不到原样返回小写
+    规则（按优先级）：
+    1. 裸英文小写（直接是 `claude`、`codex`、`githubcopilot` 等）——原样返回。
+    2. 取第一个英文 token 并小写；若它命中 PREFIX_OVERRIDES，替换为真正的键。
+       这一步**必须**在「token 本身像键」判定之前 —— 否则 "Google Antigravity"
+       的首词 "Google" 会被当成合法键直接返回。
+    3. 否则取**第一个本身就像合法键**的英文 token（覆盖 "OpenHands"、"Clawdbot"、
+       "MCPJam" 这类「驼峰拼成一个词」、且首词并非真实键的名字）。
+    4. 都失败则原样返回小写。
+
+    历史上这里「无条件取第一个 token 小写」会在带厂商前缀的显示名上取错词
+    （Google Antigravity -> google），所以引入 2/3 的逐级收敛。
     """
     cell = cell.strip()
-    # 直接是裸英文键
-    if re.match(r"^[a-z][\w-]*$", cell):
+    # 1. 直接是裸英文键
+    if _BARE_KEY_RE.match(cell):
         return cell
-    # 提取所有英文 token，忽略大小写，取第一个并小写
-    tokens = re.findall(r"[A-Za-z][\w-]*", cell)
-    if tokens:
-        return tokens[0].lower()
-    return cell.lower()
+    tokens = _ENGLISH_TOKEN_RE.findall(cell)
+    if not tokens:
+        return cell.lower()
+    # 2. 首词的厂商前缀别名优先
+    first = tokens[0].lower()
+    if first in HOST_NAME_PREFIX_OVERRIDES:
+        return HOST_NAME_PREFIX_OVERRIDES[first]
+    # 3. 第一个本身就像合法键的 token
+    for token in tokens:
+        lowered = token.lower()
+        if _BARE_KEY_RE.match(lowered):
+            return lowered
+    return first
 
 
 def check_host_table_consistency() -> list[CheckResult]:
@@ -621,7 +654,7 @@ def check_runtime_files_exist() -> list[CheckResult]:
                 "skill.manifest.json 缺失或不是合法 JSON",
             )
         ]
-    runtime_files = manifest.get("运行时文件", [])
+    runtime_files = _manifest_module().runtime_files(manifest)
     if not runtime_files:
         return [
             CheckResult(
@@ -683,12 +716,22 @@ def extract_excludes_from_distribution_md() -> list[str]:
     return cells
 
 
+def _manifest_module():
+    """惰性导入 devtools/manifest.py —— manifest 的唯一解析入口。"""
+    devtools_dir = ROOT / "devtools"
+    if str(devtools_dir) not in sys.path:
+        sys.path.insert(0, str(devtools_dir))
+    import manifest as manifest_module  # noqa: PLC0415
+
+    return manifest_module
+
+
 def extract_excludes_from_manifest() -> list[str]:
-    """从 skill.manifest.json 的"分发排除"数组提取。"""
+    """从 skill.manifest.json 的"分发排除"数组提取（经 devtools/manifest.py 统一解析）。"""
     manifest = read_json(ROOT / "skill.manifest.json")
     if not manifest:
         return []
-    return list(manifest.get("分发排除", []))
+    return list(_manifest_module().distribution_excludes(manifest))
 
 
 def extract_excludes_from_package_skill() -> tuple[set[str], set[str]]:
@@ -1113,6 +1156,101 @@ def check_npm_files_payload() -> CheckResult:
     )
 
 
+# ---------- 检查 11：技能树内的路径写法 ----------
+
+# 技能树顶层目录：技能树内的文档若引用它们，必须带 `<技能根>/` 前缀。
+# 与检查 8 的区别：检查 8 管 docs/ 里引用技能树（要补 skills/testcase-generator/），
+# 本项管技能树内部自引用（要补 `<技能根>/` 占位符）。
+SKILL_INTERNAL_DIRS = (
+    "config", "knowledge", "prompts", "references", "resources", "scripts", "templates",
+)
+
+_SKILL_DIR_ALT = "|".join(SKILL_INTERNAL_DIRS)
+# 已带 `<技能根>/` 前缀的不再判定。
+_SKILL_INTERNAL_GUARD = rf"(?<!{re.escape('<技能根>/')})"
+
+# 文件级引用：`knowledge/scripts/search.py`、`prompts/phase1_requirements_prompt.md`
+SKILL_INTERNAL_TOKEN_RE = re.compile(
+    _SKILL_INTERNAL_GUARD + rf"`?((?:{_SKILL_DIR_ALT})/[A-Za-z0-9_./-]+)`?"
+)
+
+# 通配 / 占位引用：`knowledge/sources/*.md`、`knowledge/sources/<slug>.md`
+SKILL_INTERNAL_DIR_RE = re.compile(
+    _SKILL_INTERNAL_GUARD + rf"`?((?:{_SKILL_DIR_ALT})/)(?=[*<])`?"
+)
+
+# Markdown 链接目标（`](../../prompts/x.md)`）在技能树内是合法的相对写法，
+# 不应被前缀规则误伤。扫描前先屏蔽行内代码与链接目标。
+_MD_LINK_TARGET_RE = re.compile(r"\]\([^)\s]+\)")
+
+
+def mask_non_path_spans(line: str) -> str:
+    """屏蔽行内代码段与 Markdown 链接目标，避免对它们套用路径前缀规则。"""
+    masked = _MD_LINK_TARGET_RE.sub(lambda m: " " * len(m.group(0)), line)
+    return mask_code_spans(masked)
+
+
+def find_skill_tree_bare_paths() -> list[str]:
+    """返回技能树内未带 `<技能根>/` 前缀的顶层目录路径引用（`file:line → token`）。
+
+    判定是**零猜测**的：只有当"该路径在技能树下真实存在"时才算失效
+    —— 因此不会误报分析性文字（如对标报告里描述其他项目布局的 `scripts/`）。
+    `knowledge/` 既作目录树标签又作路径前缀，故对**目录名单独成行**的树标签
+    放行（详见 `_is_tree_label`）。
+    """
+    stale: list[str] = []
+    skill_root = ROOT / SKILL_DIR
+    if not skill_root.is_dir():
+        return stale
+
+    def exists_in_skill(token: str) -> bool:
+        return (skill_root / token).exists()
+
+    for path in sorted(skill_root.rglob("*.md")):
+        relative = path.relative_to(ROOT).as_posix()
+        for lineno, line in enumerate(read_text(path).splitlines(), 1):
+            masked = mask_non_path_spans(line)
+            seen: set[str] = set()
+            for pattern in (SKILL_INTERNAL_TOKEN_RE, SKILL_INTERNAL_DIR_RE):
+                for match in pattern.finditer(masked):
+                    token = match.group(1).rstrip(".,;:、。")
+                    if token in seen or not exists_in_skill(token):
+                        continue
+                    seen.add(token)
+                    stale.append(f"{relative}:{lineno} → {token}")
+
+    return stale
+
+
+def check_skill_tree_internal_paths() -> CheckResult:
+    """技能树内的路径引用必须带 `<技能根>/` 前缀。
+
+    技能树的各个子目录处于**不同深度**（`knowledge/README.md` 在知识库内，
+    `references/` 与 `prompts/` 是同级兄弟），同一串 `knowledge/scripts/x.py`
+    在不同文件里指向的相对位置并不一致。统一写 `<技能根>/knowledge/...`
+    可消除这种歧义。本项即为该约定的回归守卫。
+    """
+    skill_root = ROOT / SKILL_DIR
+    scanned = len(list(skill_root.rglob("*.md"))) if skill_root.is_dir() else 0
+    stale = find_skill_tree_bare_paths()
+
+    if not stale:
+        return CheckResult(
+            "skill_tree_internal_paths",
+            "pass",
+            f"技能树内路径引用均带 `<技能根>/` 前缀（已扫描 {scanned} 个文档）",
+        )
+
+    preview = "；".join(stale[:3])
+    more = f"（另有 {len(stale) - 3} 处）" if len(stale) > 3 else ""
+    return CheckResult(
+        "skill_tree_internal_paths",
+        "fail",
+        f"技能树内存在 {len(stale)} 处未带 `<技能根>/` 前缀的路径引用：{preview}{more}",
+        stale,
+    )
+
+
 # ---------- 汇总与渲染 ----------
 
 def build_results() -> list[CheckResult]:
@@ -1122,6 +1260,7 @@ def build_results() -> list[CheckResult]:
     results.append(check_changelog_exists())
     results.append(check_docs_skill_tree_paths())
     results.append(check_docs_markdown_links())
+    results.append(check_skill_tree_internal_paths())
     results.append(check_npm_files_payload())
     results.extend(check_capability_coverage())
     results.extend(check_host_table_consistency())

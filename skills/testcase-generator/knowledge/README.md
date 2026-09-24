@@ -2,7 +2,9 @@
 
 知识库用来保存项目术语、项目规范、历史用例、API 速查和合规规则。生成测试用例时，大模型可以先参考这些内容，再输出带追溯引用的用例。
 
-核心目标：用户不需要学习复杂格式，只要把资料手动喂给大模型，让大模型生成可索引 Markdown，放进 `knowledge/sources/` 后重建索引即可。
+核心目标：用户不需要学习复杂格式，只要把资料手动喂给大模型，让大模型生成可索引 Markdown，放进 `<技能根>/knowledge/sources/` 后重建索引即可。
+
+> **路径约定**：本文中的 `<技能根>` 指技能目录 `skills/testcase-generator/`。激活到宿主后，它就是宿主技能目录（如 `.claude/skills/testcase-generator/`）。所有命令与路径均以该目录为基准。
 
 ---
 
@@ -10,23 +12,23 @@
 
 ### 1. 让大模型录入知识
 
-复制 `knowledge/llm-ingest-template.md` 的内容，连同你的项目资料一起发给大模型。
+复制 `<技能根>/knowledge/llm-ingest-template.md` 的内容，连同你的项目资料一起发给大模型。
 
 让大模型输出可索引 Markdown。大模型会输出一个完整 Markdown 文件，形如：
 
 ```text
-knowledge/sources/payment-rules.md
+<技能根>/knowledge/sources/payment-rules.md
 ```
 
-你只需要把模型输出保存到它建议的 `knowledge/sources/<slug>.md` 路径。
+你只需要把模型输出保存到它建议的 `<技能根>/knowledge/sources/<slug>.md` 路径。
 
 ### 2. 建索引
 
 ```bash
-python knowledge/scripts/build_index.py --rebuild
+python <技能根>/knowledge/scripts/build_index.py --rebuild
 ```
 
-索引产物是 `knowledge/index.json`，它是本地生成文件，不提交、不分发。
+索引产物是 `<技能根>/knowledge/index.json`，它是本地生成文件，不提交、不分发。
 
 ### 3. 生成用例时说清楚要参考知识库
 
@@ -56,8 +58,8 @@ REQ-AUTH-001; KB: project-conventions.md#密码强度规则
 
 | 你想做什么 | 推荐做法 |
 |---|---|
-| 录入一份 PRD / 规则 / 历史用例 | 复制 `knowledge/llm-ingest-template.md` 给大模型 |
-| 检查知识是否能搜到 | `python knowledge/scripts/search.py "关键词"` |
+| 录入一份 PRD / 规则 / 历史用例 | 复制 `<技能根>/knowledge/llm-ingest-template.md` 给大模型 |
+| 检查知识是否能搜到 | `python <技能根>/knowledge/scripts/search.py "关键词"` |
 | 生成用例时参考规范 | 在请求里写“按规范”或“参考知识库” |
 | 生成用例时复用历史经验 | 在请求里写“参考历史”或“查历史用例” |
 | 统一术语 | 在请求里写“查术语”或“术语表” |
@@ -116,19 +118,19 @@ knowledge/
 
 ```bash
 # 首次或修改 sources 后
-python knowledge/scripts/build_index.py --rebuild
+python <技能根>/knowledge/scripts/build_index.py --rebuild
 
 # 搜索全部知识
-python knowledge/scripts/search.py "密码强度"
+python <技能根>/knowledge/scripts/search.py "密码强度"
 
 # 搜索历史用例
-python knowledge/scripts/search.py "登录失败" --source historical-cases
+python <技能根>/knowledge/scripts/search.py "登录失败" --source historical-cases
 
 # 输出机器可读 JSON
-python knowledge/scripts/search.py "支付回调" --json --top-k 5
+python <技能根>/knowledge/scripts/search.py "支付回调" --json --top-k 5
 
 # 查看触发词命中
-python knowledge/scripts/search.py "按规范生成登录用例" --trigger
+python <技能根>/knowledge/scripts/search.py "按规范生成登录用例" --trigger
 ```
 
 常用触发词：
@@ -148,12 +150,12 @@ python knowledge/scripts/search.py "按规范生成登录用例" --trigger
 
 ```bash
 set TEST_GEN_LLM_CMD=你的大模型包装命令
-python knowledge/scripts/ingest.py docs/payment-spec.md
+python <技能根>/knowledge/scripts/ingest.py docs/payment-spec.md
 ```
 
-`ingest.py` 会读取 `prompts/knowledge_ingest_prompt.md`，让模型抽取、分类、输出 Markdown，并自动写入 `knowledge/sources/<slug>.md` 后重建索引。
+`ingest.py` 会读取 `prompts/knowledge_ingest_prompt.md`，让模型抽取、分类、输出 Markdown，并自动写入 `<技能根>/knowledge/sources/<slug>.md` 后重建索引。
 
-不想配置命令行时，直接使用 `knowledge/llm-ingest-template.md` 手动喂给大模型即可。
+不想配置命令行时，直接使用 `<技能根>/knowledge/llm-ingest-template.md` 手动喂给大模型即可。
 
 ---
 

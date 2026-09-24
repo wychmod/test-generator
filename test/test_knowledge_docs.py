@@ -24,7 +24,7 @@ class KnowledgeDocsTests(unittest.TestCase):
 
         required_fragments = [
             "最短路径",
-            "复制 `knowledge/llm-ingest-template.md`",
+            "复制 `<技能根>/knowledge/llm-ingest-template.md`",
             "让大模型输出可索引 Markdown",
             "生成用例时说",
             "追溯引用",
@@ -39,7 +39,7 @@ class KnowledgeDocsTests(unittest.TestCase):
             "# 大模型知识库录入模板",
             "请把以下资料录入知识库",
             "必须输出且只输出 Markdown",
-            "knowledge/sources/<slug>.md",
+            "<技能根>/knowledge/sources/<slug>.md",
             "## 来源与处理说明",
         ]
         for fragment in required_fragments:

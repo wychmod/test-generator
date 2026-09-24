@@ -1,6 +1,8 @@
-# knowledge/sources 使用说明
+# `<技能根>/knowledge/sources` 使用说明
 
-这里存放真正会被检索的知识条目。每个 `.md` 文件都会被 `build_index.py` 切成章节并写入 `knowledge/index.json`。
+这里存放真正会被检索的知识条目。每个 `.md` 文件都会被 `build_index.py` 切成章节并写入 `<技能根>/knowledge/index.json`。
+
+> **路径约定**：本文中的 `<技能根>` 指技能目录 `skills/testcase-generator/`。激活到宿主后，它就是宿主技能目录（如 `.claude/skills/testcase-generator/`）。
 
 普通用户优先使用 `../llm-ingest-template.md`：把模板和项目资料一起发给大模型，让大模型输出完整 Markdown，再保存到本目录。
 
@@ -86,13 +88,13 @@ BM25 更依赖关键词命中。为了让检索更稳定：
 ## 重建和验证
 
 ```bash
-python knowledge/scripts/build_index.py --rebuild
-python knowledge/scripts/search.py "你的关键词"
+python <技能根>/knowledge/scripts/build_index.py --rebuild
+python <技能根>/knowledge/scripts/search.py "你的关键词"
 ```
 
 如果搜索不到：
 
-- 确认文件在 `knowledge/sources/` 下。
+- 确认文件在 `<技能根>/knowledge/sources/` 下。
 - 确认文件名以 `.md` 结尾。
 - 确认文件名不是 `README.md`，也不是 `_` 开头。
 - 确认关键词出现在标题或正文里。
