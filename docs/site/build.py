@@ -6,10 +6,16 @@
 - Agent 划分契约 + 运行时阶段提示词 ← docs/architecture/agent-division/ 与 skills/.../prompts/
 - 产物输出到 docs/（index.html / agents.html / assets/site/），docs/** 已在分发排除内
 
-用法：python docs/site/build.py
+用法：
+    python docs/site/build.py                      # 输出到 docs/（本地/浏览仓库用）
+    python docs/site/build.py --out _site          # 输出到指定目录（CI 部署用）
+
+产物是**自包含**的：样式脚本与架构图都会一并复制进输出目录，因此可以直接把
+输出目录整体上传为 Pages 制品，不需要仓库里其它路径配合。
 """
 from __future__ import annotations
 
+import argparse
 import base64
 import html
 import json
@@ -25,6 +31,12 @@ SITE_DIR = ROOT / "docs" / "site"
 OUT_DIR = ROOT / "docs"
 ASSET_OUT = OUT_DIR / "assets" / "site"
 GITHUB_BLOB = "https://github.com/wychmod/test-generator/blob/main/"
+
+# 需要随产物复制的资产：(源目录, 产物内相对子目录, 允许的后缀或 None 表示全部)
+ASSET_SOURCES = [
+    (SITE_DIR / "assets", Path("assets") / "site", None),
+    (ROOT / "docs" / "assets" / "diagrams", Path("assets") / "diagrams", (".svg", ".png")),
+]
 
 # ---------------------------------------------------------------- 文档登记
 
@@ -237,12 +249,35 @@ def build_index_page(manifest: dict) -> str:
     })
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="构建项目展示网站")
+    parser.add_argument("--out", default="docs",
+                        help="产物输出目录（相对仓库根，或绝对路径）；默认 docs")
+    args = parser.parse_args(argv)
+
+    global OUT_DIR, ASSET_OUT
+    OUT_DIR = Path(args.out)
+    if not OUT_DIR.is_absolute():
+        OUT_DIR = ROOT / OUT_DIR
+    ASSET_OUT = OUT_DIR / "assets" / "site"
+
     manifest = load_manifest()
-    ASSET_OUT.mkdir(parents=True, exist_ok=True)
-    for asset in (SITE_DIR / "assets").iterdir():
-        if asset.is_file():
-            shutil.copy2(asset, ASSET_OUT / asset.name)
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    for src_dir, rel_out, suffixes in ASSET_SOURCES:
+        if not src_dir.is_dir():
+            raise FileNotFoundError(f"资产目录不存在：{src_dir}")
+        dest_dir = OUT_DIR / rel_out
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        for asset in sorted(src_dir.iterdir()):
+            if not asset.is_file():
+                continue
+            if suffixes and asset.suffix.lower() not in suffixes:
+                continue
+            dest = dest_dir / asset.name
+            # 默认构建时源目录可能就是目标目录（docs/assets/diagrams），跳过自我复制
+            if dest.resolve() == asset.resolve():
+                continue
+            shutil.copy2(asset, dest)
 
     (OUT_DIR / "index.html").write_text(build_index_page(manifest), encoding="utf-8")
     (OUT_DIR / "agents.html").write_text(build_agents_page(manifest["版本"]), encoding="utf-8")
@@ -250,8 +285,9 @@ def main() -> int:
 
     print(f"[build] version={manifest['版本']} docs={len(DOCS)} "
           f"hosts={len(manifest['宿主适配入口'])}")
-    print(f"[build] -> {OUT_DIR / 'index.html'}")
-    print(f"[build] -> {OUT_DIR / 'agents.html'}")
+    print(f"[build] out={OUT_DIR}")
+    for name in ("index.html", "agents.html", ".nojekyll"):
+        print(f"[build]   -> {OUT_DIR / name}")
     return 0
 
 

@@ -55,6 +55,11 @@ venv/
 # ===== Project-specific local run state =====
 /test-fixtures/.cache/
 
+# 站点构建的临时产物目录。CI 用 `--out _site` 生成后直接上传为 Pages 制品，
+# 不需要入库；`docs/` 下已提交的产物才是仓库内的站点来源。
+/_site/
+/_site_test/
+
 # `test-fixtures/skill-eval/` 有两类文件，处理方式不同：
 #   · 正式 fixture（5 个，已被 .harness/eval/run_eval.py 的 build_fixture_registry
 #     登记、并在 EXPECTED_OUTPUTS.md 中声明）→ **必须跟踪**，是 eval 的输入基线。

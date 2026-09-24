@@ -1,0 +1,73 @@
+name: Deploy site to GitHub Pages
+
+# 触发：main 分支上影响站点内容的改动，或手动触发。
+# 站点内容有五个来源：站点源码、被渲染的文档（agent-division / prompts）、
+# 数据源 skill.manifest.json、架构图，以及工作流自身。
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/site/**"
+      - "docs/architecture/agent-division/**"
+      - "docs/assets/diagrams/**"
+      - "skills/testcase-generator/prompts/**"
+      - "skill.manifest.json"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+# GitHub Pages 部署所需的权限：读仓库 + 写 Pages + 申请 id-token。
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一时间只跑一个部署；后续推送不取消进行中的发布，避免站点处于半发布状态。
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build static site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # 站点构建器依赖 mistune 做 Markdown 渲染。这是**唯一**需要第三方包的环节，
+      # 因此刻意把它限制在本 job 内 —— 仓库主体（CI 的 guards / node-tests）
+      # 仍然是零依赖的，不受影响。
+      - name: Install site build dependency
+        run: python -m pip install --disable-pip-version-check "mistune>=3,<4"
+
+      - name: Build site
+        run: python docs/site/build.py --out _site
+
+      - name: Verify build output
+        run: |
+          test -f _site/index.html
+          test -f _site/agents.html
+          test -f _site/.nojekyll
+          test -f _site/assets/site/site.css
+          test -d _site/assets/diagrams
+          echo "artifacts:"
+          find _site -maxdepth 2 -type f | sort
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy to Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
