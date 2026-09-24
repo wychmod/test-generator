@@ -38,7 +38,7 @@
     "HOST_COMPATIBILITY.md"
   ],
   "scripts": {
-    "test": "node --test \"test/**/*.test.js\"",
+    "test": "node --test test/adapter-routing.test.js test/activation.test.js test/test-discovery.test.js",
     "test:python": "python -m unittest discover -s test -p \"test_*.py\""
   },
   "engines": {

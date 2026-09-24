@@ -10,23 +10,20 @@ permissions:
   contents: read
 
 jobs:
-  verify:
-    name: Guards & tests
+  guards:
+    name: Guards (python)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      # The package has zero third-party dependencies (Node and Python alike),
-      # so there is deliberately no install step. If that ever changes, add it
-      # here and update package.json.
+      # 本包 Node 与 Python 两侧都是零第三方依赖，因此**没有 install 步骤**。
+      # 若将来引入依赖，请在此处补安装，并同步更新 package.json。
+      - name: Toolchain versions
+        run: python --version
 
       - name: Version markers are in sync
         run: python devtools/sync_version.py
@@ -43,8 +40,28 @@ jobs:
       - name: Documentation consistency audit
         run: python .harness/scripts/doc_consistency_audit.py
 
-      - name: Node tests (activation & adapter routing)
-        run: npm test
-
       - name: Python tests (scan / knowledge / devtools)
-        run: npm run test:python
+        run: python -m unittest discover -s test -p "test_*.py"
+
+  node-tests:
+    # 在 package.json 声明的 engines 区间（>=18）上全量验证。
+    # 这个矩阵不是装饰：`node --test` 的 glob 参数支持是 v21 才加入的，
+    # 用 glob 写测试命令会在 18/20 上直接失败 —— 本矩阵正是为了拦住这类问题。
+    name: Node tests (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["18.x", "20.x", "22.x"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Node version
+        run: node --version
+
+      - name: Node tests (activation, adapter routing, test discovery)
+        run: npm test
