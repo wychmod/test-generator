@@ -62,10 +62,11 @@ python .harness/scripts/doc_consistency_audit.py
 | Check | Status | Detail |
 | --- | --- | --- |
 | version_alignment | pass | 三处版本号一致：2.2.0 |
+| changelog_exists | pass | v2.2.0 的正式 changelog 已回填 |
 | ... | ... | ... |
 
-- Passed: 10
-- Warned: 1
+- Passed: 12
+- Warned: 0
 - Failed: 0
 ```
 

@@ -841,12 +841,51 @@ def check_excludes_consistency() -> list[CheckResult]:
     return results
 
 
+# ---------- 检查 7：当前版本必须有正式 changelog ----------
+
+def check_changelog_exists() -> CheckResult:
+    """当前版本必须在 .harness/changelogs/ 下有正式 changelog。
+
+    防止"版本号升了但发版日志没回填" —— v2.2.0 曾经长期停留在占位模板，
+    而三处版本号一致性检查完全无法发现这一点。
+    """
+    manifest = read_json(ROOT / "skill.manifest.json")
+    if not manifest:
+        return CheckResult("changelog_exists", "fail", "无法读取 skill.manifest.json 以确定当前版本")
+
+    version = str(manifest.get("版本", "")).strip()
+    if not version:
+        return CheckResult("changelog_exists", "fail", "skill.manifest.json 缺少 版本 字段")
+
+    changelog_dir = ROOT / ".harness" / "changelogs"
+    official = changelog_dir / f"v{version}.md"
+    if official.is_file():
+        return CheckResult(
+            "changelog_exists",
+            "pass",
+            f"v{version} 的正式 changelog 已回填（.harness/changelogs/v{version}.md）",
+        )
+
+    placeholders = [
+        name
+        for name in (f"v{version}-TEMPLATE.md", f"v{version}-draft.md")
+        if (changelog_dir / name).is_file()
+    ]
+    hint = f"；当前只找到 {'、'.join(placeholders)}" if placeholders else ""
+    return CheckResult(
+        "changelog_exists",
+        "fail",
+        f"找不到 .harness/changelogs/v{version}.md —— 当前版本未回填发版日志{hint}",
+    )
+
+
 # ---------- 汇总与渲染 ----------
 
 def build_results() -> list[CheckResult]:
     """执行所有检查，返回结果列表。"""
     results: list[CheckResult] = []
     results.append(check_version_alignment())
+    results.append(check_changelog_exists())
     results.extend(check_capability_coverage())
     results.extend(check_host_table_consistency())
     results.extend(check_npm_entrypoint())
