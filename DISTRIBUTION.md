@@ -88,7 +88,7 @@ testcase-generator-skill
 
 ## 开发工具处理
 
-以下文件建议保留在仓库，但不进入运行时分发包。
+以下文件建议保留在仓库，且**不进入**运行时分发包。
 
 | 当前路径 | 建议长期位置 | 说明 |
 |---|---|---|
@@ -98,14 +98,23 @@ testcase-generator-skill
 | `lib/activation.js` | `lib/activation.js` | npm 激活逻辑，只进入 npm 包，不进入 `.skill` / `.zip` |
 | `run_package.bat` | `devtools/run_package.bat` | Windows 打包入口，不属于运行时资产 |
 | `PACKAGING.md` | `docs/PACKAGING.md` 或保留根目录 | 发布维护说明，不属于 Skill 执行资产 |
-| `knowledge/README.md` | `knowledge/README.md` | 用户文档，进入分发包 |
-| `knowledge/llm-ingest-template.md` | `knowledge/llm-ingest-template.md` | 可直接复制给大模型的知识录入模板，进入分发包 |
-| `knowledge/sources/README.md` | `knowledge/sources/README.md` | sources 使用说明，进入分发包 |
-| `knowledge/sources/*.md`（示例） | `knowledge/sources/*.md` | 示例源文件（domain-glossary / project-conventions / historical-cases）进入分发包；用户填充内容不进 |
-| `knowledge/scripts/build_index.py` | `knowledge/scripts/build_index.py` | 索引构建工具，不属于 Skill 运行时能力（仅本地使用） |
-| `knowledge/scripts/search.py` | `knowledge/scripts/search.py` | BM25 检索工具，可作为可选运行时工具进包（宿主支持 Python 时可用） |
 
 当前阶段已经完成开发工具迁移；后续如需进一步收口，可再将 `run_package.bat` 与发布文档统一收纳到 `devtools/` / `docs/`。
+
+## 运行时资产（进入分发包）
+
+以下内容**会**进入 `.skill` / `.zip`，与 `skill.manifest.json` 的"运行时文件"保持一致。
+它们**不是**排除项 —— 不要从分发包中剔除，否则会丢失知识库辅助层。
+
+| 路径 | 说明 |
+|---|---|
+| `knowledge/README.md` | 知识库用户文档 |
+| `knowledge/llm-ingest-template.md` | 可直接复制给大模型的知识录入模板 |
+| `knowledge/sources/README.md` | sources 使用说明 |
+| `knowledge/sources/*.md`（示例） | 示例源文件（domain-glossary / project-conventions / historical-cases）；用户后续填充的内容不进包 |
+| `knowledge/scripts/build_index.py` | 索引构建工具（宿主支持 Python 时可用） |
+| `knowledge/scripts/search.py` | BM25 检索工具（宿主支持 Python 时可用） |
+| `knowledge/scripts/ingest.py` | 知识录入工具（依赖用户自配置的 LLM 命令） |
 
 ## 推荐分发包内容树
 
