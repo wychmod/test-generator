@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import List
@@ -40,13 +41,20 @@ def extract_skill_version(skill_text: str) -> str:
 
 
 def extract_manifest_version(manifest_path: Path) -> str:
-    if not manifest_path.exists():
-        return "unknown"
+    """经 `devtools/manifest.py` 读取版本（唯一数据源）。"""
     try:
-        manifest = json.loads(read_text(manifest_path))
-    except json.JSONDecodeError:
+        return _manifest_mod().version(_manifest_mod().load_manifest(manifest_path, use_cache=False))
+    except Exception:
         return "unknown"
-    return str(manifest.get("版本", "unknown"))
+
+
+def _manifest_mod():
+    """惰性导入 devtools/manifest.py。"""
+    if str(Path(__file__).resolve().parent) not in sys.path:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import manifest as manifest_module  # noqa: PLC0415
+
+    return manifest_module
 
 
 def validate_schema(schema_path: Path) -> CheckResult:
@@ -161,12 +169,13 @@ def check_host_adapter_consistency(manifest_path: Path) -> CheckResult:
     if not manifest_path.exists():
         return CheckResult("host_adapter_consistency", "warn", f"{manifest_path} is missing")
     try:
-        manifest = json.loads(read_text(manifest_path))
-    except json.JSONDecodeError as exc:
+        host_entries = _manifest_mod().host_entries(
+            _manifest_mod().load_manifest(manifest_path, use_cache=False)
+        )
+    except Exception as exc:
         return CheckResult("host_adapter_consistency", "fail", f"Manifest parse failed: {exc}")
 
-    host_entries = manifest.get("宿主适配入口", {}) or {}
-    if not isinstance(host_entries, dict) or not host_entries:
+    if not host_entries:
         return CheckResult("host_adapter_consistency", "warn", "Manifest has no 宿主适配入口 entries")
 
     missing_files = [

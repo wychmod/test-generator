@@ -60,7 +60,17 @@ FORBIDDEN_ARCHIVE_PATTERNS = {
 
 
 def read_manifest() -> dict:
-    return json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+    """经 `devtools/manifest.py` 读取 —— manifest 的唯一解析入口。"""
+    return _manifest_mod().load_manifest(MANIFEST_PATH, use_cache=False)
+
+
+def _manifest_mod():
+    """惰性导入 devtools/manifest.py（避免打包时的循环导入顾虑）。"""
+    if str(Path(__file__).resolve().parent) not in sys.path:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import manifest as manifest_module  # noqa: PLC0415
+
+    return manifest_module
 
 
 def normalize_patterns(values: Iterable[str]) -> list[str]:
@@ -83,12 +93,11 @@ def path_matches(path_str: str, patterns: Iterable[str]) -> bool:
 
 
 def build_allowed_patterns(manifest: dict) -> list[str]:
-    runtime_files = manifest.get("运行时文件", [])
-    return normalize_patterns(runtime_files + ["DISTRIBUTION.md", "skill.manifest.json"])
+    return normalize_patterns(_manifest_mod().runtime_files(manifest) + ["DISTRIBUTION.md", "skill.manifest.json"])
 
 
 def build_excluded_patterns(manifest: dict) -> list[str]:
-    dynamic = list(manifest.get("分发排除", []))
+    dynamic = list(_manifest_mod().distribution_excludes(manifest))
     dynamic.extend([f"{ARCHIVE_BASENAME}.skill", f"{ARCHIVE_BASENAME}.zip"])
     return normalize_patterns(dynamic)
 

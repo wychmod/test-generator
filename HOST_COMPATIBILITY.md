@@ -22,15 +22,40 @@
 
 ## 宿主适配入口
 
+> **收录标准**：仅登记**有宿主官方文档佐证**的技能目录路径。第三方 CLI 的汇总清单
+> （如 Vercel `add-skill` 的 25 个 agent）只用于交叉核对，不作为收录依据。
+> 因此本表**不等于**某个第三方清单的机械复制 —— 例如 Neovate 因未找到官方技能路径文档而暂不收录。
+
+下表按宿主英文名（即 `ENVIRONMENTS` 键）排序。
+
 | 宿主 | 入口文件 | 语言策略 | 推荐程度 |
 |---|---|---|---|
+| Amp（Sourcegraph） | `adapters/amp/SKILL.md` | 中文主说明 + 英文 trigger phrases | 中 |
+| Google Antigravity | `adapters/antigravity/SKILL.md` | 中文主说明 + 英文 trigger phrases | 中 |
 | Claude 类宿主 | `adapters/claude/SKILL.md` | 中文主说明 + 英文 trigger phrases | 高 |
-| Qoder / IDE 类宿主 | `adapters/qoder/SKILL.md` | 中文主说明 + 工程化入口 | 高 |
+| Clawdbot | `adapters/clawdbot/SKILL.md` | 中文主说明 + 英文 trigger phrases | 中 |
+| Cline | `adapters/cline/SKILL.md` | 中文主说明 + 英文 trigger phrases | 中 |
 | CodeBuddy / 腾讯云 AI 代码助手 | `adapters/codebuddy/SKILL.md` | 中文主说明 + 英文 trigger phrases | 高 |
 | Codex / 工程 CLI 类宿主 | `adapters/codex/AGENTS.md` | 英文主说明 + 中文补充 | 中 |
-| OpenClaw / 兼容型宿主 | `adapters/openclaw/skill.md` | 简化英文入口 + 中文补充 | 中 |
+| Command Code | `adapters/commandcode/SKILL.md` | 中文主说明 + 英文 trigger phrases | 中 |
 | Cursor / Anysphere | `adapters/cursor/cursorrules.md` | 英文为主 + 中文补充，激活时复制为 `.cursorrules` | 中（软适配） |
-| Windsurf / Antigravity（Codeium / Google） | `adapters/windsurf/windsurfrules.md` | 英文为主 + 中文补充，激活时复制为 `.windsurfrules` | 中（软适配） |
+| Factory Droid | `adapters/droid/SKILL.md` | 中文主说明 + 英文 trigger phrases | 中 |
+| Gemini CLI | `adapters/gemini/SKILL.md` | 中文主说明 + 英文 trigger phrases | 中 |
+| GitHub Copilot | `adapters/githubcopilot/SKILL.md` | 中文主说明 + 英文 trigger phrases | 中 |
+| Goose（Block） | `adapters/goose/SKILL.md` | 中文主说明 + 英文 trigger phrases | 中 |
+| Kilo Code | `adapters/kilocode/SKILL.md` | 中文主说明 + 英文 trigger phrases | 中 |
+| Kiro | `adapters/kiro/SKILL.md` | 中文主说明 + 英文 trigger phrases | 中 |
+| MCPJam | `adapters/mcpjam/SKILL.md` | 中文主说明 + 英文 trigger phrases | 中 |
+| OpenClaw / 兼容型宿主 | `adapters/openclaw/skill.md` | 简化英文入口 + 中文补充 | 中 |
+| OpenCode | `adapters/opencode/SKILL.md` | 中文主说明 + 英文 trigger phrases | 中 |
+| OpenHands | `adapters/openhands/SKILL.md` | 中文主说明 + 英文 trigger phrases | 中 |
+| Pi | `adapters/pi/SKILL.md` | 中文主说明 + 英文 trigger phrases | 中 |
+| Qoder / IDE 类宿主 | `adapters/qoder/SKILL.md` | 中文主说明 + 工程化入口 | 高 |
+| Qwen Code | `adapters/qwen/SKILL.md` | 中文主说明 + 英文 trigger phrases | 中 |
+| Roo Code | `adapters/roo/SKILL.md` | 中文主说明 + 英文 trigger phrases | 中 |
+| Trae | `adapters/trae/SKILL.md` | 中文主说明 + 英文 trigger phrases | 中 |
+| Windsurf（Codeium / Google） | `adapters/windsurf/windsurfrules.md` | 英文为主 + 中文补充，激活时复制为 `.windsurfrules` | 中（软适配） |
+| Zencoder | `adapters/zencoder/SKILL.md` | 中文主说明 + 英文 trigger phrases | 中 |
 
 ## Node.js 激活入口
 
@@ -38,14 +63,36 @@
 
 | 环境名 | 默认本地目标目录 | 额外入口 |
 |---|---|---|
+| `amp` | `.agents/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `antigravity` | `.agent/skills/testcase-generator` | 根目录 `SKILL.md` |
 | `claude` | `.claude/skills/testcase-generator` | 根目录 `SKILL.md` |
-| `qoder` | `.qoder/skills/testcase-generator` | 根目录 `SKILL.md` |
-| `codex` | `.agents/skills/testcase-generator` | 根目录 `AGENTS.md` |
-| `openclaw` | `.openclaw/skills/testcase-generator` | 根目录 `skill.md` |
-| `trae` | `.trae/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `clawdbot` | `skills/testcase-generator` | 根目录 `SKILL.md` |
+| `cline` | `.cline/skills/testcase-generator` | 根目录 `SKILL.md` |
 | `codebuddy` | `.codebuddy/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `codex` | `.agents/skills/testcase-generator` | 根目录 `AGENTS.md` |
+| `commandcode` | `.commandcode/skills/testcase-generator` | 根目录 `SKILL.md` |
 | `cursor` | `.cursor/rules/` | 根目录 `.cursorrules`（来自 `adapters/cursor/cursorrules.md`） |
+| `droid` | `.factory/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `gemini` | `.gemini/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `githubcopilot` | `.github/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `goose` | `.goose/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `kilocode` | `.kilocode/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `kiro` | `.kiro/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `mcpjam` | `.mcpjam/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `openclaw` | `.openclaw/skills/testcase-generator` | 根目录 `skill.md` |
+| `opencode` | `.opencode/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `openhands` | `.openhands/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `pi` | `.pi/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `qoder` | `.qoder/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `qwen` | `.qwen/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `roo` | `.roo/skills/testcase-generator` | 根目录 `SKILL.md` |
+| `trae` | `.trae/skills/testcase-generator` | 根目录 `SKILL.md` |
 | `windsurf` | `.windsurf/rules/` | 根目录 `.windsurfrules`（来自 `adapters/windsurf/windsurfrules.md`） |
+| `zencoder` | `.zencoder/skills/testcase-generator` | 根目录 `SKILL.md` |
+
+上表为**项目级**目标；加 `-g` / `--global` 会改用各宿主的用户级目录（详见
+`lib/activation.js` 的 `globalPath`，例如 `~/.config/opencode/skills/`、
+`~/.gemini/antigravity/skills/`、`~/.config/agents/skills/`）。
 
 可通过 `-g` 安装到用户本地目录，或通过 `--target <path>` 指定单个平台目标目录。`--target` 不支持 `activate all`，避免多个宿主写入同一个精确目录。`--global` 仍作为兼容写法保留。
 

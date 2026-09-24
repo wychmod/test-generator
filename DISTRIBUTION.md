@@ -64,13 +64,34 @@ Node.js/npm 产物名（npm 包名带 `@wychmod-cn/` scope）：
 | 路径 | 排除原因 |
 |---|---|
 | `test-output/` | 本地验证产物，不属于运行时资产 |
-| `.claude/` | 宿主镜像副本，避免重复和版本漂移 |
-| `.agents/` | 宿主镜像副本，避免重复和版本漂移 |
-| `.qoder/` | 宿主镜像副本，避免重复和版本漂移 |
-| `.trae/` | 宿主镜像副本，避免重复和版本漂移 |
+| `docs/` | 内部文档中心与 README 图表源（`docs/assets/diagrams/`），不是 Skill 运行时资产。**显式声明**，此前仅因不在运行时白名单内而被顺带排除 |
+| `skills/testcase-generator/knowledge/index.json` | 本地生成的 BM25 索引，由 `build_index.py` 产出，不入包 |
+| `.claude/` | Claude 宿主镜像副本，避免重复和版本漂移 |
+| `.agents/` | Amp / Codex 宿主镜像副本，避免重复和版本漂移 |
+| `.commandcode/` | Command Code 宿主镜像副本，避免重复和版本漂移 |
+| `.qoder/` | Qoder 宿主镜像副本，避免重复和版本漂移 |
+| `.trae/` | Trae 宿主镜像副本，避免重复和版本漂移 |
 | `.codebuddy/` | CodeBuddy 宿主镜像副本，避免重复和版本漂移 |
 | `.cursor/` | Cursor 宿主镜像副本，避免重复和版本漂移 |
-| `.windsurf/` | Windsurf / Antigravity 宿主镜像副本，避免重复和版本漂移 |
+| `.windsurf/` | Windsurf 宿主镜像副本，避免重复和版本漂移 |
+| `.opencode/` | OpenCode 宿主镜像副本，避免重复和版本漂移 |
+| `.cline/` | Cline 宿主镜像副本，避免重复和版本漂移 |
+| `.roo/` | Roo Code 宿主镜像副本，避免重复和版本漂移 |
+| `.kilocode/` | Kilo Code 宿主镜像副本，避免重复和版本漂移 |
+| `.gemini/` | Gemini CLI / Google Antigravity 宿主镜像副本，避免重复和版本漂移 |
+| `.qwen/` | Qwen Code 宿主镜像副本，避免重复和版本漂移 |
+| `.kiro/` | Kiro 宿主镜像副本，避免重复和版本漂移 |
+| `.factory/` | Factory Droid 宿主镜像副本，避免重复和版本漂移 |
+| `.goose/` | Goose 宿主镜像副本，避免重复和版本漂移 |
+| `.openhands/` | OpenHands 宿主镜像副本，避免重复和版本漂移 |
+| `.github/` | GitHub Copilot 宿主镜像副本，避免重复和版本漂移 |
+| `.agent/` | Google Antigravity 宿主镜像副本，避免重复和版本漂移 |
+| `.pi/` | Pi 宿主镜像副本，避免重复和版本漂移 |
+| `.mcpjam/` | MCPJam 宿主镜像副本，避免重复和版本漂移 |
+| `.zencoder/` | Zencoder 宿主镜像副本，避免重复和版本漂移 |
+| `.openclaw/` | OpenClaw 宿主镜像副本，避免重复和版本漂移 |
+| `.clawdbot/` | Clawdbot 宿主镜像副本，避免重复和版本漂移 |
+| `.clinerules/` | Cline 兼容规则目录，避免重复和版本漂移 |
 | `.workbuddy/` | 本地工作记忆与环境配置，不能分发 |
 | `.git/` | 版本控制目录，不能分发 |
 | `.idea/` | IDE 本地配置，不能分发 |

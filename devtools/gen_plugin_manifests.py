@@ -49,6 +49,15 @@ def read_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _MANIFEST():
+    """惰性导入 devtools/manifest.py —— 字段名常量与 manifest 解析的唯一入口。"""
+    if str(Path(__file__).resolve().parent) not in sys.path:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import manifest as manifest_module  # noqa: PLC0415
+
+    return manifest_module
+
+
 # 清单文本取自 manifest 双语字段的哪一侧。
 # 公开插件市场是英文优先，因此默认 en-US；另一侧仍完整保留在 manifest 里，
 # 将来若面向中文市场发布，只需改这一处。
@@ -68,12 +77,13 @@ def owner_name(author: str) -> str:
 
 
 def build_plugin(skill: dict, pkg: dict) -> dict:
-    name = first(skill["名称"])
+    m = _MANIFEST()
+    name = first(skill[m.FIELD_NAME])
     return {
         "name": name,
-        "displayName": first(skill["显示名称"]),
-        "description": first(skill["说明"]),
-        "version": str(skill["版本"]),
+        "displayName": first(skill[m.FIELD_DISPLAY_NAME]),
+        "description": first(skill[m.FIELD_DESCRIPTION]),
+        "version": str(skill[m.FIELD_VERSION]),
         "license": pkg.get("license", "MIT"),
         "author": {"name": owner_name(pkg.get("author", ""))},
         "homepage": pkg.get("homepage", ""),
@@ -84,7 +94,7 @@ def build_plugin(skill: dict, pkg: dict) -> dict:
 
 def build_marketplace(skill: dict, pkg: dict) -> dict:
     owner = owner_name(pkg.get("author", ""))
-    name = first(skill["名称"])
+    name = first(skill[_MANIFEST().FIELD_NAME])
     # 市场级描述与插件描述是两回事：前者说明"这个市场提供什么"，后者说明
     # "这个技能做什么"。缺失时 `claude plugin validate` 会发出告警。
     #
@@ -92,7 +102,7 @@ def build_marketplace(skill: dict, pkg: dict) -> dict:
     # （某些社区规范称其为正式位置），但校验器对未知顶层键是**报错**而非忽略：
     #     ✘ root: Unrecognized key: "description"
     # 因此这里严格只给一个位置 —— 多给字段不是冗余，是会直接弄坏构建。
-    marketplace_description = first(skill["市场说明"])
+    marketplace_description = first(skill[_MANIFEST().FIELD_MARKET_DESCRIPTION])
     return {
         "name": f"{owner}-{name}",
         "owner": {"name": owner},
@@ -101,8 +111,8 @@ def build_marketplace(skill: dict, pkg: dict) -> dict:
             {
                 "name": name,
                 "source": "./",
-                "description": first(skill["说明"]),
-                "version": str(skill["版本"]),
+                "description": first(skill[_MANIFEST().FIELD_DESCRIPTION]),
+                "version": str(skill[_MANIFEST().FIELD_VERSION]),
             }
         ],
     }

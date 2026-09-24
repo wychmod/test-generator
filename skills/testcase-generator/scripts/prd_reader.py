@@ -47,20 +47,47 @@ def check_missing_dependencies():
     return missing_deps
 
 
+def build_pdf_fallback_guidance() -> Dict[str, Any]:
+    """构造 PDF 不可用时的结构化降级指引。
+
+    供调用方（含 AI 宿主）直接消费：既说明「本机为什么做不到」，
+    也给出「不装依赖时该怎么做」。**不包含任何安装副作用。**
+    """
+    return {
+        "reason": "pdfplumber 未安装，本脚本不会自动安装依赖",
+        "script_limitation": (
+            "本脚本的 PDF 解析能力依赖 pdfplumber；未安装时 PDF 输入不可解析。"
+        ),
+        "fallback_options": [
+            "① 用宿主自带的文件读取能力直接读取 PDF，再交给本 Skill 做纯文本分析"
+            "（多数宿主原生支持，无需任何 Python 依赖）",
+            "② 先自行把 PDF 转成 Markdown / TXT，再用本脚本或宿主读取",
+            "③ Markdown / 纯文本 / 粘贴文本输入**完全不需要**额外依赖，可直接使用",
+        ],
+        "manual_install_if_wanted": "pip install pdfplumber",
+        "what_you_lose_without_it": (
+            "仅失去「本脚本自动抽取 PDF 文本」这一条路径；"
+            "需求分析、建模、用例生成等核心能力不受影响。"
+        ),
+    }
+
+
 def report_missing_dependencies(missing_deps):
-    """输出缺失依赖的手动安装指引（stderr，不影响 stdout 管道输出）。"""
-    print("=" * 60, file=sys.stderr)
-    print("[WARN] 缺少可选的 PDF 依赖，PDF 解析功能不可用。", file=sys.stderr)
-    print("       本脚本不会自动安装依赖，请手动执行：", file=sys.stderr)
-    for package_name in missing_deps:
-        print(f"           pip install {package_name}", file=sys.stderr)
-    print("       （Markdown / 纯文本输入无需任何额外依赖）", file=sys.stderr)
-    print("=" * 60, file=sys.stderr)
+    """输出缺失依赖的手动安装指引与降级方案（stderr，不影响 stdout 管道输出）。"""
+    guidance = build_pdf_fallback_guidance()
+    print("=" * 62, file=sys.stderr)
+    print("[WARN] 缺少可选的 PDF 依赖，本脚本的 PDF 解析功能不可用。", file=sys.stderr)
+    print("       本脚本不会自动安装依赖。你可以选择：", file=sys.stderr)
+    for option in guidance["fallback_options"]:
+        print(f"       {option}", file=sys.stderr)
+    print(f"       如需本脚本解析 PDF，请手动执行：{guidance['manual_install_if_wanted']}", file=sys.stderr)
+    print(f"       影响范围：{guidance['what_you_lose_without_it']}", file=sys.stderr)
+    print("=" * 62, file=sys.stderr)
 
 
 # 在首次需要 PDF 功能时调用此函数
 def ensure_pdf_dependency():
-    """确认 pdfplumber 可用；缺失时只提示手动安装，不做任何写入。"""
+    """确认 pdfplumber 可用；缺失时只提示手动安装与降级方案，不做任何写入。"""
     missing_deps = check_missing_dependencies()
     if not missing_deps:
         return True
@@ -88,6 +115,8 @@ def extract_pdf(file_path: str, encoding: str = "utf-8") -> Dict[str, Any]:
         return {
             "success": False,
             "error": "pdfplumber 未安装。请先运行: pip install pdfplumber",
+            "degraded": True,
+            "fallback": build_pdf_fallback_guidance(),
             "content": "",
             "pages": 0,
             "file_type": "pdf"
