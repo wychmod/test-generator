@@ -8,6 +8,7 @@
 - ✅ [`knowledge-base.md`](knowledge-base.md)：本地知识库（触发式 BM25）
 - ✅ [`incremental-code-analysis-design.md`](incremental-code-analysis-design.md)：增量代码分析设计
 - ✅ [`skill-ecosystem-benchmark.md`](skill-ecosystem-benchmark.md)：Skill 生态对标与改进方案（Agent Skills / Agent Plugins / 多客户端组织方式）
+- ✅ [`agent-division/`](agent-division/README.md)：**Agent 划分参考**（不入包）——把六阶段流水线拆成多 Agent 系统的契约层与编排层设计
 
 ## 待写内容
 

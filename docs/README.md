@@ -19,6 +19,8 @@
 
 ### `architecture/` — 架构与设计
 设计意图、模块边界、数据流。开发新能力时优先看这里。
+包含 [`architecture/agent-division/`](architecture/agent-division/README.md)：Agent 划分参考（不入包）——
+把六阶段流水线拆成多 Agent 系统的契约层与编排层设计，供想构建 Agent 系统的人参照。
 
 ### `operations/` — 运维与发布
 打包、发布、宿主激活、CI 等流程文档。
