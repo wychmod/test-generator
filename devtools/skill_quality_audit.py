@@ -12,22 +12,29 @@ from typing import Iterable
 
 
 ROOT = Path(__file__).resolve().parent.parent
+# 技能运行时内容的唯一位置（Agent Skills 标准布局）。
+# 注意：`skills/` 是 canonical 源，**不是**镜像目录。
+SKILL_DIR = "skills/testcase-generator"
+
 RUNTIME_DOCS = [
-    "SKILL.md",
-    "prompts/phase0_input_preprocessing_prompt.md",
-    "prompts/phase1_requirements_prompt.md",
-    "prompts/phase2_code_analysis_prompt.md",
-    "prompts/phase3_domain_analysis_prompt.md",
-    "prompts/phase4_mbt_design_prompt.md",
-    "prompts/phase5_testcase_generation_prompt.md",
-    "references/delivery-protocol.md",
-    "references/quality-review.md",
-    "references/knowledge-base-usage.md",
-    "resources/quality_checklist.md",
-    "resources/testcase_formats.md",
-    "templates/testcase_template.md",
-    "templates/requirements_template.md",
-    "templates/state_diagram_template.md",
+    f"{SKILL_DIR}/{relative}"
+    for relative in (
+        "SKILL.md",
+        "prompts/phase0_input_preprocessing_prompt.md",
+        "prompts/phase1_requirements_prompt.md",
+        "prompts/phase2_code_analysis_prompt.md",
+        "prompts/phase3_domain_analysis_prompt.md",
+        "prompts/phase4_mbt_design_prompt.md",
+        "prompts/phase5_testcase_generation_prompt.md",
+        "references/delivery-protocol.md",
+        "references/quality-review.md",
+        "references/knowledge-base-usage.md",
+        "resources/quality_checklist.md",
+        "resources/testcase_formats.md",
+        "templates/testcase_template.md",
+        "templates/requirements_template.md",
+        "templates/state_diagram_template.md",
+    )
 ]
 REQUIRED_TESTCASE_FIELDS = [
     "用例ID",
@@ -136,7 +143,8 @@ def result(name: str, ok: bool, detail: str, warn: bool = False) -> AuditResult:
 
 def build_static_results(root: Path = ROOT) -> list[AuditResult]:
     text = combined_runtime_text(root)
-    quality_text = read_text(root / "resources/quality_checklist.md") if (root / "resources/quality_checklist.md").exists() else ""
+    checklist = root / SKILL_DIR / "resources/quality_checklist.md"
+    quality_text = read_text(checklist) if checklist.exists() else ""
     stale_markers = find_stale_runtime_markers(root)
 
     current = manifest_version(root)

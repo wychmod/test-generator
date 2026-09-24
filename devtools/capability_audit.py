@@ -11,6 +11,14 @@ from typing import List
 
 
 ROOT = Path(__file__).resolve().parent.parent
+# 技能运行时内容的唯一位置（Agent Skills 标准布局）。
+# 注意：`skills/` 是 canonical 源，**不是**镜像目录。
+SKILL_DIR = "skills/testcase-generator"
+
+
+def skill_path(relative: str) -> Path:
+    """技能树内的路径（prompts / references / resources / templates / config / scripts / knowledge）。"""
+    return ROOT / SKILL_DIR / relative
 
 
 @dataclass
@@ -80,26 +88,30 @@ def validate_example_config(config_path: Path, schema_path: Path) -> CheckResult
 
 def check_required_paths() -> List[CheckResult]:
     required_paths = {
-        "phase0_prompt": ROOT / "prompts/phase0_input_preprocessing_prompt.md",
-        "phase1_prompt": ROOT / "prompts/phase1_requirements_prompt.md",
-        "phase2_prompt": ROOT / "prompts/phase2_code_analysis_prompt.md",
-        "phase3_prompt": ROOT / "prompts/phase3_domain_analysis_prompt.md",
-        "phase4_prompt": ROOT / "prompts/phase4_mbt_design_prompt.md",
-        "phase5_prompt": ROOT / "prompts/phase5_testcase_generation_prompt.md",
-        "knowledge_ingest_prompt": ROOT / "prompts/knowledge_ingest_prompt.md",
-        "requirements_template": ROOT / "templates/requirements_template.md",
-        "state_diagram_template": ROOT / "templates/state_diagram_template.md",
-        "testcase_template": ROOT / "templates/testcase_template.md",
-        "quality_checklist": ROOT / "resources/quality_checklist.md",
-        "testcase_formats": ROOT / "resources/testcase_formats.md",
-        "feedback_template": ROOT / "resources/feedback_template.md",
-        "output_artifacts": ROOT / "resources/output_artifacts.md",
-        "delivery_protocol": ROOT / "references/delivery-protocol.md",
-        "quality_review": ROOT / "references/quality-review.md",
-        "knowledge_base_usage": ROOT / "references/knowledge-base-usage.md",
+        "skill_entry": skill_path("SKILL.md"),
+        "phase0_prompt": skill_path("prompts/phase0_input_preprocessing_prompt.md"),
+        "phase1_prompt": skill_path("prompts/phase1_requirements_prompt.md"),
+        "phase2_prompt": skill_path("prompts/phase2_code_analysis_prompt.md"),
+        "phase3_prompt": skill_path("prompts/phase3_domain_analysis_prompt.md"),
+        "phase4_prompt": skill_path("prompts/phase4_mbt_design_prompt.md"),
+        "phase5_prompt": skill_path("prompts/phase5_testcase_generation_prompt.md"),
+        "knowledge_ingest_prompt": skill_path("prompts/knowledge_ingest_prompt.md"),
+        "requirements_template": skill_path("templates/requirements_template.md"),
+        "state_diagram_template": skill_path("templates/state_diagram_template.md"),
+        "testcase_template": skill_path("templates/testcase_template.md"),
+        "quality_checklist": skill_path("resources/quality_checklist.md"),
+        "testcase_formats": skill_path("resources/testcase_formats.md"),
+        "feedback_template": skill_path("resources/feedback_template.md"),
+        "output_artifacts": skill_path("resources/output_artifacts.md"),
+        "delivery_protocol": skill_path("references/delivery-protocol.md"),
+        "quality_review": skill_path("references/quality-review.md"),
+        "knowledge_base_usage": skill_path("references/knowledge-base-usage.md"),
+        "prd_reader": skill_path("scripts/prd_reader.py"),
+        "incremental_scan": skill_path("scripts/incremental_code_scan.py"),
+        "config_schema": skill_path("config/testcase-config-schema.json"),
+        "example_config": skill_path("config/example-config.json"),
         "distribution_doc": ROOT / "DISTRIBUTION.md",
         "manifest": ROOT / "skill.manifest.json",
-        "prd_reader": ROOT / "scripts/prd_reader.py",
     }
 
     results = []
@@ -110,8 +122,8 @@ def check_required_paths() -> List[CheckResult]:
     return results
 
 
-def check_version_alignment(skill_path: Path, readme_path: Path, manifest_path: Path) -> CheckResult:
-    skill_text = read_text(skill_path)
+def check_version_alignment(skill_entry: Path, readme_path: Path, manifest_path: Path) -> CheckResult:
+    skill_text = read_text(skill_entry)
     readme_text = read_text(readme_path)
     skill_version = extract_skill_version(skill_text)
     manifest_version = extract_manifest_version(manifest_path)
@@ -124,9 +136,9 @@ def check_version_alignment(skill_path: Path, readme_path: Path, manifest_path: 
     return CheckResult("version_alignment", "warn", f"README does not reference {expected_version}")
 
 
-def check_v21_capabilities(skill_path: Path) -> CheckResult:
-    skill_text = read_text(skill_path)
-    output_artifacts = ROOT / "resources/output_artifacts.md"
+def check_v21_capabilities(skill_entry: Path) -> CheckResult:
+    skill_text = read_text(skill_entry)
+    output_artifacts = skill_path("resources/output_artifacts.md")
     combined_text = skill_text
     if output_artifacts.exists():
         combined_text += "\n" + read_text(output_artifacts)
@@ -211,16 +223,16 @@ def check_version_sync() -> CheckResult:
 
 
 def build_results() -> List[CheckResult]:
-    skill_path = ROOT / "SKILL.md"
+    skill_entry = skill_path("SKILL.md")
     readme_path = ROOT / "README.md"
-    schema_path = ROOT / "config/testcase-config-schema.json"
-    config_path = ROOT / "config/example-config.json"
+    schema_path = skill_path("config/testcase-config-schema.json")
+    config_path = skill_path("config/example-config.json")
     manifest_path = ROOT / "skill.manifest.json"
 
     results = [
-        check_version_alignment(skill_path, readme_path, manifest_path),
+        check_version_alignment(skill_entry, readme_path, manifest_path),
         check_version_sync(),
-        check_v21_capabilities(skill_path),
+        check_v21_capabilities(skill_entry),
         validate_schema(schema_path),
         validate_example_config(config_path, schema_path),
         check_host_adapter_consistency(manifest_path),

@@ -50,7 +50,7 @@ class SkillQualityAuditTests(unittest.TestCase):
             root = Path(temp_dir)
             self.write_minimal_manifest(root)
             self.write_minimal_runtime_docs(root)
-            prompt = root / "prompts" / "phase1_requirements_prompt.md"
+            prompt = root / skill_quality_audit.SKILL_DIR / "prompts" / "phase1_requirements_prompt.md"
             prompt.parent.mkdir(parents=True, exist_ok=True)
             prompt.write_text(
                 "generated_by: testcase-generator v2.0.0\n",

@@ -4,7 +4,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-KB_SCRIPTS = ROOT / "knowledge" / "scripts"
+# 技能运行时内容位于 skills/testcase-generator/（Agent Skills 标准布局）
+SKILL_DIR = "skills/testcase-generator"
+KB_SCRIPTS = ROOT / SKILL_DIR / "knowledge" / "scripts"
 sys.path.insert(0, str(KB_SCRIPTS))
 
 import build_index  # noqa: E402

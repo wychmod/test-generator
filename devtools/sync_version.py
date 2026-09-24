@@ -35,6 +35,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 MANIFEST_PATH = ROOT / "skill.manifest.json"
 README_PATH = ROOT / "README.md"
+# 技能运行时内容的唯一位置（Agent Skills 标准布局）。
+# 注意：`skills/` 是 canonical 源，**不是**镜像目录。
+SKILL_DIR = "skills/testcase-generator"
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -73,15 +76,16 @@ RULES: dict[str, re.Pattern[str]] = {
 
 # Which rules apply to which files. Keeping an explicit allow-list (instead of
 # running every rule over every file) is what makes this script safe to run.
+# 路径相对仓库根。技能树内的条目统一加 SKILL_DIR 前缀。
 SCOPES: list[tuple[str, list[str]]] = [
-    ("SKILL.md", ["frontmatter_version"]),
     ("skill.manifest.json", ["manifest_version"]),
     ("package.json", ["package_version"]),
-    ("config/*.json", ["config_description"]),
-    ("prompts/*.md", ["doc_header", "tool_version_ref", "generator_label"]),
-    ("references/*.md", ["doc_header", "tool_version_ref"]),
-    ("resources/*.md", ["doc_header", "tool_version_ref", "doc_title", "generator_label"]),
-    ("templates/*.md", ["doc_header", "template_version", "tool_version_ref", "doc_title", "generator_label"]),
+    (f"{SKILL_DIR}/SKILL.md", ["frontmatter_version"]),
+    (f"{SKILL_DIR}/config/*.json", ["config_description"]),
+    (f"{SKILL_DIR}/prompts/*.md", ["doc_header", "tool_version_ref", "generator_label"]),
+    (f"{SKILL_DIR}/references/*.md", ["doc_header", "tool_version_ref"]),
+    (f"{SKILL_DIR}/resources/*.md", ["doc_header", "tool_version_ref", "doc_title", "generator_label"]),
+    (f"{SKILL_DIR}/templates/*.md", ["doc_header", "template_version", "tool_version_ref", "doc_title", "generator_label"]),
 ]
 
 # README is special: the project constitution requires the first H1 to carry

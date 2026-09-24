@@ -1,6 +1,6 @@
 # Phase 4: MBT 设计引擎 (Model-Based Testing Design Engine)
 
-> **版本**: 2.2.0 | **阶段目标**：将业务模型转化为可直接驱动用例生成的测试模型，定义覆盖准则和路径策略
+> **版本**: 2.3.0 | **阶段目标**：将业务模型转化为可直接驱动用例生成的测试模型，定义覆盖准则和路径策略
 > **对应核心能力**: MBT 导向测试设计
 > **输入来源**: Phase 1-3 全部产物 | **输出去向**: Phase 5 (用例生成)
 >
@@ -422,7 +422,7 @@ coverage_targets:
 
 ```markdown
 ---
-generated_by: testcase-generator v2.2.0
+generated_by: testcase-generator v2.3.0
 phase: 4
 timestamp: {ISO8601}
 total_test_objects: N

@@ -16,6 +16,7 @@
 /.codebuddy/
 /.cursor/
 /.windsurf/
+/.openclaw/
 
 # ===== Node.js =====
 node_modules/
@@ -38,7 +39,9 @@ venv/
 /package_log.txt
 
 # ===== Skill local state =====
-/skills/
+# 注意：`skills/` 不再是镜像目录，而是 **canonical 技能树**
+# （`skills/testcase-generator/`，符合 Agent Skills 标准布局）。它必须被跟踪。
+# 各客户端的激活产物是上面那批点号开头的宿主目录，不是这里。
 /skills-lock.json
 /test-output/
 
@@ -47,7 +50,7 @@ venv/
 # `python knowledge/scripts/build_index.py`. Rebuild after editing sources.
 # It's not portable across machines (mtime + sha) and may contain project-
 # specific data the user does not want to share.
-/knowledge/index.json
+/skills/testcase-generator/knowledge/index.json
 
 # ===== Project-specific local run state =====
 /test-fixtures/.cache/

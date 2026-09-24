@@ -33,16 +33,19 @@ testcase-generator-skill
 
 | 路径 | 用途 |
 |---|---|
-| `SKILL.md` | Skill 入口文件，负责触发说明、执行规则与资源路由 |
+| `skills/testcase-generator/SKILL.md` | Skill 入口文件，负责触发说明、执行规则与资源路由 |
+| `skills/testcase-generator/config/` | 配置 Schema 与示例配置 |
+| `skills/testcase-generator/prompts/` | 六阶段分析与生成提示词 |
+| `skills/testcase-generator/references/` | 交付协议、质量评审动作、知识库使用等按需加载的补充参考（渐进披露第三层） |
+| `skills/testcase-generator/resources/` | 质量检查、格式规范、反馈模板与阶段产物协议 |
+| `skills/testcase-generator/templates/` | 需求、状态图、测试用例等标准输出模板 |
+| `skills/testcase-generator/scripts/prd_reader.py` | 本地 PRD / Markdown / PDF 文件读取辅助工具 |
+| `skills/testcase-generator/scripts/incremental_code_scan.py` | 增量 diff 代码行扫描、PRD 符合性分析与潜在 bug 信号辅助工具 |
 | `README.md` | 面向使用者和维护者的说明文档 |
-| `config/` | 配置 Schema 与示例配置 |
-| `prompts/` | 六阶段分析与生成提示词 |
-| `references/` | 交付协议、质量评审动作、知识库使用等按需加载的补充参考（渐进披露第三层） |
-| `resources/` | 质量检查、格式规范、反馈模板与阶段产物协议 |
-| `templates/` | 需求、状态图、测试用例等标准输出模板 |
-| `scripts/prd_reader.py` | 本地 PRD / Markdown / PDF 文件读取辅助工具 |
-| `scripts/incremental_code_scan.py` | 增量 diff 代码行扫描、PRD 符合性分析与潜在 bug 信号辅助工具 |
 | `skill.manifest.json` | 中文分发元数据与入包边界说明 |
+
+> 技能运行时内容统一位于 **`skills/testcase-generator/`**（Agent Skills 标准布局），
+> 客户端可自动发现；仓库根的其余目录属于分发元数据或开发工具，不是技能内容。
 
 ## npm 分发必须入包
 
@@ -61,7 +64,6 @@ testcase-generator-skill
 | 路径 | 排除原因 |
 |---|---|
 | `test-output/` | 本地验证产物，不属于运行时资产 |
-| `skills/` | 镜像副本，应该由发布流程生成，不应作为主源打包 |
 | `.claude/` | 宿主镜像副本，避免重复和版本漂移 |
 | `.agents/` | 宿主镜像副本，避免重复和版本漂移 |
 | `.qoder/` | 宿主镜像副本，避免重复和版本漂移 |
@@ -85,7 +87,7 @@ testcase-generator-skill
 | `skills-lock.json` | 宿主侧锁定文件，不属于 Skill 运行时资产 |
 | `testcase-generator.zip` | 兼容打包产物，避免包中包 |
 | `testcase-generator.skill` | 标准打包产物，避免包中包 |
-| `knowledge/index.json` | 本地知识库索引产物（`python knowledge/scripts/build_index.py` 本地构建），不进包 |
+| `skills/testcase-generator/knowledge/index.json` | 本地知识库索引产物（`build_index.py` 本地构建），不进包 |
 
 ## 开发工具处理
 
@@ -112,67 +114,72 @@ testcase-generator-skill
 | `knowledge/README.md` | 知识库用户文档 |
 | `knowledge/llm-ingest-template.md` | 可直接复制给大模型的知识录入模板 |
 | `knowledge/sources/README.md` | sources 使用说明 |
-| `knowledge/sources/*.md`（示例） | 示例源文件（domain-glossary / project-conventions / historical-cases）；用户后续填充的内容不进包 |
-| `knowledge/scripts/build_index.py` | 索引构建工具（宿主支持 Python 时可用） |
-| `knowledge/scripts/search.py` | BM25 检索工具（宿主支持 Python 时可用） |
-| `knowledge/scripts/ingest.py` | 知识录入工具（依赖用户自配置的 LLM 命令） |
+| `skills/testcase-generator/knowledge/sources/*.md`（示例） | 示例源文件（domain-glossary / project-conventions / historical-cases）；用户后续填充的内容不进包 |
+| `skills/testcase-generator/knowledge/scripts/build_index.py` | 索引构建工具（宿主支持 Python 时可用） |
+| `skills/testcase-generator/knowledge/scripts/search.py` | BM25 检索工具（宿主支持 Python 时可用） |
+| `skills/testcase-generator/knowledge/scripts/ingest.py` | 知识录入工具（依赖用户自配置的 LLM 命令） |
 
 ## 推荐分发包内容树
 
 ```text
 testcase-generator/
-├── SKILL.md
+├── skills/
+│   └── testcase-generator/          # ← 技能树（Agent Skills 标准布局，客户端自动发现）
+│       ├── SKILL.md
+│       ├── config/
+│       │   ├── example-config.json
+│       │   └── testcase-config-schema.json
+│       ├── prompts/
+│       │   ├── phase0_input_preprocessing_prompt.md
+│       │   ├── phase1_requirements_prompt.md
+│       │   ├── phase2_code_analysis_prompt.md
+│       │   ├── phase3_domain_analysis_prompt.md
+│       │   ├── phase4_mbt_design_prompt.md
+│       │   ├── phase5_testcase_generation_prompt.md
+│       │   └── knowledge_ingest_prompt.md
+│       ├── references/
+│       │   ├── delivery-protocol.md
+│       │   ├── quality-review.md
+│       │   └── knowledge-base-usage.md
+│       ├── resources/
+│       │   ├── feedback_template.md
+│       │   ├── output_artifacts.md
+│       │   ├── quality_checklist.md
+│       │   └── testcase_formats.md
+│       ├── templates/
+│       │   ├── requirements_template.md
+│       │   ├── state_diagram_template.md
+│       │   └── testcase_template.md
+│       ├── scripts/
+│       │   ├── prd_reader.py
+│       │   └── incremental_code_scan.py
+│       └── knowledge/
+│           ├── README.md
+│           ├── llm-ingest-template.md
+│           ├── sources/
+│           │   ├── README.md
+│           │   ├── domain-glossary.md
+│           │   ├── project-conventions.md
+│           │   └── historical-cases.md
+│           └── scripts/
+│               ├── build_index.py
+│               ├── ingest.py
+│               └── search.py
+├── adapters/                        # ← 宿主薄适配入口（不进技能树）
 ├── README.md
-├── skill.manifest.json
-├── knowledge/
-│   ├── README.md
-│   ├── llm-ingest-template.md
-│   ├── sources/
-│   │   ├── README.md
-│   │   ├── domain-glossary.md
-│   │   ├── project-conventions.md
-│   │   └── historical-cases.md
-│   └── scripts/
-│       ├── build_index.py
-│       ├── ingest.py
-│       └── search.py
-├── config/
-│   ├── example-config.json
-│   └── testcase-config-schema.json
-├── prompts/
-│   ├── phase0_input_preprocessing_prompt.md
-│   ├── phase1_requirements_prompt.md
-│   ├── phase2_code_analysis_prompt.md
-│   ├── phase3_domain_analysis_prompt.md
-│   ├── phase4_mbt_design_prompt.md
-│   └── phase5_testcase_generation_prompt.md
-├── references/
-│   ├── delivery-protocol.md
-│   ├── quality-review.md
-│   └── knowledge-base-usage.md
-├── resources/
-│   ├── feedback_template.md
-│   ├── output_artifacts.md
-│   ├── quality_checklist.md
-│   └── testcase_formats.md
-├── templates/
-│   ├── requirements_template.md
-│   ├── state_diagram_template.md
-│   └── testcase_template.md
-└── scripts/
-    ├── prd_reader.py
-    └── incremental_code_scan.py
+└── skill.manifest.json
 ```
 
 ## 发布前检查项
 
 发布前逐项确认：
 
-- [ ] `SKILL.md` 位于分发包根目录。
+- [ ] `skills/testcase-generator/SKILL.md` 位于分发包内（Agent Skills 标准布局）。
 - [ ] `SKILL.md` 主体内容为中文。
 - [ ] `SKILL.md` 的 description 能覆盖主要触发场景。
-- [ ] `resources/output_artifacts.md` 存在，且承接详细阶段产物说明。
-- [ ] `config/`、`prompts/`、`references/`、`resources/`、`templates/` 均已入包。
+- [ ] `skills/testcase-generator/resources/output_artifacts.md` 存在，且承接详细阶段产物说明。
+- [ ] 技能树下的 `config/`、`prompts/`、`references/`、`resources/`、`templates/`、`scripts/`、`knowledge/` 均已入包。
+- [ ] `skills/testcase-generator/knowledge/index.json` **未**入包。
 - [ ] 本地验证产物 `test-output/` 未入包。
 - [ ] 多宿主镜像目录未入包。
 - [ ] 本地工作记忆 `.workbuddy/` 未入包。

@@ -1,6 +1,6 @@
 # Phase 0: 输入预处理引擎 (Input Preprocessing Engine)
 
-> **版本**: 2.2.0 | **阶段目标**: 接收并验证所有原始输入，执行格式规范化、质量评估和路由决策，为后续阶段提供标准化的输入数据
+> **版本**: 2.3.0 | **阶段目标**: 接收并验证所有原始输入，执行格式规范化、质量评估和路由决策，为后续阶段提供标准化的输入数据
 > **对应核心能力**: 输入质量预处理
 > **输入来源**: 用户原始输入 (文件/文本/代码) | **输出去向**: Phase 1 (需求预处理)
 
@@ -270,7 +270,7 @@ sensitive_data_detection:
 
 ```markdown
 ---
-generated_by: testcase-generator v2.2.0
+generated_by: testcase-generator v2.3.0
 phase: 0
 timestamp: {ISO8601}
 input_source: {来源描述}

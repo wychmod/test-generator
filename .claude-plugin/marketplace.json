@@ -8,7 +8,7 @@
       "name": "testcase-generator",
       "source": "./",
       "description": "Generate structured, traceable, and executable software test cases and test design outputs from requirements, PRDs, API specifications, source code, bugfix context, or feature descriptions.",
-      "version": "2.2.0"
+      "version": "2.3.0"
     }
   ]
 }

@@ -28,18 +28,20 @@
 
 | 路径 | 作用 | 是否入包 | 备注 |
 |---|---|---|---|
-| `SKILL.md` | 中文主入口，描述/触发/执行规则/资源路由 | 是 | 入包根目录 |
+| `skills/testcase-generator/` | **技能树（canonical）**：SKILL.md + prompts / references / resources / templates / config / scripts / knowledge | 是 | Agent Skills 标准布局，客户端自动发现；**必须被 git 跟踪** |
+| `skills/testcase-generator/SKILL.md` | 中文主入口，描述/触发/执行规则/资源路由 | 是 | 入包于技能树内 |
 | `README.md` | 面向使用者和维护者的说明文档 | 是 | 入包根目录 |
-| `skill.manifest.json` | 机器可读的中文分发元数据（运行时文件、分发排除、宿主入口） | 是 | 入包根目录 |
+| `skill.manifest.json` | 机器可读的中文分发元数据（运行时文件、分发排除、宿主入口、版本源） | 是 | 入包根目录 |
 | `DISTRIBUTION.md` | 人工可读的分发清单与发布检查项 | 是 | 入包根目录 |
 | `HOST_COMPATIBILITY.md` | 宿主兼容性矩阵与能力降级说明 | 是 | 入包根目录 |
 | `docs/operations/packaging.md` | 打包与发布说明 | **否** | dev 工具说明文档（原根目录 `PACKAGING.md`，已搬入 `docs/operations/`） |
-| `adapters/` | 多宿主薄适配层（claude / codex / qoder / openclaw / trae / codebuddy / cursor / windsurf） | 是 | 不复制核心 prompts/templates |
-| `config/` | JSON Schema 与示例配置 | 是 | `testcase-config-schema.json` + `example-config.json` |
-| `prompts/` | 6 个阶段提示词（phase0..phase5） | 是 | AI 实际执行的指令源 |
-| `resources/` | 质量检查、格式规范、反馈模板、阶段产物协议 | 是 | `quality_checklist.md` / `output_artifacts.md` / `testcase_formats.md` / `feedback_template.md` |
-| `templates/` | 需求/状态图/测试用例输出模板 | 是 | 3 个模板 |
-| `scripts/prd_reader.py` | 本地 PRD / Markdown / PDF 读取辅助 | 是 | **可选依赖**，宿主不支持 Python 时降级为文本分析 |
+| `adapters/` | 多宿主薄适配层（claude / codex / qoder / openclaw / trae / codebuddy / cursor / windsurf） | 是 | 不复制技能树内容 |
+| `skills/testcase-generator/config/` | JSON Schema 与示例配置 | 是 | `testcase-config-schema.json` + `example-config.json` |
+| `skills/testcase-generator/prompts/` | 6 个阶段提示词（phase0..phase5）+ 知识入库提示词 | 是 | AI 实际执行的指令源 |
+| `skills/testcase-generator/references/` | 按需加载的补充参考（渐进披露第三层） | 是 | 交付协议 / 质量评审 / 知识库用法 |
+| `skills/testcase-generator/resources/` | 质量检查、格式规范、反馈模板、阶段产物协议 | 是 | `quality_checklist.md` / `output_artifacts.md` / `testcase_formats.md` / `feedback_template.md` |
+| `skills/testcase-generator/templates/` | 需求/状态图/测试用例输出模板 | 是 | 3 个模板 |
+| `skills/testcase-generator/scripts/prd_reader.py` | 本地 PRD / Markdown / PDF 读取辅助 | 是 | **可选依赖**，宿主不支持 Python 时降级为文本分析 |
 | `devtools/` | 能力审计 / 质量审计 / 打包脚本 | **否** | 永远不入包；放在仓库内便于发布前验证 |
 | `bin/test-generator.js` | npm CLI 入口（`test-generator` 命令） | 仅 npm | 不入 `.skill` / `.zip` |
 | `lib/activation.js` | npm 激活逻辑（`ENVIRONMENTS` 常量、`activateEnvironment`） | 仅 npm | 不入 `.skill` / `.zip` |
@@ -76,6 +78,16 @@
 
 ## 4. AI 协作铁律（绝对不能违反）
 
+### 4.0 canonical 技能树铁律
+
+**`skills/testcase-generator/` 是技能内容的唯一来源，必须被 git 跟踪。**
+
+- 它**不是**镜像目录。`/skills/` 已从 `.gitignore` 移除，并已从 manifest `分发排除`
+  与 `package_skill.py` 的 `FORBIDDEN_ARCHIVE_PATTERNS` 中移除。
+- 各客户端的激活产物是点号开头的宿主目录（`.claude/`、`.agents/` …），不是这里。
+- 技能树内的文件若要引用技能树**外**的文件（如仓库的 `docs/`），需要跨三层：
+  `../../../docs/...`。
+
 ### 4.1 入包边界铁律
 
 以下目录和文件**永远不能**进入 `.skill` / `.zip` 分发包：
@@ -91,7 +103,6 @@
 | `.windsurf/` | 宿主镜像副本 |
 | `.workbuddy/` | 本地工作记忆与环境配置 |
 | `test-output/` | 本地验证产物 |
-| `skills/` | 镜像副本（应由发布流程生成） |
 | `skills-lock.json` | 宿主侧锁定文件 |
 | `testcase-generator.zip` | 兼容打包产物（包中包） |
 | `testcase-generator.skill` | 标准打包产物（包中包） |

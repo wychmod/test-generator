@@ -17,9 +17,11 @@ Usage:
 
 Notes
 -----
-* ``skills: ["."]`` declares that the plugin root is itself one skill
-  directory. That matches this repository's canonical root-level ``SKILL.md``
-  layout, so no files have to move to become installable.
+* The skill tree lives at ``skills/testcase-generator/`` (the Agent Skills
+  standard layout), so clients discover it automatically. We deliberately do
+  **not** emit a ``skills`` field: the default scan already covers ``skills/``,
+  and omitting the override removes an assumption about field semantics that we
+  could not verify against a real client here.
 * ``.claude-plugin/`` may contain manifests ONLY — never component
   directories. Component paths live at the plugin root.
 """
@@ -71,8 +73,6 @@ def build_plugin(skill: dict, pkg: dict) -> dict:
         "homepage": pkg.get("homepage", ""),
         "repository": (pkg.get("repository") or {}).get("url", ""),
         "keywords": pkg.get("keywords", []),
-        # The repo root *is* the skill directory: SKILL.md sits next to it.
-        "skills": ["."],
     }
 
 

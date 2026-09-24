@@ -1,7 +1,7 @@
 ---
 name: testcase-generator
-version: 2.2.0
-description: 从需求文档、PRD、API 规范、源代码、缺陷修复上下文或功能描述中生成结构化、可追溯、可执行的软件测试用例与测试设计产物。当用户提出生成、扩展、评审、标准化、优化或审计测试用例、测试场景、测试点清单、MBT 导向测试设计结果或测试文档时使用。已为 Claude / Qoder / CodeBuddy / Codex / OpenClaw / Trae / Cursor / Windsurf 提供完整或软适配入口（详见 `HOST_COMPATIBILITY.md`）。v2.2.0 起支持可选的本地 `knowledge/` 知识库（术语表 / 项目规范 / 历史用例）的触发式检索，以及通过大模型自动从 PDF / Markdown / TXT / 图片 / 粘贴文本中录入知识条目（详见 `docs/architecture/knowledge-base.md`）。
+version: 2.3.0
+description: 从需求文档、PRD、API 规范、源代码、缺陷修复上下文或功能描述中生成结构化、可追溯、可执行的软件测试用例与测试设计产物。当用户提出生成、扩展、评审、标准化、优化或审计测试用例、测试场景、测试点清单、MBT 导向测试设计结果或测试文档时使用。已为 Claude / Qoder / CodeBuddy / Codex / OpenClaw / Trae / Cursor / Windsurf 提供完整或软适配入口（详见分发包根目录的 `HOST_COMPATIBILITY.md`）。v2.2.0 起支持可选的本地 `knowledge/` 知识库（术语表 / 项目规范 / 历史用例）的触发式检索，以及通过大模型自动从 PDF / Markdown / TXT / 图片 / 粘贴文本中录入知识条目（详见仓库 `docs/architecture/knowledge-base.md`）。
 ---
 
 # Testcase Generator

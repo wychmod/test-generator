@@ -34,6 +34,14 @@ from typing import Iterable
 # 仓库根目录：本脚本在 .harness/scripts/ 下，向上一级是仓库根
 SCRIPT_DIR = Path(__file__).resolve().parent
 ROOT = SCRIPT_DIR.parent.parent
+# 技能运行时内容的唯一位置（Agent Skills 标准布局）。
+# 注意：`skills/` 是 canonical 源，**不是**镜像目录。
+SKILL_DIR = "skills/testcase-generator"
+
+
+def skill_path(relative: str) -> Path:
+    """技能树内的路径（prompts / references / resources / templates / config / scripts / knowledge）。"""
+    return ROOT / SKILL_DIR / relative
 
 
 @dataclass
@@ -116,11 +124,11 @@ def normalize_version(version: str | None) -> str:
 
 
 def check_version_alignment() -> CheckResult:
-    skill_path = ROOT / "SKILL.md"
+    skill_entry = skill_path("SKILL.md")
     readme_path = ROOT / "README.md"
     manifest_path = ROOT / "skill.manifest.json"
 
-    skill_v = extract_skill_md_version(skill_path)
+    skill_v = extract_skill_md_version(skill_entry)
     readme_v = extract_readme_version(readme_path)
     manifest_v = extract_manifest_version(manifest_path)
 
@@ -187,14 +195,14 @@ CORE_CAPABILITIES = [
     "追溯矩阵与质量门禁",
 ]
 
-# 6 个阶段 prompt 文件
+# 6 个阶段 prompt 文件（相对技能树根）
 PHASE_PROMPT_FILES = [
-    "prompts/phase0_input_preprocessing_prompt.md",
-    "prompts/phase1_requirements_prompt.md",
-    "prompts/phase2_code_analysis_prompt.md",
-    "prompts/phase3_domain_analysis_prompt.md",
-    "prompts/phase4_mbt_design_prompt.md",
-    "prompts/phase5_testcase_generation_prompt.md",
+    f"{SKILL_DIR}/prompts/phase0_input_preprocessing_prompt.md",
+    f"{SKILL_DIR}/prompts/phase1_requirements_prompt.md",
+    f"{SKILL_DIR}/prompts/phase2_code_analysis_prompt.md",
+    f"{SKILL_DIR}/prompts/phase3_domain_analysis_prompt.md",
+    f"{SKILL_DIR}/prompts/phase4_mbt_design_prompt.md",
+    f"{SKILL_DIR}/prompts/phase5_testcase_generation_prompt.md",
 ]
 
 
@@ -215,12 +223,10 @@ def check_capability_coverage() -> list[CheckResult]:
             )
         ]
 
-    skill_text = read_text(ROOT / "SKILL.md") if (ROOT / "SKILL.md").exists() else ""
-    output_artifacts_text = (
-        read_text(ROOT / "resources/output_artifacts.md")
-        if (ROOT / "resources/output_artifacts.md").exists()
-        else ""
-    )
+    entry = skill_path("SKILL.md")
+    skill_text = read_text(entry) if entry.exists() else ""
+    artifacts = skill_path("resources/output_artifacts.md")
+    output_artifacts_text = read_text(artifacts) if artifacts.exists() else ""
     phase_texts = []
     for rel in PHASE_PROMPT_FILES:
         p = ROOT / rel
@@ -793,7 +799,8 @@ def check_excludes_consistency() -> list[CheckResult]:
         ".claude", ".qoder", ".trae", ".agents", ".workbuddy",
         ".codebuddy", ".cursor", ".windsurf",
         # 本地验证产物
-        "test-output", "skills", "skills-lock.json",
+        # 注意：`skills` 不在此列 —— 它是 canonical 技能树，必须入包。
+        "test-output", "skills-lock.json",
         # 包中包
         "testcase-generator.skill", "testcase-generator.zip",
         # 开发工具

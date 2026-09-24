@@ -1,4 +1,4 @@
-# 🧪 Test Generator v2.2.0 · AI 驱动的测试用例生成 Skill
+# 🧪 Test Generator v2.3.0 · AI 驱动的测试用例生成 Skill
 
 <p align="center">
   <strong>🔬 让大模型真正"写出能跑"的测试用例</strong><br>
@@ -447,7 +447,24 @@ python devtools/capability_audit.py --format json
 
 ```text
 testcase-generator/
-├── SKILL.md                              # 🔑 Skill 主文件(核心入口，只做能力声明与路由)
+├── skills/
+│   └── testcase-generator/               # 🔑 技能树(canonical，Agent Skills 标准布局)
+│       ├── SKILL.md                      #   主入口(只做能力声明与路由)
+│       ├── config/                       #   ⚙️ 配置示例与 JSON Schema
+│       ├── prompts/                      #   📝 六阶段提示词 + 知识入库提示词
+│       ├── references/                   #   📎 按需加载的补充参考(渐进披露第三层)
+│       │   ├── delivery-protocol.md      #     最小交付协议、输出字段、交付深度
+│       │   ├── quality-review.md         #     交付前必做的质量评审动作与边界
+│       │   └── knowledge-base-usage.md   #     知识库录入、触发词与消费规则
+│       ├── resources/                    #   📚 质量清单 / 格式参考 / 产物协议 / 反馈模板
+│       ├── templates/                    #   📋 需求 / 状态图 / 测试用例模板
+│       ├── scripts/                      #   🐍 prd_reader / incremental_code_scan
+│       └── knowledge/                    #   📚 本地知识库(触发式 BM25)
+│           ├── README.md                 #     使用说明
+│           ├── llm-ingest-template.md    #     大模型知识录入模板
+│           ├── sources/                  #     可检索 Markdown 知识条目
+│           └── scripts/                  #     build_index / search / ingest 工具
+│
 ├── AGENTS.md                             # 🤖 面向 AI agent 的仓库操作说明(≤100 行)
 ├── README.md                             # 📖 本文件
 ├── DISTRIBUTION.md                       # 📦 分发边界与发布检查项
@@ -458,41 +475,14 @@ testcase-generator/
 │   └── marketplace.json
 ├── run_package.bat                       # 🛠️ Windows 打包入口
 │
-├── adapters/                             # 🔌 多宿主适配入口
-│   ├── claude/                          #   Claude / Anthropic 类宿主
-│   ├── codex/                           #   Codex / 工程 CLI 类宿主
-│   ├── codebuddy/                       #   CodeBuddy / 腾讯云 AI 代码助手
-│   ├── cursor/                          #   Cursor (Anysphere) 软适配
-│   ├── openclaw/                        #   OpenClaw / 兼容型宿主
-│   ├── qoder/                           #   Qoder / IDE 集成类宿主
-│   └── windsurf/                        #   Windsurf / Antigravity 软适配
-│
-├── config/                               # ⚙️ 配置文件
-│   ├── example-config.json               #   配置示例
-│   └── testcase-config-schema.json       #   JSON Schema 校验定义
-│
-├── prompts/                              # 📝 各阶段提示词(AI 执行指令)
-│   ├── phase0_input_preprocessing_prompt.md
-│   ├── phase1_requirements_prompt.md
-│   ├── phase2_code_analysis_prompt.md
-│   ├── phase3_domain_analysis_prompt.md
-│   ├── phase4_mbt_design_prompt.md
-│   └── phase5_testcase_generation_prompt.md
-│
-├── references/                           # 📎 按需加载的补充参考(渐进披露第三层)
-│   ├── delivery-protocol.md              #   最小交付协议、输出字段、交付深度
-│   ├── quality-review.md                 #   交付前必做的质量评审动作与边界
-│   └── knowledge-base-usage.md           #   知识库录入、触发词与消费规则
-│
-├── scripts/                              # 🐍 运行时辅助脚本
-│   ├── prd_reader.py                     #   PRD / Markdown / PDF 读取辅助
-│   └── incremental_code_scan.py          #   diff 增量代码行 + PRD 符合性 + 潜在 bug 扫描
-│
-├── knowledge/                            # 📚 本地知识库(v2.2.0)
-│   ├── README.md                         #   知识库使用说明
-│   ├── llm-ingest-template.md            #   大模型知识录入模板
-│   ├── sources/                          #   可检索 Markdown 知识条目
-│   └── scripts/                          #   build_index / search / ingest 工具
+├── adapters/                             # 🔌 多宿主薄适配入口(不进技能树)
+│   ├── claude/                           #   Claude / Anthropic 类宿主
+│   ├── codex/                            #   Codex / 工程 CLI 类宿主
+│   ├── codebuddy/                        #   CodeBuddy / 腾讯云 AI 代码助手
+│   ├── cursor/                           #   Cursor (Anysphere) 软适配
+│   ├── openclaw/                         #   OpenClaw / 兼容型宿主
+│   ├── qoder/                            #   Qoder / IDE 集成类宿主
+│   └── windsurf/                         #   Windsurf / Antigravity 软适配
 │
 ├── docs/                                 # 🧭 内部文档中心
 │   ├── architecture/                     #   架构设计
@@ -503,18 +493,11 @@ testcase-generator/
 ├── devtools/                             # 🧪 开发与发布工具
 │   ├── capability_audit.py               #   能力矩阵与资产一致性审计
 │   ├── skill_quality_audit.py            #   Skill 标准字段与质量门禁审计
+│   ├── sync_version.py                   #   版本单一数据源同步器
+│   ├── gen_plugin_manifests.py           #   客户端插件清单生成器
 │   └── package_skill.py                  #   Skill 打包脚本
 │
-├── templates/                            # 📋 输出模板(产物格式规范)
-│   ├── requirements_template.md
-│   ├── state_diagram_template.md
-│   └── testcase_template.md
-│
-├── resources/                            # 📚 参考资源
-│   ├── feedback_template.md              #   反馈闭环模板
-│   ├── output_artifacts.md               #   阶段产物说明
-│   ├── quality_checklist.md              #   质量检查指南
-│   └── testcase_formats.md               #   测试用例格式参考
+├── .github/workflows/ci.yml              # ✅ CI(7 项必跑检查)
 │
 └── test-output/                          # 🧾 本地测试输出示例(不参与分发)
 ```

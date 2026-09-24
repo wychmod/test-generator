@@ -7,12 +7,12 @@
     "zh-CN": "测试用例生成器",
     "en-US": "Testcase Generator"
   },
-  "版本": "2.2.0",
+  "版本": "2.3.0",
   "语言": [
     "zh-CN",
     "en-US"
   ],
-  "入口文件": "SKILL.md",
+  "入口文件": "skills/testcase-generator/SKILL.md",
   "说明": {
     "zh-CN": "从需求文档、PRD、API 规范、源代码、缺陷修复上下文或功能描述中生成结构化、可追溯、可执行的软件测试用例与测试设计产物。",
     "en-US": "Generate structured, traceable, and executable software test cases and test design outputs from requirements, PRDs, API specifications, source code, bugfix context, or feature descriptions."
@@ -54,21 +54,21 @@
     ]
   },
   "运行时文件": [
-    "SKILL.md",
+    "skills/testcase-generator/SKILL.md",
+    "skills/testcase-generator/config/**",
+    "skills/testcase-generator/prompts/**",
+    "skills/testcase-generator/references/**",
+    "skills/testcase-generator/resources/**",
+    "skills/testcase-generator/templates/**",
+    "skills/testcase-generator/scripts/prd_reader.py",
+    "skills/testcase-generator/scripts/incremental_code_scan.py",
+    "skills/testcase-generator/knowledge/README.md",
+    "skills/testcase-generator/knowledge/llm-ingest-template.md",
+    "skills/testcase-generator/knowledge/sources/**",
+    "skills/testcase-generator/knowledge/scripts/**",
     "README.md",
     "HOST_COMPATIBILITY.md",
-    "adapters/**",
-    "config/**",
-    "prompts/**",
-    "references/**",
-    "resources/**",
-    "templates/**",
-    "scripts/prd_reader.py",
-    "scripts/incremental_code_scan.py",
-    "knowledge/README.md",
-    "knowledge/llm-ingest-template.md",
-    "knowledge/sources/**",
-    "knowledge/scripts/**"
+    "adapters/**"
   ],
   "宿主适配入口": {
     "claude": "adapters/claude/SKILL.md",
@@ -82,7 +82,6 @@
   },
   "分发排除": [
     "test-output/**",
-    "skills/**",
     ".claude/**",
     ".agents/**",
     ".qoder/**",
@@ -108,7 +107,7 @@
     "skills-lock.json",
     "testcase-generator.zip",
     "testcase-generator.skill",
-    "knowledge/index.json"
+    "skills/testcase-generator/knowledge/index.json"
   ],
   "推荐打包产物": "testcase-generator.skill",
   "兼容打包产物": "testcase-generator.zip",

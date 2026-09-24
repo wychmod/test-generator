@@ -68,11 +68,12 @@ class SyncVersionUnitTests(unittest.TestCase):
 
 class SyncVersionCliTests(unittest.TestCase):
     def make_tree(self, root: Path, prompt_version: str = "2.1.0") -> None:
-        (root / "prompts").mkdir(parents=True, exist_ok=True)
-        (root / "prompts" / "phase0.md").write_text(
+        skill_root = root / sync_version.SKILL_DIR
+        (skill_root / "prompts").mkdir(parents=True, exist_ok=True)
+        (skill_root / "prompts" / "phase0.md").write_text(
             f"> **版本**: {prompt_version} | 阶段目标: demo\n", encoding="utf-8"
         )
-        (root / "SKILL.md").write_text(
+        (skill_root / "SKILL.md").write_text(
             f"---\nname: demo\nversion: {prompt_version}\n---\n", encoding="utf-8"
         )
         (root / "README.md").write_text(
@@ -100,8 +101,9 @@ class SyncVersionCliTests(unittest.TestCase):
                 self.assertEqual(quiet_main(["--write"]), 0)
                 self.assertEqual(quiet_main([]), 0, "回写后 --check 应通过")
 
-            self.assertIn("2.2.0", (root / "prompts" / "phase0.md").read_text(encoding="utf-8"))
-            self.assertIn("2.2.0", (root / "SKILL.md").read_text(encoding="utf-8"))
+            skill_root = root / sync_version.SKILL_DIR
+            self.assertIn("2.2.0", (skill_root / "prompts" / "phase0.md").read_text(encoding="utf-8"))
+            self.assertIn("2.2.0", (skill_root / "SKILL.md").read_text(encoding="utf-8"))
             self.assertIn("v2.2.0", (root / "README.md").read_text(encoding="utf-8"))
 
     def test_write_is_idempotent(self):

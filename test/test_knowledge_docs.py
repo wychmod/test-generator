@@ -4,14 +4,18 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parent.parent
-KB_SCRIPTS = ROOT / "knowledge" / "scripts"
+# 技能运行时内容位于 skills/testcase-generator/（Agent Skills 标准布局）
+SKILL_DIR = "skills/testcase-generator"
+SKILL_ROOT = ROOT / SKILL_DIR
+KB_SCRIPTS = SKILL_ROOT / "knowledge" / "scripts"
 sys.path.insert(0, str(KB_SCRIPTS))
 
 import search  # noqa: E402
 
 
 def read_text(relative_path: str) -> str:
-    return (ROOT / relative_path).read_text(encoding="utf-8")
+    """读取技能树内的文件；参数相对技能树根（skills/testcase-generator/）。"""
+    return (SKILL_ROOT / relative_path).read_text(encoding="utf-8")
 
 
 class KnowledgeDocsTests(unittest.TestCase):
@@ -61,7 +65,7 @@ class KnowledgeDocsTests(unittest.TestCase):
         否则一旦按渐进披露原则下沉内容，测试就会误报失败。
         """
         paths = ["SKILL.md"] + sorted(
-            path.relative_to(ROOT).as_posix() for path in (ROOT / "references").glob("*.md")
+            path.relative_to(SKILL_ROOT).as_posix() for path in (SKILL_ROOT / "references").glob("*.md")
         )
         return "\n".join(read_text(path) for path in paths)
 

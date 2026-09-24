@@ -74,6 +74,9 @@ function printActivationResult(result, dryRun) {
   const action = dryRun ? "Would activate" : "Activated";
   console.log(`${action} ${result.environment} skill at ${result.target}`);
   console.log(`Runtime files: ${result.copied}`);
+  if (result.pruned && result.pruned.length > 0) {
+    console.log(`Pruned stale files: ${result.pruned.length}`);
+  }
   if (result.entry) {
     console.log(`Host entry: ${result.entry}`);
   }

@@ -1,6 +1,6 @@
 # 交付协议与输出规范
 
-> **版本**: 2.2.0 | **用途**: 最小交付协议、输出字段与用例类别、输出风格、三种交付深度
+> **版本**: 2.3.0 | **用途**: 最小交付协议、输出字段与用例类别、输出风格、三种交付深度
 >
 > 上游入口：[`../SKILL.md`](../SKILL.md) ｜ 相关：[`quality-review.md`](quality-review.md) ｜ [`../resources/testcase_formats.md`](../resources/testcase_formats.md)
 
@@ -90,4 +90,4 @@
 
 ---
 
-*本文件由 testcase-generator v2.2.0 提供。*
+*本文件由 testcase-generator v2.3.0 提供。*

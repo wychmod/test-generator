@@ -3,7 +3,9 @@ import sys
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parent
-sys.path.insert(0, str(REPO_ROOT / "scripts"))
+# 技能运行时内容位于 skills/testcase-generator/（Agent Skills 标准布局）
+SKILL_DIR = "skills/testcase-generator"
+sys.path.insert(0, str(REPO_ROOT / SKILL_DIR / "scripts"))
 
 from incremental_code_scan import analyze_scan, parse_unified_diff  # noqa: E402
 

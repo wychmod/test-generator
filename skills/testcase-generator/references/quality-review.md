@@ -1,8 +1,8 @@
 # 质量评审与边界约束
 
-> **版本**: 2.2.0 | **用途**: 交付前的质量评审动作、Skill 的能力边界与约束
+> **版本**: 2.3.0 | **用途**: 交付前的质量评审动作、Skill 的能力边界与约束
 >
-> 上游入口：[`../SKILL.md`](../SKILL.md) ｜ 质量检查细则：[`../resources/quality_checklist.md`](../resources/quality_checklist.md) ｜ 阶段门禁：[`../docs/quality/quality-gates.md`](../docs/quality/quality-gates.md)
+> 上游入口：[`../SKILL.md`](../SKILL.md) ｜ 质量检查细则：[`../resources/quality_checklist.md`](../resources/quality_checklist.md) ｜ 阶段门禁：[`../../../docs/quality/quality-gates.md`](../../../docs/quality/quality-gates.md)
 
 ---
 
@@ -53,4 +53,4 @@
 
 ---
 
-*本文件由 testcase-generator v2.2.0 提供。*
+*本文件由 testcase-generator v2.3.0 提供。*

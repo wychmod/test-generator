@@ -1,14 +1,14 @@
-﻿# 状态图模板 v2.2.0 (生产级)
+﻿# 状态图模板 v2.3.0 (生产级)
 
-> **模板版本**: 2.2.0 | **标准**: UML 2.5 State Machine + Harel Statecharts | **用途**: Phase 3 领域建模 / Phase 4 MBT 设计
+> **模板版本**: 2.3.0 | **标准**: UML 2.5 State Machine + Harel Statecharts | **用途**: Phase 3 领域建模 / Phase 4 MBT 设计
 
 ---
 
 ```markdown
 ---
 document_type: "state_machine_specification"
-template_version: "2.2.0"
-generated_by: "testcase-generator v2.2.0"
+template_version: "2.3.0"
+generated_by: "testcase-generator v2.3.0"
 metadata:
   project_name: "[项目名称]"
   machine_name: "[状态机名称]"
@@ -28,7 +28,7 @@ metadata:
 
 | 版本 | 日期 | 作者 | 变更内容 | 审批 |
 |------|------|------|---------|------|
-| 1.0 | YYYY-MM-DD | AI Generator v2.2.0 | 初始创建 | — |
+| 1.0 | YYYY-MM-DD | AI Generator v2.3.0 | 初始创建 | — |
 
 ---
 
@@ -345,5 +345,5 @@ stateDiagram-v2
 
 ---
 
-*本文档由 testcase-generator v2.2.0 自动生成。*
+*本文档由 testcase-generator v2.3.0 自动生成。*
 *请结合 Phase 4 的测试模型规格一起使用。*

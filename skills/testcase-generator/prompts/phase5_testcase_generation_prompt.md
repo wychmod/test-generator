@@ -1,6 +1,6 @@
 # Phase 5: 用例生成引擎 (Test Case Generation Engine)
 
-> **版本**: 2.2.0 | **阶段目标**：基于测试模型生成完整、可执行、高质量、可追溯的测试用例集
+> **版本**: 2.3.0 | **阶段目标**：基于测试模型生成完整、可执行、高质量、可追溯的测试用例集
 > **对应核心能力**: 结构化测试用例生成、追溯矩阵与质量门禁
 > **输入来源**: Phase 1-4 全部产物 | **输出**: 最终交付物
 >
@@ -111,7 +111,7 @@ metadata:
   version: "1.0"
   status: "Draft"  # Draft / Reviewed / Approved / Deprecated
   created: "{date}"
-  author: "AI Generator v2.2.0"
+  author: "AI Generator v2.3.0"
   reviewer: ""
   last_modified: ""
   automation_ready: Yes / Partial / No / N/A
@@ -260,7 +260,7 @@ reverse_traceability:  # 从需求追溯到用例（在最终矩阵中体现）
 **变更记录**
 | 版本 | 日期 | 作者 | 变更内容 |
 |------|------|------|---------|
-| 1.0 | {date} | AI Generator v2.2.0 | 初始创建 |
+| 1.0 | {date} | AI Generator v2.3.0 | 初始创建 |
 ```
 
 ---
@@ -553,7 +553,7 @@ def test_tc_auth_login_001_valid_credentials():
 
 ```markdown
 ---
-generated_by: testcase-generator v2.2.0
+generated_by: testcase-generator v2.3.0
 phase: 5
 timestamp: {ISO8601}
 total_testcases: N

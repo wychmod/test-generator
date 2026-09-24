@@ -1,8 +1,8 @@
 # 本地知识库使用指南（可选辅助层）
 
-> **版本**: 2.2.0 | **用途**: 知识库的录入方式、检索触发词与 `[参考知识]` 消费规则
+> **版本**: 2.3.0 | **用途**: 知识库的录入方式、检索触发词与 `[参考知识]` 消费规则
 >
-> 上游入口：[`../SKILL.md`](../SKILL.md) ｜ 架构与算法：[`../docs/architecture/knowledge-base.md`](../docs/architecture/knowledge-base.md)
+> 上游入口：[`../SKILL.md`](../SKILL.md) ｜ 架构与算法：[`../../../docs/architecture/knowledge-base.md`](../../../docs/architecture/knowledge-base.md)
 
 知识库用于保存**项目级稳定信息**：术语、规范、历史用例、API 速查和合规规则。
 
@@ -75,4 +75,4 @@ python knowledge/scripts/search.py "关键词"
 
 ---
 
-*本文件由 testcase-generator v2.2.0 提供。*
+*本文件由 testcase-generator v2.3.0 提供。*

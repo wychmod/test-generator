@@ -17,6 +17,10 @@ if hasattr(sys.stdout, "reconfigure"):
 ROOT = Path(__file__).resolve().parent.parent
 LOG_PATH = ROOT / "_pkg_log.txt"
 MANIFEST_PATH = ROOT / "skill.manifest.json"
+# 技能运行时内容的唯一位置（Agent Skills 标准布局）。
+# 注意 `skills/` 是 canonical 源，不再是镜像目录，因此不能出现在排除规则里。
+SKILL_DIR = "skills/testcase-generator"
+SKILL_ENTRY = f"{SKILL_DIR}/SKILL.md"
 ARCHIVE_BASENAME = "testcase-generator"
 ARCHIVE_EXTENSIONS = (".skill", ".zip")
 STATIC_EXCLUDES = {
@@ -34,7 +38,7 @@ STATIC_EXCLUDES = {
     "devtools",
 }
 REQUIRED_ARCHIVE_MEMBERS = {
-    "SKILL.md",
+    SKILL_ENTRY,
     "README.md",
     "DISTRIBUTION.md",
     "skill.manifest.json",
@@ -49,7 +53,6 @@ FORBIDDEN_ARCHIVE_PATTERNS = {
     ".codebuddy/**",
     ".cursor/**",
     ".windsurf/**",
-    "skills/**",
     "skills-lock.json",
     "*.skill",
     "*.zip",
@@ -180,13 +183,9 @@ with open(LOG_PATH, "w", encoding="utf-8", errors="replace") as log:
 
     included_files, skipped = collect_package_members(excluded_patterns, allowed_patterns)
 
-    skill_md = ROOT / "SKILL.md"
     log_write(f"Skill root: {ROOT}")
-    log_write(f"SKILL.md: {skill_md.exists()}")
-    log_write(f"prompts/: {(ROOT / 'prompts').exists()}")
-    log_write(f"config/: {(ROOT / 'config').exists()}")
-    log_write(f"templates/: {(ROOT / 'templates').exists()}")
-    log_write(f"resources/: {(ROOT / 'resources').exists()}")
+    for label in ("SKILL.md", "prompts", "references", "config", "templates", "resources", "knowledge", "scripts"):
+        log_write(f"{SKILL_DIR}/{label}: {(ROOT / SKILL_DIR / label).exists()}")
     log_write(f"manifest 驱动入包规则: {MANIFEST_PATH}")
 
     archives: list[Path] = []

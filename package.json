@@ -1,6 +1,6 @@
 {
   "name": "@wychmod-cn/testcase-generator-skill",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Testcase generator skill package with host activation CLI.",
   "license": "MIT",
   "bin": {
@@ -28,21 +28,14 @@
     "access": "public"
   },
   "files": [
-    "SKILL.md",
-    "README.md",
-    "DISTRIBUTION.md",
-    "HOST_COMPATIBILITY.md",
+    "skills",
     "adapters",
     "bin",
-    "config",
-    "knowledge",
     "lib",
-    "prompts",
-    "references",
-    "resources",
-    "scripts",
     "skill.manifest.json",
-    "templates"
+    "README.md",
+    "DISTRIBUTION.md",
+    "HOST_COMPATIBILITY.md"
   ],
   "scripts": {
     "test": "node --test \"test/**/*.test.js\"",

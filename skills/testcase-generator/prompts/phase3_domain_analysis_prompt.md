@@ -1,6 +1,6 @@
 # Phase 3: 领域建模引擎 (Domain Modeling Engine)
 
-> **版本**: 2.2.0 | **阶段目标**: 建立业务领域的形式化模型，定义测试参数空间，为 MBT 提供坚实基础
+> **版本**: 2.3.0 | **阶段目标**: 建立业务领域的形式化模型，定义测试参数空间，为 MBT 提供坚实基础
 > **对应核心能力**: 领域模型与状态模型构建
 > **输入来源**: Phase 1 (需求) + Phase 2 (代码分析) | **输出去向**: Phase 4 (MBT设计)
 >
@@ -468,7 +468,7 @@ ENDWHEN
 
 ```markdown
 ---
-generated_by: testcase-generator v2.2.0
+generated_by: testcase-generator v2.3.0
 phase: 3
 timestamp: {ISO8601}
 total_entities: N

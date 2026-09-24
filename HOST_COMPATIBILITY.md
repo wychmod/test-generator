@@ -7,7 +7,7 @@
 当前项目采用：
 
 - 根目录作为 canonical source
-- `SKILL.md` 作为中文主入口
+- `skills/testcase-generator/SKILL.md` 作为中文主入口（Agent Skills 标准布局）
 - `skill.manifest.json` 作为统一分发与宿主路由元数据
 - `adapters/` 作为宿主薄适配层
 
@@ -41,7 +41,7 @@
 | `claude` | `.claude/skills/testcase-generator` | 根目录 `SKILL.md` |
 | `qoder` | `.qoder/skills/testcase-generator` | 根目录 `SKILL.md` |
 | `codex` | `.agents/skills/testcase-generator` | 根目录 `AGENTS.md` |
-| `openclaw` | `skills/testcase-generator` | 根目录 `skill.md` |
+| `openclaw` | `.openclaw/skills/testcase-generator` | 根目录 `skill.md` |
 | `trae` | `.trae/skills/testcase-generator` | 根目录 `SKILL.md` |
 | `codebuddy` | `.codebuddy/skills/testcase-generator` | 根目录 `SKILL.md` |
 | `cursor` | `.cursor/rules/` | 根目录 `.cursorrules`（来自 `adapters/cursor/cursorrules.md`） |
@@ -49,28 +49,27 @@
 
 可通过 `-g` 安装到用户本地目录，或通过 `--target <path>` 指定单个平台目标目录。`--target` 不支持 `activate all`，避免多个宿主写入同一个精确目录。`--global` 仍作为兼容写法保留。
 
-### 大小写不敏感文件系统上的入口冲突
+### 大小写不敏感文件系统上的入口冲突（已由标准布局消除）
 
-OpenClaw 的约定入口是 `skill.md`，而 canonical 入口是 `SKILL.md`。在 Windows / macOS
-这类**大小写不敏感**的文件系统上，两者指向**同一个文件**——照常写入适配器会把
-canonical `SKILL.md` 直接覆盖掉。
+OpenClaw 的约定入口是 `skill.md`，而技能入口是 `SKILL.md`。在 Windows / macOS 这类
+**大小写不敏感**的文件系统上，如果两者处在同一层目录，就指向**同一个文件** ——
+写入适配器会把技能入口直接覆盖掉。
 
-因此 `test-generator activate openclaw` 检测到该冲突时会**跳过**写入 `skill.md`，
-保留 canonical `SKILL.md`，并输出明确提示：
+**v2.3.0 起该冲突已不复存在**：技能内容迁到 `skills/testcase-generator/`，
+宿主导出目录里不再有顶层 `SKILL.md`，因此 `skill.md` 可以安全写入。
+
+保护机制仍然保留在 `lib/activation.js` 中作为纵深防御：若将来自定义目标目录
+（`--target`）恰好让两者同层，激活会**跳过**写入 `skill.md`、保留技能入口，
+并输出明确提示：
 
 ```text
 Host entry: skipped 'skill.md' — on case-insensitive filesystems it is the same file
 as 'SKILL.md'; the canonical file was kept.
 ```
 
-适配器本身仍随运行时文件落到目标目录的 `adapters/openclaw/skill.md`，能力不受影响。
-
-> **已知取舍**：冲突判定是**基于文件名**（而非探测文件系统大小写敏感性）的，因此该保护在
-> **所有平台**上一致生效 —— 包括大小写敏感的 Linux。代价是 Linux 上的 OpenClaw 宿主导出目录
-> 里不会出现根级 `skill.md`。这样做的理由是**跨平台行为可预测**：同一条 `activate` 命令在
-> CI（Linux）与开发者机器（Windows/macOS）上产出完全一致的结果，避免"本地能跑、CI 挂掉"。
-> 若需要 Linux 上的根级入口，可用 `test-generator activate openclaw --target <dir>` 指向一个
-> 专门的目录，或直接读取 `adapters/openclaw/skill.md`。
+> **该保护是"基于文件名"的，不探测文件系统大小写敏感性。** 这是有意为之：
+> 同一条 `activate` 命令在 CI（Linux）与开发者机器（Windows/macOS）上产出完全一致的
+> 结果，避免"本地能跑、CI 挂掉"。在标准布局下这项取舍已无实际影响。
 
 ## 能力差异与降级策略
 

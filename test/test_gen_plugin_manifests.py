@@ -29,14 +29,19 @@ class CommittedManifestTests(unittest.TestCase):
     def test_check_passes_on_the_current_repo(self):
         self.assertEqual(quiet_main([]), 0)
 
-    def test_plugin_root_is_declared_as_a_single_skill_directory(self):
+    def test_plugin_relies_on_standard_skill_discovery(self):
+        """技能位于标准的 skills/<name>/，客户端自动发现，不需要 skills 覆盖字段。"""
         plugin = read_json(".claude-plugin/plugin.json")
 
         self.assertEqual(plugin["name"], "testcase-generator")
-        self.assertEqual(
-            plugin["skills"],
-            ["."],
-            "skills 必须为 ['.'] —— 仓库根目录本身就是 skill 目录，无需迁移文件",
+        self.assertNotIn(
+            "skills",
+            plugin,
+            "不应声明 skills 覆盖字段 —— 默认扫描已覆盖 skills/，覆盖反而引入未经验证的字段语义假设",
+        )
+        self.assertTrue(
+            (ROOT / "skills" / "testcase-generator" / "SKILL.md").is_file(),
+            "技能入口必须位于 skills/testcase-generator/SKILL.md",
         )
 
     def test_plugin_version_tracks_the_skill_manifest(self):
@@ -105,7 +110,7 @@ class GeneratorUnitTests(unittest.TestCase):
         self.assertEqual(plugin["displayName"], "Demo Skill")
         self.assertEqual(plugin["description"], "Demo description.")
         self.assertEqual(plugin["version"], "1.0.0")
-        self.assertEqual(plugin["skills"], ["."])
+        self.assertNotIn("skills", plugin)
 
     def test_missing_plugin_json_is_reported_as_drift(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -1,6 +1,6 @@
 # Phase 0-Ingest: 知识库录入引擎 (Knowledge Ingest Engine)
 
-> **版本**: 2.2.0 | **阶段目标**: 从用户提供的任意源材料（PDF / Markdown / TXT / 图片 OCR / 粘贴文本）抽取结构化知识条目，写入 `knowledge/sources/<slug>.md`，自动触发索引重建。
+> **版本**: 2.3.0 | **阶段目标**: 从用户提供的任意源材料（PDF / Markdown / TXT / 图片 OCR / 粘贴文本）抽取结构化知识条目，写入 `knowledge/sources/<slug>.md`，自动触发索引重建。
 > **对应辅助能力**: 本地知识库触发式检索（v2.2.0 可选辅助层）
 > **输入来源**: 用户源材料（任意格式） | **输出去向**: `knowledge/sources/<slug>.md`
 

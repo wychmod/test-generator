@@ -9,9 +9,11 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-# Make the knowledge/scripts directory importable.
+# Make the skill's knowledge/scripts directory importable.
+# 技能运行时内容位于 skills/testcase-generator/（Agent Skills 标准布局）
+SKILL_DIR = "skills/testcase-generator"
 SCRIPT_DIR = Path(__file__).resolve().parent
-KB_SCRIPTS = SCRIPT_DIR.parent / "knowledge" / "scripts"
+KB_SCRIPTS = SCRIPT_DIR.parent / SKILL_DIR / "knowledge" / "scripts"
 sys.path.insert(0, str(KB_SCRIPTS))
 
 import ingest  # noqa: E402
