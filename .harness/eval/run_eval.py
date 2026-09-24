@@ -53,16 +53,21 @@ REPO_ROOT = HARNESS_DIR.parent
 FIXTURE_DIR = REPO_ROOT / "test-fixtures" / "skill-eval"
 OUTPUT_DIR = REPO_ROOT / "test-output"
 EXPECTED_OUTPUTS_DOC = EVAL_DIR / "EXPECTED_OUTPUTS.md"
-SKILL_DOC = REPO_ROOT / "SKILL.md"
+
+# 技能运行时内容位于 Agent Skills 标准布局的技能树内（`skills/testcase-generator/`），
+# 不在仓库根 —— 仓库根只有分发元数据。此处曾经用的是迁移前的根级路径，
+# 导致所有 prompt_coverage 检查静默降级为 warn（"file missing"）。
+SKILL_DIR = REPO_ROOT / "skills" / "testcase-generator"
+SKILL_DOC = SKILL_DIR / "SKILL.md"
 MANIFEST_DOC = REPO_ROOT / "skill.manifest.json"
 
 PROMPT_FILES = (
-    REPO_ROOT / "prompts" / "phase0_input_preprocessing_prompt.md",
-    REPO_ROOT / "prompts" / "phase1_requirements_prompt.md",
-    REPO_ROOT / "prompts" / "phase2_code_analysis_prompt.md",
-    REPO_ROOT / "prompts" / "phase3_domain_analysis_prompt.md",
-    REPO_ROOT / "prompts" / "phase4_mbt_design_prompt.md",
-    REPO_ROOT / "prompts" / "phase5_testcase_generation_prompt.md",
+    SKILL_DIR / "prompts" / "phase0_input_preprocessing_prompt.md",
+    SKILL_DIR / "prompts" / "phase1_requirements_prompt.md",
+    SKILL_DIR / "prompts" / "phase2_code_analysis_prompt.md",
+    SKILL_DIR / "prompts" / "phase3_domain_analysis_prompt.md",
+    SKILL_DIR / "prompts" / "phase4_mbt_design_prompt.md",
+    SKILL_DIR / "prompts" / "phase5_testcase_generation_prompt.md",
 )
 
 
@@ -102,7 +107,7 @@ def build_fixture_registry() -> List[FixtureSpec]:
                 name=stem,
                 path=path,
                 input_kinds=["prd", "需求文档", "用户故事", "用例"],
-                capability_tokens=["根据需求或 PRD 生成测试用例", "需求驱动模式"],
+                capability_tokens=["根据需求或 PRD 生成测试用例", "需求驱动"],
                 expected_outputs=[
                     "phase1/01_requirements_summary.md",
                     "phase5/01_testcase_collection.md",
@@ -126,7 +131,7 @@ def build_fixture_registry() -> List[FixtureSpec]:
                 name=stem,
                 path=path,
                 input_kinds=["源代码", "缺陷", "bug", "regression", "补丁"],
-                capability_tokens=["根据源代码或补丁上下文补充测试路径", "回归聚焦模式"],
+                capability_tokens=["根据源代码或补丁上下文补充测试路径", "回归聚焦"],
                 expected_outputs=[
                     "phase2/04_concurrency_analysis.md",
                     "phase5/01_testcase_collection.md",
@@ -291,10 +296,14 @@ def check_phase0_threshold_doc() -> CheckOutcome:
     candidates = [
         REPO_ROOT / "README.md",
         HARNESS_DIR / "AGENTS.md",
-        REPO_ROOT / "prompts" / "phase0_input_preprocessing_prompt.md",
-        REPO_ROOT / "resources" / "quality_checklist.md",
+        SKILL_DIR / "prompts" / "phase0_input_preprocessing_prompt.md",
+        SKILL_DIR / "resources" / "quality_checklist.md",
     ]
-    needle = re.compile(r"(phase\s*0|P0|阶段\s*0)[^。\n]{0,30}80")
+    # 陈述"Phase 0 阈值 ≥80"的方式很多：`P0 ... ≥ 80 分`（README 门禁表）、
+    # `Phase 0 ... 80` 等。中间可能是表格里的若干列描述，窗口开到 60 字符；
+    # 同时允许 "≥" 与数字间有空格。窗口过窄会把**已文档化**的阈值误报为缺失
+    # （README 的门禁表就曾被 30 字符窗口漏掉）。
+    needle = re.compile(r"(phase\s*0|P0|阶段\s*0)[^。\n]{0,60}≥?\s*80")
     for path in candidates:
         if not path.exists():
             continue

@@ -105,6 +105,7 @@
   "分发排除": [
     "test-output/**",
     "docs/**",
+    ".harness/**",
     ".claude/**",
     ".agents/**",
     ".qoder/**",

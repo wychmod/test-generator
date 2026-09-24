@@ -65,6 +65,7 @@ Node.js/npm 产物名（npm 包名带 `@wychmod-cn/` scope）：
 |---|---|
 | `test-output/` | 本地验证产物，不属于运行时资产 |
 | `docs/` | 内部文档中心与 README 图表源（`docs/assets/diagrams/`），不是 Skill 运行时资产。**显式声明**，此前仅因不在运行时白名单内而被顺带排除 |
+| `.harness/` | AI 协作治理体系（项目宪法 / reins 角色契约 / 文档护栏脚本 / 评测流水线），属于开发元数据而非 Skill 运行时资产。**显式声明** |
 | `skills/testcase-generator/knowledge/index.json` | 本地生成的 BM25 索引，由 `build_index.py` 产出，不入包 |
 | `.claude/` | Claude 宿主镜像副本，避免重复和版本漂移 |
 | `.agents/` | Amp / Codex 宿主镜像副本，避免重复和版本漂移 |
