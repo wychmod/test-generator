@@ -660,6 +660,8 @@ pie title 缺陷按严重性分布
 | `01_code_structure.md` | 代码架构全景 + 函数规格表 + 依赖关系图 | 为测试提供完整的代码地图 |
 | `02_data_flow_analysis.md` | DFD + 数据对象字典 + 流转路径 | 理解数据如何在系统中流动 |
 | `03_defect_radar.md` | 潜在缺陷 + 安全检查 + 需求-代码映射 | 主动发现质量风险 |
+| `04_concurrency_analysis.md` | 并发、竞态、锁与异步风险（v2.1，见 §8） | 高并发场景测试设计依据 |
+| `05_contract_test_derivation.md` | 接口契约测试推导（v2.1，见 §9） | API 契约测试直接输入 |
 
 ### 4.2 文件头元数据
 
@@ -759,6 +761,8 @@ research_strategy:
 
 ## 8. [v2.1 新增] 并发分析与竞态条件检测
 
+> **产物归属**：本节内容写入 `04_concurrency_analysis.md`。
+
 > **核心问题**：早期版本对并发场景的分析不足。在分布式系统、微服务、高并发场景下，竞态条件是**最高风险的缺陷类别之一**。
 
 ### 8.1 并发风险识别清单
@@ -833,6 +837,8 @@ Thread T2: Lock(B) → Wait(A) → Lock(A) → Release → Release(B)
 ---
 
 ## 9. [v2.1 新增] API 契约测试推导 (Contract-First Testing)
+
+> **产物归属**：本节内容写入 `05_contract_test_derivation.md`。
 
 > **新增原因**：在 API First / 微服务架构下，契约是测试的核心依据。从 API 定义直接推导测试用例可以大幅提升效率。
 
@@ -924,6 +930,8 @@ contract_tests_for_each_endpoint:
 ---
 
 ## 10. [v2.1 新增] 技术债务识别与评估
+
+> **产物归属**：本节内容并入 `03_defect_radar.md` 的「技术债务」章节，不单独成文件。
 
 ```markdown
 ## 技术债务报告 (Technical Debt Report)

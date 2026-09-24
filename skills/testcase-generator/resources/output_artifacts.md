@@ -18,7 +18,7 @@
 - **代码与接口契约辅助分析**：Phase 2 产物（`01_code_structure.md`、`02_data_flow_analysis.md`、`03_defect_radar.md`）。
 - **领域模型与状态模型构建**：Phase 3 产物（`01_business_domain_model.md`、`02_state_machine_spec.md`、`04_event_storming_model.md`）。
 - **MBT 导向测试设计**：Phase 4 产物（`01_test_model_specification.md`、`02_state_transition_graph.md`、`03_coverage_criteria.md`、`04_mutation_testing_strategy.md`）。
-- **结构化测试用例生成**：Phase 5 产物（`01_testcase_collection.md`、`02_test_suite_summary.md`、`04_chaos_engineering_scenarios.md`）。
+- **结构化测试用例生成**：Phase 5 产物（`01_testcase_collection.md`、`02_test_suite_summary.md`、`04_chaos_engineering_scenarios.md`、`05_test_data_strategy.md`）。
 - **追溯矩阵与质量门禁**：Phase 5 + 全局产物（`03_traceability_matrix.md`、`quality_report.md`）。
 
 ## 能力标记
@@ -125,8 +125,9 @@
 - `01_testcase_collection.md`：完整测试用例集合
 - `02_test_suite_summary.md`：规模、覆盖、优先级与风险摘要
 - `03_traceability_matrix.md`：需求、模型、场景、用例之间的映射
-- `04_test_data_strategy.md`：测试数据工厂、样例数据、清洗策略（如适用）
-- `05_resilience_and_chaos_cases.md`：韧性、故障注入、混沌场景（如适用）
+- `04_chaos_engineering_scenarios.md`：混沌工程场景、故障注入、韧性验证（如适用）
+- `05_test_data_strategy.md`：测试数据工厂、样例数据、清洗策略（如适用）
+- `quality_report.md`：全流水线质量评分汇总，横跨 Phase 0-5 的全局产物（模板见 [`../../../docs/quality/quality-gates.md`](../../../docs/quality/quality-gates.md)）
 
 ## 交付深度建议
 

@@ -548,6 +548,9 @@ def test_tc_auth_login_001_valid_credentials():
 | `01_testcase_collection.md` | 完整测试用例集（每条用例含完整信息） | 直接用于测试执行 |
 | `02_test_suite_summary.md` | 统计摘要 + 分布报告 + 执行计划 | 项目管理和规划 |
 | `03_traceability_matrix.md` | 双向追溯矩阵 + 缺口分析 | 合规审计和质量保证 |
+| `04_chaos_engineering_scenarios.md` | 混沌工程场景（v2.1，见 §6） | 韧性验证与故障注入 |
+| `05_test_data_strategy.md` | 测试数据工厂、样例数据、清洗策略（v2.1，见 §7） | 测试数据可复用性 |
+| `quality_report.md` | 全流水线质量评分汇总（全局产物，横跨 Phase 0-5） | 交付放行判定 |
 
 ### 文件头元数据
 
@@ -617,6 +620,8 @@ version: 1.0
 ## 6. [v2.1 新增] 混沌工程场景 (Chaos Engineering)
 
 > **新增原因**：系统在"完美环境"下通过测试不等于在生产环境中可靠。混沌工程主动注入故障，验证系统的**弹性 (Resilience)**。
+>
+> **产物归属**：本节内容写入 `04_chaos_engineering_scenarios.md`。
 
 ### 6.1 混沌实验设计
 
@@ -669,6 +674,8 @@ version: 1.0
 ## 7. [v2.1 新增] 测试数据工厂模式 (Test Data Factory)
 
 > **新增原因**：测试数据的**质量直接决定测试的有效性**。数据工厂提供结构化的、可复用的、高质量的测试数据管理。
+>
+> **产物归属**：本节内容写入 `05_test_data_strategy.md`。
 
 ### 7.1 数据构建器模式
 

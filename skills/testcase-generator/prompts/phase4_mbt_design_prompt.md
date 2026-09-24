@@ -417,6 +417,8 @@ coverage_targets:
 | `01_test_model_specification.md` | 测试对象 + 变量 + 操作定义 |
 | `02_state_transition_graph.md` | 完整转换规格 + Mermaid图 + 路径列表 |
 | `03_coverage_criteria.md` | 覆盖准则 + 最小测试集 + 覆盖追踪 |
+| `04_mutation_testing_strategy.md` | 变异测试策略 + 变异算子（v2.1，见 §6） |
+| `05_error_guessing_checklist.md` | 错误猜测法检查清单（v2.1，见 §7） |
 
 ### 文件头元数据
 
@@ -481,6 +483,8 @@ version: 1.0
 ---
 
 ## 6. [v2.1 新增] 变异测试策略 (Mutation Testing Strategy)
+
+> **产物归属**：本节内容写入 `04_mutation_testing_strategy.md`。
 
 > **新增原因**：传统的路径/状态覆盖只证明"代码被执行了"，不能证明"测试逻辑是正确的"。变异测试通过**注入缺陷**来验证测试套件的**缺陷检测能力**。
 
@@ -559,6 +563,8 @@ version: 1.0
 ---
 
 ## 7. [v2.1 新增] 错误猜测法集成 (Error Guessing)
+
+> **产物归属**：本节内容写入 `05_error_guessing_checklist.md`。
 
 > **新增原因**：错误猜测法是经验丰富的测试专家基于**直觉和经验**推测"哪里可能出错"，这是 AI 最需要系统化的领域之一。
 

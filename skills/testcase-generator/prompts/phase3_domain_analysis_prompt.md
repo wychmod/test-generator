@@ -463,6 +463,8 @@ ENDWHEN
 | `01_business_domain_model.md` | ERD + 实体字典 + 关系规格 |
 | `02_state_machine_spec.md` | 完整状态机规格 + 转换矩阵 + Mermaid图 |
 | `03_test_parameter_space.md` | 参数定义 + 约束 + 组合策略 |
+| `04_event_storming_model.md` | 事件风暴：命令、事件、聚合、边界上下文（v2.1，见 §6） |
+| `05_temporal_constraints.md` | 时序约束、超时、顺序依赖、集成点（v2.1，见 §7-§8） |
 
 ### 文件头元数据
 
@@ -545,6 +547,8 @@ state_explosion_detection:
 ---
 
 ## 6. [v2.1 新增] 事件风暴 (Event Storming) 领域建模
+
+> **产物归属**：本节内容写入 `04_event_storming_model.md`。
 
 > **新增原因**：传统的 ERD + 状态机建模是"静态视角"。Event Storming 从**动态交互视角**发现领域模型，特别适合复杂业务流程和事件驱动架构。
 
@@ -633,6 +637,8 @@ sequenceDiagram
 
 ## 7. [v2.1 新增] 时序约束与时间相关业务规则
 
+> **产物归属**：本节内容写入 `05_temporal_constraints.md`（Part A）。
+
 > **新增原因**：很多业务规则与时间紧密相关（超时、窗口、定时任务），这些是测试中**最容易遗漏的缺陷来源**。
 
 ### 7.1 时间约束分类
@@ -675,6 +681,8 @@ sequenceDiagram
 ---
 
 ## 8. [v2.1 新增] 跨系统集成点与接口契约
+
+> **产物归属**：本节内容写入 `05_temporal_constraints.md`（Part B）。
 
 ```markdown
 ## 集成点地图 (Integration Map)

@@ -215,7 +215,7 @@
 | 角色 | 测试用例设计专家 + 测试自动化架构师 |
 | 入口 | Phase 1-4 全部产物 |
 | 出口 | 测试用例集 + 测试套件摘要 + 追溯矩阵 + 混沌场景 + 数据工厂 |
-| 关键产物 | `01_testcase_collection.md` / `02_test_suite_summary.md` / `03_traceability_matrix.md` / `04_test_data_strategy.md` / `05_resilience_and_chaos_cases.md` |
+| 关键产物 | `01_testcase_collection.md` / `02_test_suite_summary.md` / `03_traceability_matrix.md` / `04_chaos_engineering_scenarios.md` / `05_test_data_strategy.md`（全局产物：`quality_report.md`） |
 | 触发场景 | 需要正式测试用例交付物 / 回归测试集 / 接口测试集 / 完整追溯矩阵 |
 
 **用例 ID 规范**：
