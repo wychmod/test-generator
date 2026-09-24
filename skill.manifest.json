@@ -17,6 +17,10 @@
     "zh-CN": "从需求文档、PRD、API 规范、源代码、缺陷修复上下文或功能描述中生成结构化、可追溯、可执行的软件测试用例与测试设计产物。",
     "en-US": "Generate structured, traceable, and executable software test cases and test design outputs from requirements, PRDs, API specifications, source code, bugfix context, or feature descriptions."
   },
+  "市场说明": {
+    "zh-CN": "wychmod 维护的 Agent Skills 市场。当前收录 testcase-generator：从需求、PRD、API 规范或源码生成结构化、可追溯的测试用例与 MBT 导向测试设计产物。",
+    "en-US": "Agent Skills marketplace maintained by wychmod. Currently ships testcase-generator: structured, traceable test cases and MBT-oriented test design derived from requirements, PRDs, API specs, or source code."
+  },
   "适用场景": {
     "zh-CN": [
       "根据需求或 PRD 生成测试用例",

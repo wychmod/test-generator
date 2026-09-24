@@ -58,6 +58,21 @@ class CommittedManifestTests(unittest.TestCase):
         self.assertEqual(marketplace["plugins"][0]["source"], "./")
         self.assertEqual(marketplace["plugins"][0]["name"], "testcase-generator")
 
+    def test_marketplace_declares_a_description(self):
+        """`claude plugin validate` 会对缺失的市场级描述发出告警，这里钉死它。"""
+        marketplace = read_json(".claude-plugin/marketplace.json")
+
+        self.assertTrue(
+            marketplace.get("metadata", {}).get("description"),
+            "marketplace.json 必须提供 metadata.description",
+        )
+        self.assertTrue(marketplace.get("description"), "顶层 description 也应存在")
+        self.assertEqual(
+            marketplace["metadata"]["description"],
+            marketplace["description"],
+            "两个位置的描述必须一致（由同一 manifest 字段生成）",
+        )
+
     def test_manifests_live_only_inside_the_plugin_directory(self):
         """Claude Code 规定 .claude-plugin/ 内只允许放 manifest。"""
         entries = {path.name for path in (ROOT / ".claude-plugin").iterdir()}
@@ -70,6 +85,7 @@ class GeneratorUnitTests(unittest.TestCase):
         "名称": {"zh-CN": "demo", "en-US": "demo-skill"},
         "显示名称": {"zh-CN": "演示", "en-US": "Demo Skill"},
         "说明": {"zh-CN": "演示说明", "en-US": "Demo description."},
+        "市场说明": {"zh-CN": "演示市场说明", "en-US": "Demo marketplace description."},
         "版本": "1.0.0",
     }
     PACKAGE = {
@@ -138,6 +154,11 @@ class GeneratorUnitTests(unittest.TestCase):
             )
             self.assertEqual(marketplace["name"], "tester-demo-skill")
             self.assertEqual(marketplace["owner"]["name"], "tester")
+            # 市场级描述来自 manifest 的「市场说明」，两个位置给同一个值
+            self.assertEqual(
+                marketplace["metadata"]["description"], "Demo marketplace description."
+            )
+            self.assertEqual(marketplace["description"], "Demo marketplace description.")
 
     def test_stale_plugin_json_is_detected(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -3,6 +3,10 @@
   "owner": {
     "name": "wychmod"
   },
+  "description": "Agent Skills marketplace maintained by wychmod. Currently ships testcase-generator: structured, traceable test cases and MBT-oriented test design derived from requirements, PRDs, API specs, or source code.",
+  "metadata": {
+    "description": "Agent Skills marketplace maintained by wychmod. Currently ships testcase-generator: structured, traceable test cases and MBT-oriented test design derived from requirements, PRDs, API specs, or source code."
+  },
   "plugins": [
     {
       "name": "testcase-generator",
