@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """文档结构层护栏：检查 testcase-generator 文档之间的一致性。
 
-执行 10 类检查，输出 markdown 表格报告（pass / warn / fail 三档）：
+执行 12 类检查，输出 markdown 表格报告（pass / warn / fail 三档）：
 
 1. 版本号三处一致：SKILL.md front matter / README.md 标题 / skill.manifest.json "版本"
 2. 能力矩阵覆盖：skill.manifest.json 核心能力 ↔ SKILL.md ↔ prompts/phase*.md ↔ resources/output_artifacts.md
@@ -15,6 +15,8 @@
 9. docs/ 相对链接：docs/ 下的 Markdown 相对链接必须能解析到真实文件（SKILL.md 已随技能树迁移）
 10. npm 发布载荷：package.json 的 files 目录条目不得牵连被 gitignore 的本地/生成物
 11. 技能树内路径写法：技能树 Markdown 引用的 `knowledge/` 等顶层目录路径必须带 `<技能根>/` 前缀
+12. `.harness/` 自身一致性：`.harness/` 文档里的宿主数 / reins 数 / 分发排除项数必须与仓库现状
+    一致，且不得引用已删除的 `.harness/hooks/`（版本历史 changelogs/ 豁免）
 
 设计原则：
 - 不修改任何文件，只读不写
@@ -1251,6 +1253,213 @@ def check_skill_tree_internal_paths() -> CheckResult:
     )
 
 
+# ---------- 检查 12：`.harness/` 自身一致性 ----------
+
+# `.harness/` 是护栏脚本的**所在处**，也是规则的发源地。在引入本检查之前，
+# 它恰好落在自己的审计辖区之外 —— 于是 `reins/*/AGENT.md` 里的宿主数、
+# 命令写法、文件清单整体停留在 v2.2.0 时代而无人报警（与 docs/ 曾经的
+# 盲区是同一个病：裁判席不在自己辖区里）。本检查即为该盲区的回归守卫。
+# 证据（历史计数、旧版本快照、版本引入说明）不算漂移。
+
+# 这些文件承载"过去某个时点的真实记录"，其中的旧数字与旧路径是**正确的**。
+# 可以是目录（整棵子树豁免）或单个文件（时点快照报告）。
+_HARNESS_HISTORY_PATHS = (
+    ".harness/changelogs",
+    ".harness/eval/baselines",
+    ".harness/eval/HEALTH_REPORT.md",
+)
+
+# `13 个宿主` / `**26 个宿主**` / `（26 宿主）` —— "个"可省略（中文常见写法）。
+_HOST_CLAIM_RE = re.compile(r"(?<![\d.])(\d+)\s*个?\s*宿主")
+# `8 个 adapter` / `26 个 adapter` / `26 adapter`
+#
+# 前置的 `(?<![\d.])` 用来挡掉标题编号：`### 4.3 adapter 薄适配铁律` 里的
+# "3 adapter" 是章节号，不是数量声明。后置的 `(?![\w-])` 挡掉 "adapters" 复数
+# 与 "adapter-curator" 这类角色名 —— 它们跟在数字后面时同样不是计数。
+_ADAPTER_CLAIM_RE = re.compile(r"(?<![\d.])(\d+)\s*个?\s*adapter(?![\w-])")
+# 排除项数只有带限定词时才算声称（"当前 48 项" / "共 48 项"），
+# 裸 `N 项` 太常见（"7 项核心能力"），不能一概而论。
+_EXCLUDE_CLAIM_RE = re.compile(r"(?:当前|共|计)\s*(\d+)\s*项")
+
+# 已删除的目录：`.harness/hooks/` 在本次治理中整体移除（其钩子从未安装过）。
+_REMOVED_HARNESS_DIRS = ("hooks",)
+
+# “现在已不存在”的 `.harness/<dir>` 引用。`hooks` 作为普通英文词（如 git hooks、
+# Webhook）出现时不算 —— 必须写成路径形态（`.harness/hooks` 或 `hooks/xxx.py`）。
+_REMOVED_DIR_REF_RE = {
+    name: re.compile(rf"\.harness/{name}\b|`{name}/|\b{name}/[A-Za-z0-9_-]+\.(?:py|ps1|sh|md)")
+    for name in _REMOVED_HARNESS_DIRS
+}
+
+# 说明"该目录已被移除"的行属于**正确记录**，不是残留引用。
+# 没有这层豁免，一句"已移除 hooks/（其钩子从未安装）"会被自己的护栏判为违规。
+_REMOVAL_CONTEXT_RE = re.compile(r"已移除|已删除|移除|删除|不再|撤销|removed|deleted|dead code|死代码")
+
+
+def _count_reins_dirs() -> int:
+    """`.harness/reins/` 下的角色目录数（不含 README.md）。"""
+    reins_root = ROOT / ".harness" / "reins"
+    if not reins_root.is_dir():
+        return 0
+    return sum(1 for p in reins_root.iterdir() if p.is_dir())
+
+
+def _iter_harness_docs() -> list[Path]:
+    """`.harness/` 下所有需要受护栏约束的 Markdown（排除历史记录）。"""
+    harness_root = ROOT / ".harness"
+    if not harness_root.is_dir():
+        return []
+    history = {(ROOT / p).resolve() for p in _HARNESS_HISTORY_PATHS}
+    docs: list[Path] = []
+    for path in sorted(harness_root.rglob("*.md")):
+        # 目录形式的历史区：整棵子树豁免；文件形式：按自身路径豁免
+        if any(parent.resolve() in history for parent in (path, *path.parents)):
+            continue
+        docs.append(path)
+    return docs
+
+
+def check_harness_self_consistency() -> list[CheckResult]:
+    """`.harness/` 文档中的宿主数 / reins 数 / 排除项数与仓库现状一致。
+
+    判定是**零猜测**的：数字先与"仓库现状"（真实目录数、真实数组长度）比对，
+    只有对不上才报警；历史 changelogs 与 eval 基线被排除在扫描范围外，
+    因此过去版本的记录不会被误判为漂移。
+    """
+    harness_root = ROOT / ".harness"
+    if not harness_root.is_dir():
+        return [
+            CheckResult(
+                "harness_self_consistency",
+                "warn",
+                "未找到 .harness/ 目录，跳过自身一致性检查",
+            )
+        ]
+
+    actual_hosts = len(extract_hosts_from_activation_js())
+    actual_reins = _count_reins_dirs()
+    actual_excludes = len(extract_excludes_from_manifest())
+
+    docs = _iter_harness_docs()
+    mismatched_hosts: list[str] = []
+    mismatched_reins: list[str] = []
+    mismatched_excludes: list[str] = []
+    removed_refs: list[str] = []
+
+    for path in docs:
+        relative = path.relative_to(ROOT).as_posix()
+        text = read_text(path)
+
+        for lineno, line in enumerate(text.splitlines(), 1):
+            for match in _HOST_CLAIM_RE.finditer(line):
+                if actual_hosts and int(match.group(1)) != actual_hosts:
+                    mismatched_hosts.append(
+                        f"{relative}:{lineno} → 声称 {match.group(1)} 个宿主，实际 {actual_hosts}"
+                    )
+            for match in _ADAPTER_CLAIM_RE.finditer(line):
+                if actual_hosts and int(match.group(1)) != actual_hosts:
+                    mismatched_hosts.append(
+                        f"{relative}:{lineno} → 声称 {match.group(1)} 个 adapter，实际 {actual_hosts}"
+                    )
+            # reins 数：只认"N 个 reins"，且数字必须等于目录数
+            for match in re.finditer(r"(\d+)\s*个\s*reins", line):
+                if actual_reins and int(match.group(1)) != actual_reins:
+                    mismatched_reins.append(
+                        f"{relative}:{lineno} → 声称 {match.group(1)} 个 reins，实际 {actual_reins}"
+                    )
+            for match in _EXCLUDE_CLAIM_RE.finditer(line):
+                # 排除项数的声称必须同行出现"分发排除"，否则可能是别的计数
+                if "分发排除" not in line:
+                    continue
+                if actual_excludes and int(match.group(1)) != actual_excludes:
+                    mismatched_excludes.append(
+                        f"{relative}:{lineno} → 声称 {match.group(1)} 项分发排除，实际 {actual_excludes}"
+                    )
+            # 已删除目录的引用（不要求同行出现别的关键词：路径形态已足够具体）。
+            # 但"该目录已被移除"的说明性文字是正确记录，须放行。
+            if _REMOVAL_CONTEXT_RE.search(line):
+                continue
+            for name, pattern in _REMOVED_DIR_REF_RE.items():
+                if pattern.search(line):
+                    removed_refs.append(f"{relative}:{lineno} → 引用已删除的 .harness/{name}/")
+
+    results: list[CheckResult] = []
+
+    if mismatched_hosts:
+        results.append(
+            CheckResult(
+                "harness_host_count",
+                "fail",
+                f".harness/ 中有 {len(mismatched_hosts)} 处宿主数声称与 ENVIRONMENTS（{actual_hosts} 个）不一致",
+                mismatched_hosts,
+            )
+        )
+    else:
+        results.append(
+            CheckResult(
+                "harness_host_count",
+                "pass",
+                f".harness/ 中宿主数声称均与 ENVIRONMENTS 一致（{actual_hosts} 个）",
+            )
+        )
+
+    if mismatched_reins:
+        results.append(
+            CheckResult(
+                "harness_reins_count",
+                "fail",
+                f".harness/ 中有 {len(mismatched_reins)} 处 reins 数声称与实际目录数（{actual_reins} 个）不一致",
+                mismatched_reins,
+            )
+        )
+    else:
+        results.append(
+            CheckResult(
+                "harness_reins_count",
+                "pass",
+                f".harness/ 中 reins 数声称均与实际一致（{actual_reins} 个）",
+            )
+        )
+
+    if mismatched_excludes:
+        results.append(
+            CheckResult(
+                "harness_excludes_count",
+                "fail",
+                f".harness/ 中有 {len(mismatched_excludes)} 处分发排除项数与 manifest（{actual_excludes} 项）不一致",
+                mismatched_excludes,
+            )
+        )
+    else:
+        results.append(
+            CheckResult(
+                "harness_excludes_count",
+                "pass",
+                f".harness/ 中分发排除项数声称均与 manifest 一致（{actual_excludes} 项）",
+            )
+        )
+
+    if removed_refs:
+        results.append(
+            CheckResult(
+                "harness_removed_dirs",
+                "fail",
+                f".harness/ 中有 {len(removed_refs)} 处引用了已删除的目录：{', '.join(_REMOVED_HARNESS_DIRS)}",
+                removed_refs,
+            )
+        )
+    else:
+        results.append(
+            CheckResult(
+                "harness_removed_dirs",
+                "pass",
+                f".harness/ 中无对已删除目录（{', '.join(_REMOVED_HARNESS_DIRS)}）的引用",
+            )
+        )
+
+    return results
+
+
 # ---------- 汇总与渲染 ----------
 
 def build_results() -> list[CheckResult]:
@@ -1267,6 +1476,7 @@ def build_results() -> list[CheckResult]:
     results.extend(check_npm_entrypoint())
     results.extend(check_runtime_files_exist())
     results.extend(check_excludes_consistency())
+    results.extend(check_harness_self_consistency())
     return results
 
 
