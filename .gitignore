@@ -55,6 +55,17 @@ venv/
 # ===== Project-specific local run state =====
 /test-fixtures/.cache/
 
+# `test-fixtures/skill-eval/` 有两类文件，处理方式不同：
+#   · 正式 fixture（5 个，已被 .harness/eval/run_eval.py 的 build_fixture_registry
+#     登记、并在 EXPECTED_OUTPUTS.md 中声明）→ **必须跟踪**，是 eval 的输入基线。
+#   · 即席调试产物（扫描输出、临时脚本、模拟 patch）→ 不进库。
+# 下面的模式只匹配后者：正式 fixture 的 stem 固定为那 5 个，不会命中。
+/test-fixtures/skill-eval/scan_result*.json
+/test-fixtures/skill-eval/scan_result*.md
+/test-fixtures/skill-eval/live_scan*.md
+/test-fixtures/skill-eval/debug_state.py
+/test-fixtures/skill-eval/verify_fix.py
+
 # ===== OS =====
 .DS_Store
 Thumbs.db
