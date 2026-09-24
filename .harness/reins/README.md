@@ -11,12 +11,12 @@
 
 | reins | 一句话身份 | 必跑命令 |
 |---|---|---|
-| [`skill-author`](./skill-author/AGENT.md) | 维护 SKILL.md / prompts/ / templates/ / resources/，把方法论铁律写进内容 | `python devtools/capability_audit.py` / `python devtools/skill_quality_audit.py` |
-| [`adapter-curator`](./adapter-curator/AGENT.md) | 维护 adapters/ 薄适配层，确保与根 SKILL.md + 触发场景同步 | `python .harness/scripts/doc_consistency_audit.py` |
+| [`skill-author`](./skill-author/AGENT.md) | 维护 `skills/testcase-generator/` 下的 SKILL.md / prompts/ / templates/ / resources/ / references/，把方法论铁律写进内容 | `python devtools/capability_audit.py` / `python devtools/skill_quality_audit.py` |
+| [`adapter-curator`](./adapter-curator/AGENT.md) | 维护 adapters/ 薄适配层（26 宿主），确保与技能树 SKILL.md + 触发场景同步 | `python .harness/scripts/doc_consistency_audit.py` |
 | [`manifest-keeper`](./manifest-keeper/AGENT.md) | 维护 skill.manifest.json + DISTRIBUTION.md 一致性 | `python .harness/scripts/doc_consistency_audit.py` |
 | [`packager`](./packager/AGENT.md) | 跑 package_skill.py，验证 .skill / .zip 一致 | `python devtools/package_skill.py` |
 | [`auditor`](./auditor/AGENT.md) | 跑三层审计：capability + quality + doc_consistency | `python devtools/capability_audit.py` / `python devtools/skill_quality_audit.py` / `python .harness/scripts/doc_consistency_audit.py` |
-| [`test-runner`](./test-runner/AGENT.md) | 跑 node --test test/，验证 lib/activation.js 在所有宿主下激活路径正确 | `node --test test/` / `node bin/test-generator.js environments` / `node bin/test-generator.js activate <env> --dry-run` |
+| [`test-runner`](./test-runner/AGENT.md) | 跑 `npm test` / `npm run test:python` / `run_eval.py`，验证 lib/activation.js 在所有宿主下激活路径正确 | `npm test` / `npm run test:python` / `python .harness/eval/run_eval.py` |
 
 ## reins 的协作模式
 
@@ -81,4 +81,18 @@
 2. **adapter-curator** 依赖 manifest-keeper（adapter 引用 manifest 里的宿主入口）
 3. **packager** 必须在 manifest 改完后跑
 4. **auditor** 必须在所有改动完后跑
-5. **test-runner** 在涉及 `lib/activation.js` / `bin/test-generator.js` 时跑
+5. **test-runner** 在涉及 `lib/activation.js` / `bin/test-generator.js` / `prompts/` / `templates/` 时跑
+
+## 关于 reins 的常见误解
+
+**「`reins/` 没有任何脚本引用，是不是死代码？」** —— 不是。
+
+reins 是**人/AI 协作角色契约**，不是可执行程序。按 `.harness/AGENTS.md` §4.7：
+> reins 之间通过**文件改动 + 跑命令验证**的方式协作，不通过 chat 互调。
+
+因此"零脚本引用"是**设计使然**。判断一个 reins 是否有价值，看的是：
+① 它是否对应一类真实改动；② 它是否有独立的必跑命令；③ 它是否有唯一负责的文件集。
+
+反过来，真正该警惕的是**内容过期**——`.harness/` 长期不在审计覆盖内，
+所以 `reins/*/AGENT.md` 里的宿主数、命令写法、文件清单曾整体停留在 v2.2.0 时代。
+现已由 `doc_consistency_audit.py` 的 `harness_self_consistency` 检查纳入守卫。

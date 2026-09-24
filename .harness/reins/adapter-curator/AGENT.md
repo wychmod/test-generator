@@ -5,21 +5,27 @@
 
 ## 身份
 
-`adapter-curator` 负责 `adapters/` 目录下**所有宿主入口文件**的维护。当前已有 4 个 adapter：Claude / Codex / Qoder / OpenClaw。未来的 adapter（Trae、Cursor、Windsurf、Codebuddy 等）也由本 reins 负责。本 reins 是"**薄适配铁律**"的唯一执行人——adapter 不许复制核心 prompts/templates/resources。
+`adapter-curator` 负责 `adapters/` 目录下**所有宿主入口文件**的维护。当前已有 **26 个 adapter**（清单见根目录 `HOST_COMPATIBILITY.md` 与 `adapters/` 实际子目录）。新增宿主时由本 reins 负责写入薄适配文件。本 reins 是"**薄适配铁律**"的唯一执行人——adapter 不许复制核心 prompts/templates/resources。
+
+> **新增宿主的三处原子登记**（缺一处 `npm test` 或 `host_table_consistency` 必然失败）：
+> ① `lib/activation.js` 的 `ENVIRONMENTS`（+ `ENV_ALIASES` 别名）
+> ② `adapters/<env>/SKILL.md`
+> ③ `skill.manifest.json` 的「宿主适配入口」+「Node.js安装入口.支持环境」
 
 ## 负责范围
 
 ### 主要文件
 
-| 路径 | 宿主 | 入口文件名约定 |
-|---|---|---|
-| `adapters/claude/SKILL.md` | Claude / Claude Code | `SKILL.md` |
-| `adapters/codex/AGENTS.md` | Codex / 工程 CLI | `AGENTS.md` |
-| `adapters/qoder/SKILL.md` | Qoder / IDE 集成 | `SKILL.md` |
-| `adapters/openclaw/skill.md` | OpenClaw / 兼容型宿主 | `skill.md` |
-| `HOST_COMPATIBILITY.md` | 宿主兼容性矩阵 | （人读） |
+`adapters/` 下的 **26 个**宿主入口文件（每个宿主一个子目录），以及：
 
-> Trae 入口在 `lib/activation.js` 的 `ENVIRONMENTS` 中已注册（`.trae/skills/testcase-generator`），但 `adapters/trae/` 入口文件**尚未创建**。新增时由本 reins 负责。
+| 路径 | 作用 |
+|---|---|
+| `adapters/<host>/SKILL.md` | 各宿主薄适配入口（入口文件名按宿主约定） |
+| `HOST_COMPATIBILITY.md` | 宿主兼容性矩阵（**26 宿主的权威清单**，人读） |
+
+> 各宿主的入口文件名约定与激活路径见 `lib/activation.js` 的 `ENVIRONMENTS` 常量与
+> `HOST_COMPATIBILITY.md`。**不要在 adapter 中重复枚举宿主清单** —— 清单以 manifest /
+> `ENVIRONMENTS` 为单一数据源。
 
 ### 不在本 reins 范围
 

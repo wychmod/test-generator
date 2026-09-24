@@ -15,7 +15,11 @@
 |---|---|---|
 | `devtools/capability_audit.py` | 能力声明层 | SKILL.md / README.md / manifest 版本对齐；v2.1 能力标记；必需路径；Schema 有效；example-config 可被 Schema 验证 |
 | `devtools/skill_quality_audit.py` | 内容质量层 | 用例必填字段；阶段流水线；标准引用（ISO/IEC/IEEE 29119-3:2021）；版本漂移；质量门禁规则 |
-| `.harness/scripts/doc_consistency_audit.py` | 文档结构层 | 版本号三处一致；能力矩阵覆盖；宿主表三方一致；npm 入口三处出现；运行时清单存在；排他规则一致 |
+| `.harness/scripts/doc_consistency_audit.py` | 文档结构层 | 版本号三处一致；能力矩阵覆盖；宿主表三方一致；npm 入口三处出现；运行时清单存在；排他规则一致；技能树内路径写法；**`.harness/` 自身一致性** |
+
+> 三层共 52 项检查（capability 30 + quality 6 + doc_consistency 16）。
+> 其中 `doc_consistency_audit.py` 的 `harness_self_consistency` 专门守卫 `.harness/` 自身
+> （宿主数、版本号、命令写法、`reins/` 角色数），所以 `.harness/` 的改动同样会被拦。
 
 ### 不在本 reins 范围
 

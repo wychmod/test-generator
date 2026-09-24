@@ -35,16 +35,22 @@ python -c "import json; json.load(open('skill.manifest.json', encoding='utf-8'))
 
 跑前自查（铁律 4.1 入包边界铁律）：
 
+- [ ] **「运行时文件」必须包含 `skills/testcase-generator/**`** —— 那是 canonical 技能树，
+      丢掉它等于丢掉整个技能。**切勿把 `skills/` 加进「分发排除」或打包禁入规则**
+      （`doc_consistency_audit` 与 `package_skill` 都有守卫，但先知道比被拦下更好）。
 - [ ] "运行时文件" 中新增的路径，**不在**以下禁入列表中：
-  - `.claude/`, `.qoder/`, `.trae/`, `.agents/`, `.workbuddy/`
-  - `test-output/`, `skills/`, `skills-lock.json`
+  - 宿主镜像副本：`.claude/` `.codebuddy/` `.codex/` `.cursor/` `.qoder/` `.trae/`
+    `.windsurf/` `.agents/` `.opencode/` `.cline/` `.roo/` `.kilocode/` `.gemini/`
+    `.qwen/` `.kiro/` `.factory/` `.goose/` `.openhands/` `.github/` `.agent/`
+    `.pi/` `.mcpjam/` `.zencoder/` `.openclaw/` `.clawdbot/` `.clinerules/`
+  - `.workbuddy/`、`test-output/`、`skills-lock.json`
   - `testcase-generator.zip`, `testcase-generator.skill`
   - `.git/`, `.idea/`, `.venv/`, `__pycache__/`
-  - `devtools/`, `.harness/`
+  - `devtools/`, `.harness/`, `docs/`
 - [ ] "分发排除" 数组与 `DISTRIBUTION.md` 的"建议排除"表内容一致
-- [ ] "宿主适配入口" 中每个宿主都有对应文件存在
+- [ ] "宿主适配入口" 中每个宿主都有对应文件存在（**当前 26 个**）
 - [ ] "核心能力" (zh-CN) 与 `SKILL.md` 声明的能力一一对应
-- [ ] **不要**把 `.harness/` 加到 "运行时文件" 中
+- [ ] **不要**把 `.harness/` 或 `docs/` 加到 "运行时文件" 中（两者均已显式列入「分发排除」）
 
 ## 产出物格式
 

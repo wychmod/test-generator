@@ -13,7 +13,7 @@
 
 | 路径 | 何时改 |
 |---|---|
-| `testcase-generator.skill` | 跑 package 后生成 |
+| `testcase-generator.skill` | 跑 package 后生成（当前 61 个文件） |
 | `testcase-generator.zip` | 跑 package 后生成 |
 | `_pkg_log.txt` | package 内部日志（不入包） |
 | `_pkg_result.txt` | package 内部结果（不入包） |
@@ -37,12 +37,18 @@ python devtools/package_skill.py
 # 3. 验证双产物内容一致
 python -c "import zipfile; a=sorted(zipfile.ZipFile('testcase-generator.skill').namelist()); b=sorted(zipfile.ZipFile('testcase-generator.zip').namelist()); print('OK' if a==b else f'DIFF: skill={len(a)} zip={len(b)}')"
 
-# 4. 抽检包内必需文件
-python -c "import zipfile; names=zipfile.ZipFile('testcase-generator.skill').namelist(); required={'SKILL.md','README.md','DISTRIBUTION.md','skill.manifest.json'}; missing=required-set(names); print('OK' if not missing else f'MISSING: {missing}')"
+# 4. 抽检包内必需文件（注意：技能入口在技能树内，不在包根）
+python -c "import zipfile; names=set(zipfile.ZipFile('testcase-generator.skill').namelist()); required={'skills/testcase-generator/SKILL.md','README.md','DISTRIBUTION.md','HOST_COMPATIBILITY.md','skill.manifest.json'}; missing=required-names; print('OK' if not missing else f'MISSING: {missing}')"
 
-# 5. 抽检包内禁入项
-python -c "import zipfile; names=zipfile.ZipFile('testcase-generator.skill').namelist(); forbidden=['test-output','.workbuddy','skills-lock.json','.claude/']; bad=[n for n in names if any(f in n for f in forbidden)]; print('OK' if not bad else f'LEAK: {bad}')"
+# 5. 抽检包内禁入项（注意：用不带尾斜杠的前缀匹配，zip namelist 里目录名不带尾斜杠）
+python -c "import zipfile; names=zipfile.ZipFile('testcase-generator.skill').namelist(); forbidden=['test-output','.workbuddy','.harness','devtools','skills-lock.json','.git/','.claude','.codebuddy','__pycache__']; bad=[n for n in names if any(f in n for f in forbidden)]; print('OK' if not bad else f'LEAK: {bad}')"
 ```
+
+> **为什么必需文件是 `skills/testcase-generator/SKILL.md` 而不是 `SKILL.md`**：
+> 本包采用 Agent Skills 标准布局（技能树在 `skills/testcase-generator/`），
+> 技能入口在技能树内部。包根只有 `README.md` / `DISTRIBUTION.md` /
+> `HOST_COMPATIBILITY.md` / `skill.manifest.json` 这几个分发元数据文件。
+> 写成包根 `SKILL.md` 会在**正确的包上误报 MISSING**。
 
 跑前自查（铁律 4.1）：
 
@@ -99,9 +105,9 @@ python -c "import zipfile; names=zipfile.ZipFile('testcase-generator.skill').nam
 
 - ✅ `devtools/package_skill.py` 退出码 0
 - ✅ doc_consistency_audit.py 全绿
-- ✅ `.skill` 与 `.zip` 文件列表完全一致
-- ✅ `SKILL.md` / `README.md` / `DISTRIBUTION.md` / `skill.manifest.json` 都在包根目录
-- ✅ 抽检禁入项**全部 OK**，无任何泄漏
+- ✅ `.skill` 与 `.zip` 文件列表完全一致（当前 61 个文件）
+- ✅ 包根含 `README.md` / `DISTRIBUTION.md` / `HOST_COMPATIBILITY.md` / `skill.manifest.json`；技能入口 `skills/testcase-generator/SKILL.md` 在技能树内
+- ✅ 抽检禁入项**全部 OK**，无任何泄漏（含 `.harness/` / `devtools/` / 26 个宿主目录）
 - ✅ 包内 Markdown 中文未乱码（目检）
 
 > 完成上述后才算 done。

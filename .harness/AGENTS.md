@@ -9,16 +9,16 @@
 
 ## 1. 项目是什么
 
-`testcase-generator` 是一个**生产级 AI 测试用例生成 Skill**，当前版本 **v2.2.0**。
+`testcase-generator` 是一个**生产级 AI 测试用例生成 Skill**，当前版本以 `skill.manifest.json` 的"版本"字段为准（写作时 **v2.3.0**）。
 
-- 它是一个 Skill 包（不是普通库），由根目录 `SKILL.md` 作为中文主入口，`skill.manifest.json` 作为统一分发与宿主路由元数据。
+- 它是一个 Skill 包（不是普通库），技能树位于 **`skills/testcase-generator/`**（Agent Skills 标准布局），以其中的 `SKILL.md` 作为中文主入口，根目录 `skill.manifest.json` 作为统一分发与宿主路由元数据。
 - 核心方法论是 **MBT（Model-Based Testing）+ 六阶段流水线**：
   - **Phase 0 输入预处理 → Phase 1 需求预处理 → Phase 2 代码分析 → Phase 3 领域建模 → Phase 4 MBT 设计 → Phase 5 用例生成**。
 - 支持多种输入：需求文档、PRD、用户故事、API 规范、源代码、缺陷修复上下文、功能描述、本地 Markdown/PDF 文件。
-- 支持多宿主分发：Claude、Codex、Qoder、OpenClaw、Trae、CodeBuddy、Cursor、Windsurf（共 8 个）；通过 `test-generator activate <env>` 命令将运行时文件复制到对应宿主目录。
+- 支持多宿主分发：**26 个宿主**（完整清单见根目录 `HOST_COMPATIBILITY.md`）；通过 `test-generator activate <env>` 命令将运行时文件复制到对应宿主目录。
 - 同时维护两条分发链：
   - 运行时 Skill 分发：`.skill` / `.zip`
-  - npm CLI 分发：`testcase-generator-skill`（`test-generator` 命令）
+  - npm CLI 分发：`@wychmod-cn/testcase-generator-skill`（`test-generator` 命令）
 
 ---
 
@@ -35,7 +35,7 @@
 | `DISTRIBUTION.md` | 人工可读的分发清单与发布检查项 | 是 | 入包根目录 |
 | `HOST_COMPATIBILITY.md` | 宿主兼容性矩阵与能力降级说明 | 是 | 入包根目录 |
 | `docs/operations/packaging.md` | 打包与发布说明 | **否** | dev 工具说明文档（原根目录 `PACKAGING.md`，已搬入 `docs/operations/`） |
-| `adapters/` | 多宿主薄适配层（claude / codex / qoder / openclaw / trae / codebuddy / cursor / windsurf） | 是 | 不复制技能树内容 |
+| `adapters/` | 多宿主薄适配层（**26 个宿主**，完整清单见 `HOST_COMPATIBILITY.md`） | 是 | 不复制技能树内容 |
 | `skills/testcase-generator/config/` | JSON Schema 与示例配置 | 是 | `testcase-config-schema.json` + `example-config.json` |
 | `skills/testcase-generator/prompts/` | 6 个阶段提示词（phase0..phase5）+ 知识入库提示词 | 是 | AI 实际执行的指令源 |
 | `skills/testcase-generator/references/` | 按需加载的补充参考（渐进披露第三层） | 是 | 交付协议 / 质量评审 / 知识库用法 |
@@ -49,9 +49,10 @@
 | `docs/` | 内部测试计划等开发文档 | **否** | 不入包 |
 | `test-output/` | 本地验证产物 | **否** | **永远不能入包** |
 | `run_package.bat` | Windows 打包入口 | **否** | 已被 `python devtools/package_skill.py` 替代 |
-| `.harness/` | 本目录：AI 协作宪法 + reins + 文档护栏 | **否** | 开发工具元数据，**不能**入包 |
+| `.harness/` | 本目录：AI 协作宪法 + reins + 文档护栏 + 评测流水线 | **否** | 开发工具元数据，**不能**入包（已显式列入 manifest「分发排除」） |
+| `.github/workflows/` | CI 流水线（required check） | **否** | 开发基础设施 |
 
-> 关键设计：根目录是 **canonical source**，`adapters/` 是**薄适配层**（只适配入口文件名、触发场景和降级说明，不复制核心 prompts/templates/resources）。
+> 关键设计：**`skills/testcase-generator/` 是技能内容的 canonical source**（Agent Skills 标准布局，客户端自动发现），`adapters/` 是**薄适配层**（只适配入口文件名、触发场景和降级说明，不复制核心 prompts/templates/resources）。各宿主目录（`.claude/`、`.codebuddy/` 等）是 `test-generator activate` 命令**生成的产物**，全部已 gitignore。
 
 ---
 
@@ -64,15 +65,17 @@
 | `python devtools/capability_audit.py` | 能力矩阵审计（Schema 有效、必需路径、版本对齐、版本同步、能力标记、宿主入口） | 改动 SKILL.md / prompts / resources / templates 后必跑 |
 | `python devtools/skill_quality_audit.py` | Skill 字段质量审计（用例字段、阶段流水线、标准引用、版本漂移） | 改动 prompt / template / quality_checklist 后必跑 |
 | `python devtools/package_skill.py` | 打包（先跑能力审计预检，再生成 `.skill` + `.zip` 并交叉校验） | 发布前必跑；改 manifest 排除规则后必跑 |
-| `python .harness/scripts/doc_consistency_audit.py` | 文档护栏（版本号一致、能力矩阵覆盖、宿主表三方一致、npm 入口、排他规则一致、运行时清单） | 改动 SKILL.md / README / manifest / HOST_COMPATIBILITY / DISTRIBUTION / 任何 adapter 后必跑 |
+| `python .harness/scripts/doc_consistency_audit.py` | 文档护栏（版本号一致、能力矩阵覆盖、宿主表三方一致、npm 入口、排他规则一致、运行时清单、技能树内路径写法、**`.harness/` 自身一致性**） | 改动 SKILL.md / README / manifest / HOST_COMPATIBILITY / DISTRIBUTION / 任何 adapter / **任何 `.harness/` 文档** 后必跑 |
 | `node --test <显式文件列表>` | node 单测（`activation.test.js` 覆盖激活解析与复制；`adapter-routing.test.js` 覆盖 manifest ↔ ENVIRONMENTS ↔ adapters 三方一致；`test-discovery.test.js` 守卫脚本与测试文件集合一致） | 改 `lib/activation.js` / `bin/test-generator.js` / `skill.manifest.json` 的宿主入口后必跑 |
-| `node bin/test-generator.js environments` | 列出所有支持的宿主（claude / codebuddy / codex / cursor / openclaw / qoder / trae / windsurf） | 改动 `ENVIRONMENTS` 常量后必跑 |
+| `node bin/test-generator.js environments` | 列出所有支持的宿主（**26 个**；清单以 `lib/activation.js` 的 `ENVIRONMENTS` 为准） | 改动 `ENVIRONMENTS` 常量后必跑 |
 | `node bin/test-generator.js activate <env> --dry-run` | dry-run 激活，输出目标目录和文件数，不写盘 | 改激活逻辑后必跑 |
 | `npm test` | node 单测套件（**显式文件列表**，见 `package.json`；不要写成 glob —— `node --test` 的 glob 支持是 Node v21 才有的，会挂掉 CI 的 18/20） | CI / 发布前 |
-| `npm run test:python` | Python 单测套件（`unittest discover test/`，覆盖增量扫描、知识库、质量审计） | 改 `skills/testcase-generator/scripts/` / `.../knowledge/` / `devtools/` 后必跑 |
+| `npm run test:python` | Python 单测套件（`unittest discover -s test -p "test_*.py"`，覆盖增量扫描、知识库、质量审计、manifest 字段对齐） | 改 `skills/testcase-generator/scripts/` / `.../knowledge/` / `devtools/` 后必跑 |
+| `python .harness/eval/run_eval.py` | 端到端离线评测（`test-fixtures/skill-eval/` 的 12 个 fixture → 校验阶段提示词覆盖、能力声明与产物路径） | 改 `prompts/` / `templates/` 后必跑；CI 已接入（非 `--strict`：CI 无 `test-output/`，产物检查退化为 warn 是预期行为） |
 
-> 三层防御：capability_audit（声明层） + skill_quality_audit（内容层） + doc_consistency_audit（结构层），
-> 任何改动都要让这三层全绿，否则不能合并。
+> 四层防御：capability_audit（声明层） + skill_quality_audit（内容层） +
+> doc_consistency_audit（结构层，含 `.harness/` 自身）+ eval（端到端），
+> 任何改动都要让这些层全绿，否则不能合并。前四者均为 CI required check。
 
 ---
 
@@ -92,24 +95,24 @@
 
 以下目录和文件**永远不能**进入 `.skill` / `.zip` 分发包：
 
+> **权威清单是 `skill.manifest.json` 的「分发排除」字段**（当前 48 项），
+> 下表是分组速查。新增宿主时必须同步「宿主镜像副本」组与 manifest。
+
 | 路径 | 原因 |
 |---|---|
-| `.claude/` | 宿主镜像副本，避免重复和版本漂移 |
-| `.qoder/` | 宿主镜像副本 |
-| `.trae/` | 宿主镜像副本 |
-| `.agents/` | 宿主镜像副本 |
-| `.codebuddy/` | 宿主镜像副本 |
-| `.cursor/` | 宿主镜像副本 |
-| `.windsurf/` | 宿主镜像副本 |
+| `.claude/` `.codebuddy/` `.codex/` `.cursor/` `.qoder/` `.trae/` `.windsurf/` `.agents/` `.opencode/` `.cline/` `.roo/` `.kilocode/` `.gemini/` `.qwen/` `.kiro/` `.factory/` `.goose/` `.openhands/` `.github/` `.agent/` `.pi/` `.mcpjam/` `.zencoder/` `.openclaw/` `.clawdbot/` `.clinerules/` | **宿主镜像副本**（26 个宿主的激活产物），避免重复和版本漂移 |
 | `.workbuddy/` | 本地工作记忆与环境配置 |
 | `test-output/` | 本地验证产物 |
 | `skills-lock.json` | 宿主侧锁定文件 |
-| `testcase-generator.zip` | 兼容打包产物（包中包） |
-| `testcase-generator.skill` | 标准打包产物（包中包） |
-| `.git/` | 版本控制目录 |
+| `testcase-generator.zip` / `testcase-generator.skill` | 打包产物（包中包） |
+| `.git/` / `.github/` | 版本控制与 CI 目录 |
 | `.idea/` / `.venv/` / `__pycache__/` | 本地环境目录 |
 | `devtools/` | 打包 / 审计工具，不属于运行时 |
-| `.harness/` | AI 协作元数据，**不属于运行时资产**（注意：本目录是新增的豁免项，manifest 中尚未列出，但事实不入包） |
+| `.harness/` | AI 协作元数据，**不属于运行时资产**（已显式列入 manifest「分发排除」） |
+| `docs/` | 开发文档，不属于运行时资产（已显式列入 manifest「分发排除」） |
+
+> 注意：`.github/` 同时出现在两行中（既非宿主编译产物、也非版本控制目录的严格意义上属 CI），
+> 它在 manifest 里以 `.github/**` 形式登记。
 
 ### 4.2 版本号三处一致铁律
 
@@ -200,7 +203,9 @@ adapter **不能**：
 - [ ] `python devtools/capability_audit.py` 全绿
 - [ ] `python devtools/skill_quality_audit.py` 全绿
 - [ ] `python .harness/scripts/doc_consistency_audit.py` 全绿
-- [ ] `node --test test/` 全绿
+- [ ] `npm test` 全绿（显式文件列表，勿写成 glob）
+- [ ] `npm run test:python` 全绿
+- [ ] `python .harness/eval/run_eval.py` 无退化（如涉及 prompts / templates）
 - [ ] `node bin/test-generator.js environments` 输出与改动一致
 - [ ] `node bin/test-generator.js activate <env> --dry-run` 目标目录正确（如涉及激活逻辑）
 
@@ -220,16 +225,20 @@ adapter **不能**：
 
 ## 6. reins 角色索引
 
-完整定义见 `.harness/reins/README.md`。本表为速查。
+完整定义见 `.harness/reins/README.md`。本表为速查。**当前 6 个 reins**。
 
 | reins | 主责 | 关键产出 |
 |---|---|---|
-| `skill-author` | SKILL.md / prompts/ / templates/ / resources/ 维护 | 阶段提示词 / 模板 / 资源文件的更新 |
-| `adapter-curator` | adapters/ 维护，与根 SKILL.md 同步 | 薄适配文件 + 触发场景对齐 |
+| `skill-author` | `skills/testcase-generator/` 下的 SKILL.md / prompts/ / templates/ / resources/ / references/ 维护 | 阶段提示词 / 模板 / 资源文件的更新 |
+| `adapter-curator` | adapters/ 维护（26 宿主），与技能树 SKILL.md 同步 | 薄适配文件 + 触发场景对齐 |
 | `manifest-keeper` | skill.manifest.json + DISTRIBUTION.md 一致性 | manifest / 排除规则 / 必需文件清单 |
 | `packager` | 跑 `devtools/package_skill.py`，验证 `.skill` / `.zip` 一致 | 双产物交叉校验报告 |
 | `auditor` | 跑 capability_audit + skill_quality_audit + doc_consistency_audit | 三层审计全绿报告 |
-| `test-runner` | 跑 `node --test test/`，验证 `lib/activation.js` 在所有宿主下激活路径正确 | 单测报告 + 宿主路径快照 |
+| `test-runner` | 跑 `npm test` + `npm run test:python` + `python .harness/eval/run_eval.py`，验证 `lib/activation.js` 在所有宿主下激活路径正确、评测基线不退化 | 单测报告 + 宿主路径快照 + 评测报告 |
+
+> reins 是**人/AI 协作角色契约**，不是可执行程序。它们通过"文件改动 + 跑命令验证"协作，
+> 不通过脚本互调 —— 因此 `reins/` 目录**不会被任何脚本引用**，这是设计使然，不是死代码。
+> 评测（eval）职责并入 `test-runner`，不单设第 7 个角色。
 
 ---
 
@@ -240,12 +249,14 @@ adapter **不能**：
 | [`.harness/README.md`](./README.md) | `.harness/` 总览与文件结构 |
 | [`.harness/reins/README.md`](./reins/README.md) | reins 角色清单与新增流程 |
 | [`.harness/scripts/README.md`](./scripts/README.md) | 护栏脚本使用说明 |
+| [`.harness/eval/README.md`](./eval/README.md) | 端到端评测流水线说明 |
+| [`../AGENTS.md`](../AGENTS.md) | 仓库根操作说明（面向 AI agent，含必跑命令与已踩过的坑） |
 | [`../DISTRIBUTION.md`](../DISTRIBUTION.md) | 分发清单与发布检查项 |
-| [`../HOST_COMPATIBILITY.md`](../HOST_COMPATIBILITY.md) | 宿主兼容性矩阵 |
+| [`../HOST_COMPATIBILITY.md`](../HOST_COMPATIBILITY.md) | 宿主兼容性矩阵（26 宿主的权威清单） |
 | [`../docs/operations/packaging.md`](../docs/operations/packaging.md) | 打包与发布详细说明 |
-| [`../SKILL.md`](../SKILL.md) | 中文主入口 |
+| [`../skills/testcase-generator/SKILL.md`](../skills/testcase-generator/SKILL.md) | 中文主入口 |
 | [`../README.md`](../README.md) | 面向使用者的说明 |
-| [`../skill.manifest.json`](../skill.manifest.json) | 机器可读的分发元数据 |
+| [`../skill.manifest.json`](../skill.manifest.json) | 机器可读的分发元数据（版本唯一数据源） |
 
 ---
 
@@ -255,8 +266,10 @@ adapter **不能**：
 |---|---|---|
 | `capability_audit.py` fail | skill-author | 补齐缺失的 prompt / template / resource |
 | `skill_quality_audit.py` fail | skill-author | 修必填字段或质量门禁 token |
-| `doc_consistency_audit.py` fail | 对应 reins | 看具体项：版本号 → skill-author+manifest-keeper；能力 → skill-author；宿主表 → adapter-curator+manifest-keeper；排他 → manifest-keeper+packager |
-| `node --test test/` fail | test-runner | 改 `lib/activation.js` 后重跑 |
+| `doc_consistency_audit.py` fail | 对应 reins | 看具体项：版本号 → skill-author+manifest-keeper；能力 → skill-author；宿主表 → adapter-curator+manifest-keeper；排他 → manifest-keeper+packager；`.harness/` 自身 → 对应 reins |
+| `npm test` fail | test-runner | 改 `lib/activation.js` 后重跑 |
+| `npm run test:python` fail | test-runner | 看失败的测试模块，多数对应 `devtools/` 或技能树内脚本 |
+| `run_eval.py` 退化 | test-runner | 补 `test-fixtures/skill-eval/` 基线或修 prompts |
 | 打包后 `.skill` 与 `.zip` 内容不一致 | packager | 跑 `python devtools/package_skill.py` 重打包 |
 | 宿主页面/CLI 提示与实际能力不符 | adapter-curator | 同步更新 HOST_COMPATIBILITY.md / adapter |
 | 入包后发现包中包 / 镜像目录泄漏 | packager + manifest-keeper | 立即发版修复版本，并在 audit 中补强规则 |
@@ -265,4 +278,5 @@ adapter **不能**：
 
 ---
 
-_本文件由 `.harness/` 体系维护；改动本文件需要同时更新本文件中的"必跑命令"和"reins 角色索引"两节，并在 PR 模板中勾选触及的铁律。_
+_本文件由 `.harness/` 体系维护；改动本文件需要同时更新本文件中的"必跑命令"和"reins 角色索引"两节，并在 PR 模板中勾选触及的铁律。
+`doc_consistency_audit.py` 的 `harness_self_consistency` 检查会拦住本文件中的宿主数与版本号漂移。_
