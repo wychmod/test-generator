@@ -1,0 +1,23 @@
+{
+  "name": "testcase-generator",
+  "displayName": "Testcase Generator",
+  "description": "Generate structured, traceable, and executable software test cases and test design outputs from requirements, PRDs, API specifications, source code, bugfix context, or feature descriptions.",
+  "version": "2.2.0",
+  "license": "MIT",
+  "author": {
+    "name": "wychmod"
+  },
+  "homepage": "https://github.com/wychmod/test-generator#readme",
+  "repository": "git+https://github.com/wychmod/test-generator.git",
+  "keywords": [
+    "mbt",
+    "model-based-testing",
+    "testcase",
+    "skill",
+    "agent",
+    "test-automation"
+  ],
+  "skills": [
+    "."
+  ]
+}
