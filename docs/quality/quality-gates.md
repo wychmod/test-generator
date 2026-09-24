@@ -2,7 +2,11 @@
 
 > 目的：把 `skills/testcase-generator/resources/quality_checklist.md` 中分散在各 Phase 的检查项，抽取为一份「门禁决策表」——告诉流水线执行者每个阶段什么时候可以放行、什么时候必须修复后重审、什么时候必须降级。
 >
-> 详细检查项与权重：[`../../skills/testcase-generator/resources/quality_checklist.md`](../../skills/testcase-generator/resources/quality_checklist.md)（v2.1，ISTQB + ISO/IEC/IEEE 29119-3:2021 + CMMI DEV 3.0）
+> 详细检查项与权重：[`../../skills/testcase-generator/resources/quality_checklist.md`](../../skills/testcase-generator/resources/quality_checklist.md)（v2.3.0，ISTQB + ISO/IEC/IEEE 29119-3:2021 + CMMI DEV 3.0）
+>
+> 下表用 `G<阶段>-<组>` 引用 `quality_checklist.md` 中的检查组；该文件的检查组标题写作
+> `G<阶段>.<组>`（如 `G2.1`），检查项 ID 写作 `G<阶段>-<组>-<序号>`（如 `G2-1-1`），
+> 三者指同一组。
 >
 > 流水线结构：[`../architecture/pipeline-overview.md`](../architecture/pipeline-overview.md)
 >
@@ -293,7 +297,7 @@ verdict: "PASS / PASS_WITH_WARNINGS / FAIL"
 | 静态审计 | `devtools/capability_audit.py` | 全阶段 — 检查产物文件存在、能力标记完整 |
 | 内容质量审计 | `devtools/skill_quality_audit.py` | Phase 5 — 检查输出产物的字段完整性和评分阈值 |
 
-更细粒度的自动评分（如"AC 二元化率"、"等价类重叠检查"）当前是**人工或 AI 自审**任务，待 v2.2 接入静态分析后实现。
+更细粒度的自动评分（如"AC 二元化率"、"等价类重叠检查"）当前是**人工或 AI 自审**任务，尚未接入静态分析。
 
 ---
 

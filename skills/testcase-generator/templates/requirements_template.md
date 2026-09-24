@@ -1,6 +1,6 @@
 ﻿# 需求摘要模板 v2.3.0 (生产级)
 
-> **模板版本**: 2.3.0 | **标准**: IEEE 830 + INCOSE + Agile hybrid | **用途**: Phase 1 需求预处理输出
+> **模板版本**: 2.3.0 | **标准**: ISO/IEC/IEEE 29119-3:2021 + INCOSE + Agile hybrid | **用途**: Phase 1 需求预处理输出
 
 ---
 
@@ -462,5 +462,5 @@ So that [获得什么价值/解决什么问题]
 
 ---
 
-*本文档由 testcase-generator v2.3.0 自动生成，遵循 IEEE 830 / INCOSE 标准。*
+*本文档由 testcase-generator v2.3.0 自动生成，遵循 ISO/IEC/IEEE 29119-3:2021 / INCOSE 标准。*
 *请在使用前进行人工审核确认。*

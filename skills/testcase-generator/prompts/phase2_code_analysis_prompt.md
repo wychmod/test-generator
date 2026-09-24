@@ -9,6 +9,8 @@
 > - 新增 API 契约测试推导
 > - 新增技术债务识别与评估
 > - 新增接口兼容性分析
+>
+> **路径约定**：文中 `<技能根>` 指技能目录 `skills/testcase-generator/`，激活到宿主后即宿主技能目录（如 `.claude/skills/testcase-generator/`）。
 
 ---
 
@@ -153,7 +155,7 @@ input_scenarios:
 若宿主支持执行本地脚本，优先运行：
 
 ```bash
-python scripts/incremental_code_scan.py \
+python <技能根>/scripts/incremental_code_scan.py \
   --base <base_ref_or_commit> \
   --head <head_ref_or_commit> \
   --prd <prd_or_requirement_file> \
@@ -164,7 +166,7 @@ python scripts/incremental_code_scan.py \
 若只分析暂存区：
 
 ```bash
-python scripts/incremental_code_scan.py \
+python <技能根>/scripts/incremental_code_scan.py \
   --cached \
   --prd <prd_or_requirement_file> \
   --format json \
@@ -685,22 +687,26 @@ version: 1.0
 
 ### 5.1 必须通过项
 
+> 本表是**阶段放行前的定性自检**，ID 用 `SC<阶段>-<序号>` 命名空间；
+> 带权重的**量化评分项**见 `resources/quality_checklist.md`（用 `G<阶段>-<组>-<序号>`），
+> 两者粒度不同，不要混用 ID。
+
 | # | 检查项 | 标准 | 不通过的处理 |
 |---|-------|------|-------------|
-| G2-1 | 公开接口覆盖 | 所有公开 API/函数均已分析 | 补充遗漏的接口分析 |
-| G2-2 | 数据流端到端 | 关键数据流可从源头追踪到终点 | 标记断裂的数据流 |
-| G2-3 | 异常路径枚举 | 每个函数的异常处理路径已列出 | 标记未处理的异常场景 |
-| G2-4 | 缺陷有依据 | 每条 DEF 都引用了具体的代码位置/逻辑 | 删除无依据的推测 |
-| G2-5 | 术语一致性 | 与 Phase 1 使用统一的术语 | 建立术语映射表 |
+| SC2-1 | 公开接口覆盖 | 所有公开 API/函数均已分析 | 补充遗漏的接口分析 |
+| SC2-2 | 数据流端到端 | 关键数据流可从源头追踪到终点 | 标记断裂的数据流 |
+| SC2-3 | 异常路径枚举 | 每个函数的异常处理路径已列出 | 标记未处理的异常场景 |
+| SC2-4 | 缺陷有依据 | 每条 DEF 都引用了具体的代码位置/逻辑 | 删除无依据的推测 |
+| SC2-5 | 术语一致性 | 与 Phase 1 使用统一的术语 | 建立术语映射表 |
 
 ### 5.2 警告项
 
 | # | 触发条件 | 处理 |
 |---|---------|------|
-| W2-1 | 需求覆盖率 < 80% | 在报告中突出显示未覆盖的需求 |
-| W2-2 | Critical/Major 缺陷 > 5 个 | 评估是否需要在后续阶段重点关注 |
-| W2-3 | 圈复杂度 > 15 的函数 > 3 个 | 建议这些函数分配更多测试用例 |
-| W2-4 | 分析模式为 logical_modeling | 在所有推断内容上添加额外标注 |
+| SW2-1 | 需求覆盖率 < 80% | 在报告中突出显示未覆盖的需求 |
+| SW2-2 | Critical/Major 缺陷 > 5 个 | 评估是否需要在后续阶段重点关注 |
+| SW2-3 | 圈复杂度 > 15 的函数 > 3 个 | 建议这些函数分配更多测试用例 |
+| SW2-4 | 分析模式为 logical_modeling | 在所有推断内容上添加额外标注 |
 
 ### 5.3 自评分卡
 

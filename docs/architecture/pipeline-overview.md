@@ -79,7 +79,7 @@
 
 | 维度 | 内容 |
 |---|---|
-| 角色 | 资深需求分析师 + 测试架构师（IEEE 830 / INCOSE 标准实践者） |
+| 角色 | 资深需求分析师 + 测试架构师（ISO/IEC/IEEE 29119-3:2021 / INCOSE 标准实践者） |
 | 入口 | Phase 0 规范化输入 |
 | 出口 | 结构化需求条目 + 边界条件 + NFR + 用户旅程 |
 | 关键产物 | `01_requirements_summary.md` / `02_testable_requirements.md` / `03_boundary_conditions.md` / `04_nfr_and_impact_analysis.md` |
