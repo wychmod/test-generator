@@ -1,4 +1,8 @@
-# 🧪 Test Generator v2.3.0 · AI 驱动的测试用例生成 Skill
+<p align="center">
+  <img src="./docs/assets/logo/logo.svg" alt="Testcase Generator" width="128" height="128">
+</p>
+
+# Test Generator v2.3.0 · AI 驱动的测试用例生成 Skill
 
 <p align="center">
   <strong>🔬 让大模型真正"写出能跑"的测试用例</strong><br>

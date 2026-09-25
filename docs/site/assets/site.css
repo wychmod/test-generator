@@ -55,6 +55,7 @@ h1, h2, h3 { color: var(--text-strong); font-weight: 600; line-height: 1.3; marg
 .header-inner { display: flex; align-items: center; gap: 28px; height: 64px; }
 .logo { display: flex; align-items: center; gap: 10px; color: var(--text-strong); font-weight: 600; }
 .logo:hover { text-decoration: none; }
+.logo-mark { width: 22px; height: 22px; display: block; flex-shrink: 0; }
 .logo-badge {
   font-family: var(--font-mono); font-size: .68rem; color: var(--cyan);
   border: 1px solid rgba(34, 211, 238, .35); border-radius: 999px; padding: 1px 8px;
@@ -127,8 +128,8 @@ h1, h2, h3 { color: var(--text-strong); font-weight: 600; line-height: 1.3; marg
   flex: 1 1 120px; text-align: center; background: var(--bg-elev);
   border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 8px;
 }
-.gate-chip .p { font-family: var(--font-mono); font-size: .72rem; color: var(--faint); }
-.gate-chip .v { font-family: var(--font-mono); font-size: 1.05rem; color: var(--muted); }
+.gate-chip .p { font-family: var(--font-mono); font-size: .72rem; color: var(--faint); display: block; }
+.gate-chip .v { font-family: var(--font-mono); font-size: 1.05rem; color: var(--muted); display: block; margin-top: 4px; }
 .gate-chip.hi { border-color: rgba(34, 211, 238, .4); }
 .gate-chip.hi .v { color: var(--cyan); }
 .gate-chip.top { border-color: rgba(99, 102, 241, .55); background: #151A2E; }

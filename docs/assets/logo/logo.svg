@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-labelledby="lgTitle lgDesc">
+  <title id="lgTitle">Testcase Generator</title>
+  <desc id="lgDesc">靛蓝圆角徽章内的白色烧瓶，瓶身挖空一个对勾，表示从生成测试用例到通过质量门禁。</desc>
+  <defs>
+    <linearGradient id="lgBadge" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#4338CA"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#lgBadge)"/>
+  <g fill="#FFFFFF">
+    <rect x="22.5" y="9.5" width="19" height="7" rx="2.6"/>
+    <rect x="28" y="13.5" width="8" height="15"/>
+    <path d="M28 26.5 H36 L47.5 44 A7.5 7.5 0 0 1 42.4 54 H21.6 A7.5 7.5 0 0 1 16.5 44 Z"/>
+  </g>
+  <path d="M25.9 39.6 L30.2 43.9 L36 36.5" fill="none" stroke="#4338CA" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
