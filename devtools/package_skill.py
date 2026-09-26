@@ -41,6 +41,7 @@ REQUIRED_ARCHIVE_MEMBERS = {
     SKILL_ENTRY,
     "README.md",
     "DISTRIBUTION.md",
+    "LICENSE",
     "skill.manifest.json",
 }
 FORBIDDEN_ARCHIVE_PATTERNS = {
@@ -93,7 +94,11 @@ def path_matches(path_str: str, patterns: Iterable[str]) -> bool:
 
 
 def build_allowed_patterns(manifest: dict) -> list[str]:
-    return normalize_patterns(_manifest_mod().runtime_files(manifest) + ["DISTRIBUTION.md", "skill.manifest.json"])
+    # LICENSE 随包分发但不属于技能运行时内容，因此与 DISTRIBUTION.md / manifest 一样
+    # 走"入包但不由 activate 复制进宿主目录"的旁路，不进 manifest 的"运行时文件"。
+    return normalize_patterns(
+        _manifest_mod().runtime_files(manifest) + ["DISTRIBUTION.md", "LICENSE", "skill.manifest.json"]
+    )
 
 
 def build_excluded_patterns(manifest: dict) -> list[str]:

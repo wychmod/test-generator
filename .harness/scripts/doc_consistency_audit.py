@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """文档结构层护栏：检查 testcase-generator 文档之间的一致性。
 
-执行 12 类检查，输出 markdown 表格报告（pass / warn / fail 三档）：
+执行 13 类检查，输出 markdown 表格报告（pass / warn / fail 三档）：
 
 1. 版本号三处一致：SKILL.md front matter / README.md 标题 / skill.manifest.json "版本"
 2. 能力矩阵覆盖：skill.manifest.json 核心能力 ↔ SKILL.md ↔ prompts/phase*.md ↔ resources/output_artifacts.md
@@ -17,6 +17,9 @@
 11. 技能树内路径写法：技能树 Markdown 引用的 `knowledge/` 等顶层目录路径必须带 `<技能根>/` 前缀
 12. `.harness/` 自身一致性：`.harness/` 文档里的宿主数 / reins 数 / 分发排除项数必须与仓库现状
     一致，且不得引用已删除的 `.harness/hooks/`（版本历史 changelogs/ 豁免）
+13. 许可证：`LICENSE` 必须是 MIT 正文，`package.json` / `.claude-plugin/plugin.json` /
+    `README.md` 的声明必须一致，且 LICENSE 必须真的接入 npm / `.skill` / `activate` /
+    `DISTRIBUTION.md` 四条分发链路
 
 设计原则：
 - 不修改任何文件，只读不写
@@ -1460,6 +1463,77 @@ def check_harness_self_consistency() -> list[CheckResult]:
     return results
 
 
+# ---------- 检查 13：许可证声明与分发 ----------
+
+# LICENSE 必须同时接入的四条链路，以及各自应出现的字面量
+# （Markdown 里是反引号写法，代码与 JSON 里是双引号写法，故逐条声明而不是统一匹配）
+_LICENSE_SHIPPING_SITES = (
+    ("package.json", "npm files 白名单", '"LICENSE"'),
+    ("devtools/package_skill.py", ".skill / .zip 入包白名单", '"LICENSE"'),
+    ("lib/activation.js", "activate 复制清单", '"LICENSE"'),
+    ("DISTRIBUTION.md", "分发边界声明", "`LICENSE`"),
+)
+
+
+def check_license_consistency() -> CheckResult:
+    """许可证必须在各处声明一致，并且真的接入分发链路。
+
+    本项来自一次真实漂移：README / package.json / plugin.json / 徽章都写着 MIT，
+    仓库里却**没有 LICENSE 文件**，GitHub 侧也识别不到许可证 —— 四处声明全无落地依据。
+    因此这里同时守住两件事：声明一致，且真的入包；只写声明、不接分发链路的半成品
+    同样会被拦下。
+    """
+    license_path = ROOT / "LICENSE"
+    if not license_path.exists():
+        return CheckResult(
+            "license_consistency",
+            "fail",
+            "LICENSE 文件不存在，但 package.json / .claude-plugin/plugin.json / README.md 均声明 MIT",
+        )
+
+    problems: list[str] = []
+
+    body = read_text(license_path)
+    if "MIT License" not in body or "Permission is hereby granted" not in body:
+        problems.append("LICENSE 正文不是标准 MIT 文本")
+
+    declared: dict[str, str] = {}
+    for label, path in (
+        ("package.json", ROOT / "package.json"),
+        (".claude-plugin/plugin.json", ROOT / ".claude-plugin" / "plugin.json"),
+    ):
+        value = (read_json(path) or {}).get("license")
+        if not isinstance(value, str):
+            problems.append(f"{label} 缺少 license 字段")
+        else:
+            declared[label] = value
+
+    if len(set(declared.values())) > 1:
+        problems.append("license 声明不一致：" + "，".join(f"{k}={v}" for k, v in declared.items()))
+    elif declared and set(declared.values()) != {"MIT"}:
+        problems.append("license 声明值不是 MIT：" + "，".join(sorted(set(declared.values()))))
+
+    if "MIT License" not in read_text(ROOT / "README.md"):
+        problems.append("README.md 未声明 MIT License")
+
+    for relative, site, token in _LICENSE_SHIPPING_SITES:
+        path = ROOT / relative
+        if not path.exists():
+            problems.append(f"{relative} 不存在")
+        elif token not in read_text(path):
+            problems.append(f"{relative} 未把 LICENSE 接入{site}")
+
+    if problems:
+        return CheckResult("license_consistency", "fail", "；".join(problems), problems)
+
+    return CheckResult(
+        "license_consistency",
+        "pass",
+        "LICENSE 为 MIT 正文，package.json / plugin.json / README.md 声明一致，"
+        "且已接入 npm / .skill / activate / DISTRIBUTION.md 四处链路",
+    )
+
+
 # ---------- 汇总与渲染 ----------
 
 def build_results() -> list[CheckResult]:
@@ -1471,6 +1545,7 @@ def build_results() -> list[CheckResult]:
     results.append(check_docs_markdown_links())
     results.append(check_skill_tree_internal_paths())
     results.append(check_npm_files_payload())
+    results.append(check_license_consistency())
     results.extend(check_capability_coverage())
     results.extend(check_host_table_consistency())
     results.extend(check_npm_entrypoint())

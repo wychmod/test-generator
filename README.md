@@ -19,15 +19,18 @@
   <a href="#-架构">架构</a> ·
   <a href="#-使用指南">使用指南</a> ·
   <a href="#-多宿主支持">多宿主</a> ·
-  <a href="#-质量保障">质量保障</a>
+  <a href="#-质量保障">质量保障</a> ·
+  <a href="https://wychmod.github.io/test-generator/"><strong>项目网站 ↗</strong></a>
 </p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@wychmod-cn/testcase-generator-skill"><img src="https://img.shields.io/npm/v/@wychmod-cn/testcase-generator-skill?label=npm&color=cb3837" alt="npm"></a>
-  <img src="https://img.shields.io/badge/python-3.9+-blue.svg" alt="Python">
+  <a href="https://www.npmjs.com/package/@wychmod-cn/testcase-generator-skill"><img src="https://img.shields.io/npm/dm/@wychmod-cn/testcase-generator-skill?label=downloads&color=cb3837" alt="npm downloads"></a>
   <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
+  <img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg" alt="Node >=18">
   <img src="https://img.shields.io/badge/MBT-ISO%2FIEC%2029119-purple.svg" alt="MBT">
-  <img src="https://img.shields.io/badge/AI--Hosts-8-orange.svg" alt="AI Hosts">
+  <img src="https://img.shields.io/badge/AI--Hosts-26-orange.svg" alt="AI Hosts">
+  <a href="https://github.com/wychmod/test-generator/actions/workflows/ci.yml"><img src="https://github.com/wychmod/test-generator/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://github.com/wychmod/test-generator/stargazers"><img src="https://img.shields.io/github/stars/wychmod/test-generator?style=social" alt="Stars"></a>
 </p>
 
@@ -75,7 +78,7 @@
 > 输出 **结构化、可评审、可追溯**的测试用例。
 
 它**不是一个独立 CLI 工具**,而是一个 **Skill 包**——安装后会被注入到你正在使用的 AI 宿主
-(Claude Code / Codex / Qoder / CodeBuddy / Cursor / Windsurf / OpenClaw / Trae)中,
+(Claude Code / Codex / Qoder / CodeBuddy / Cursor / Windsurf / OpenClaw / Trae 等 26 个)中,
 让宿主 AI 按照这套方法论帮你生成用例。
 
 技能内容按 **Agent Skills 标准布局**放在 `skills/testcase-generator/`,因此支持标准布局的
@@ -87,11 +90,15 @@
 ## ⚙️ How · 它怎么工作
 
 <p align="center">
-  <img src="./docs/assets/diagrams/02-pipeline.svg" alt="六阶段流水线与质量门禁：Phase 0 输入预处理 → Phase 1 需求分析 → Phase 2 代码分析 → Phase 3 领域建模 → Phase 4 MBT 设计 → Phase 5 用例生成，每阶段后接质量门禁，末端接反馈闭环与降级路径" width="900">
+  <img src="./docs/assets/diagrams/02-pipeline.svg" alt="六阶段流水线与质量门禁：Phase 0 输入预处理 → Phase 1 需求预处理 → Phase 2 代码分析 → Phase 3 领域建模 → Phase 4 MBT 设计 → Phase 5 用例生成，每阶段后接质量门禁，末端接反馈闭环与降级路径" width="900">
 </p>
 
 每一阶段都有独立 prompt + 质量门禁 + 双向追溯,而不是把一切都丢给大模型自由发挥。
-门禁阈值随阶段递增(80 → 90)。信息不足时不强行出全量用例,而是走**降级路径**输出测试点清单与风险摘要。
+门禁分两层:各阶段 prompt 末尾的**定性自检清单**(`SC<阶段>-<序号>`,必须全 PASS)与
+`resources/quality_checklist.md` 的**加权评分**;评分按统一分级放行(A ≥ 90 / B ≥ 80 /
+C ≥ 70 / D < 70,B 及以上需先修复 Warning)。阈值不内置递增,需要更严或更松时用配置项
+`quality.quality_thresholds.phase_pass_score` 按阶段覆盖。信息不足时不强行出全量用例,
+而是走**降级路径**输出测试点清单与风险摘要。
 
 📖 **架构详解见** [docs/architecture/](./docs/architecture/) |
 **六阶段产出物详解** [skills/testcase-generator/resources/output_artifacts.md](./skills/testcase-generator/resources/output_artifacts.md)
@@ -126,7 +133,7 @@
 - **接口 / 领域 / 状态**:适用于 API、业务流程、状态型系统测试
 - **回归 / 审计 / 标准化**:适合测试补齐、测试审计、统一格式化输出
 - **自动化适配**:可为后续 Pytest / Playwright / Cucumber 等自动化落地提供基础骨架
-- **多宿主一键激活**:`test-generator activate all` 可一次性激活 Claude / Codex / Qoder / OpenClaw / Trae / CodeBuddy / Cursor / Windsurf
+- **多宿主一键激活**:`test-generator activate all` 可一次性激活全部 26 个宿主(Claude / Codex / Qoder / CodeBuddy / Cursor / Windsurf / OpenClaw / Trae 等)
 
 ### 📚 v2.2.0 新增能力
 - **知识库辅助层**:新增 `skills/testcase-generator/knowledge/`,可维护项目术语、规范、历史用例和合规规则;支持 `build_index.py` 构建本地索引、`search.py` 检索命中片段、`ingest.py` 接入用户自定义 LLM 命令录入知识
@@ -139,7 +146,7 @@
 - **原生插件安装通路**:新增 `.claude-plugin/plugin.json` + `marketplace.json`,Claude Code 可一行 marketplace 安装,取代"先 `npm i` 再 `activate`"两步通路
 - **版本单一数据源**:`skill.manifest.json` 的"版本"是唯一来源,`devtools/sync_version.py --write` 回写全部身份标记;插件清单同样由 `devtools/gen_plugin_manifests.py` **生成**,不再手工维护
 - **渐进披露层**:新增 `skills/testcase-generator/references/`,把交付协议、质量评审动作、知识库消费规则从入口下沉按需加载;`SKILL.md` 正文**瘦身 35%**
-- **进程内自检**:Node 单测新增适配路由与测试发现守卫;Python 测试 15 → 38 例;CI 引入 **Node 18 / 20 / 22 矩阵**,让 `engines: >=18` 的声明真正被验证
+- **进程内自检**:Node 单测新增适配路由与测试发现守卫;Python 测试 15 → 59 例;CI 引入 **Node 18 / 20 / 22 矩阵**,让 `engines: >=18` 的声明真正被验证
 - **三层审计扩至 50+ 项**:`capability_audit`(30)+ `skill_quality_audit`(6)+ `doc_consistency_audit`(20 起,随告警增多),其中 `docs/` 与 npm 发布载荷首次被纳入机器守卫
 - **发布载荷收口**:npm `files` 由裸目录改为精确条目,发布体积 **216.8 kB → 165.8 kB**(未压缩 636.2 → 472.7 kB),不再夹带 `__pycache__` 与本地索引
 - **面向 AI agent 的根 `AGENTS.md`**:Codex / Cursor / Copilot / Gemini CLI / Windsurf 等 20+ 工具原生读取
@@ -563,16 +570,29 @@ python scripts/incremental_code_scan.py --diff-file changes.patch --prd requirem
 
 ### 质量门禁
 
-关键阶段可结合质量检查机制进行审计,重点关注:
+每个阶段放行前要过两道门:prompt 末尾的**定性自检清单**(`SC<阶段>-<序号>`,必须全 PASS),
+以及 `resources/quality_checklist.md` 的**加权评分**。评分分级全阶段统一,不随阶段递增:
 
-| 阶段 | 主要检查维度 | 参考阈值 |
-|------|------------|---------|
-| P0 输入预处理 | 输入完整性、格式规范性、缺口识别质量 | ≥ 80 分 |
-| P1 需求预处理 | 完整性、准确性、可测试性、一致性 | ≥ 80 分 |
-| P2 代码分析 | 分析范围、数据流、缺陷依据、需求对齐 | ≥ 80 分 |
-| P3 领域建模 | 模型质量、状态机完备性、跨阶段一致性 | ≥ 85 分 |
-| P4 MBT 设计 | 覆盖准则合理性、可操作性、设计完整性 | ≥ 85 分 |
-| P5 用例生成 | 覆盖完整性、用例质量、去重效果、规范性 | ≥ 90 分 |
+| 等级 | 分数区间 | 行动 |
+|------|---------|------|
+| 🟢 A 优秀 | 90-100 | 可直接进入下一阶段 |
+| 🟡 B 良好 | 80-89 | 修复 Warning 后进入下一阶段 |
+| 🟠 C 合格 | 70-79 | 修复所有 Warning 与 Minor Issue |
+| 🔴 D 不合格 | < 70 | 必须修复后重新审核 |
+
+各阶段自检覆盖的维度:
+
+| 阶段 | 主要检查维度 |
+|------|------------|
+| P0 输入预处理 | 输入完整性、格式规范性、缺口识别质量 |
+| P1 需求预处理 | 完整性、准确性、可测试性、一致性 |
+| P2 代码分析 | 分析范围、数据流、缺陷依据、需求对齐 |
+| P3 领域建模 | 模型质量、状态机完备性、跨阶段一致性 |
+| P4 MBT 设计 | 覆盖准则合理性、可操作性、设计完整性 |
+| P5 用例生成 | 覆盖完整性、用例质量、去重效果、规范性 |
+
+> 分阶段阈值**不是内置常量**:默认按上表统一分级放行;需要按阶段收紧或放宽时,
+> 用配置项 `quality.quality_thresholds.phase_pass_score` 覆盖(Schema 中无默认值)。
 
 ### 一致性审计
 
@@ -612,9 +632,10 @@ npm test            # Node 单测:激活解析、适配路由、测试发现守�
 npm run test:python # Python 单测:增量扫描、知识库、审计脚本
 ```
 
-CI 分两个 job:**Guards (python)** 跑上述三项审计与 Python 测试,
-**Node tests** 用 **18 / 20 / 22 三档矩阵**跑 Node 单测 —— 这个矩阵不是装饰,
-`engines: >=18` 的声明正是靠它被真正验证。
+CI 分两个 job:**Guards (python)** 跑版本标记同步校验、插件清单生成校验、上述三项审计、
+`.harness/eval/` 的离线端到端评测与 Python 测试;**Node tests** 用 **18 / 20 / 22 三档矩阵**
+跑 Node 单测 —— 这个矩阵不是装饰,`engines: >=18` 的声明正是靠它被真正验证。
+另有 `pages.yml` 单独部署项目网站,与 CI 互不阻塞。
 
 ---
 
@@ -644,44 +665,50 @@ testcase-generator/
 ├── README.md                             # 📖 本文件
 ├── DISTRIBUTION.md                       # 📦 分发边界与发布检查项
 ├── HOST_COMPATIBILITY.md                 # 🧩 宿主兼容性说明
+├── LICENSE                               # 📄 MIT 许可证正文(随包分发)
 ├── skill.manifest.json                   # 🗂️ 分发元数据与入包规则(版本的唯一数据源)
 ├── .claude-plugin/                       # 🔌 客户端插件清单(由 devtools 生成)
 │   ├── plugin.json
 │   └── marketplace.json
 ├── run_package.bat                       # 🛠️ Windows 打包入口
 │
-├── adapters/                             # 🔌 多宿主薄适配入口(不进技能树)
-│   ├── claude/                           #   Claude / Anthropic 类宿主
-│   ├── codex/                            #   Codex / 工程 CLI 类宿主
-│   ├── codebuddy/                        #   CodeBuddy / 腾讯云 AI 代码助手
-│   ├── cursor/                           #   Cursor (Anysphere) 软适配
-│   ├── openclaw/                         #   OpenClaw / 兼容型宿主
-│   ├── qoder/                            #   Qoder / IDE 集成类宿主
-│   └── windsurf/                         #   Windsurf / Antigravity 软适配
+├── adapters/                             # 🔌 多宿主薄适配入口,26 个子目录(不进技能树)
+│   ├── claude/ · codex/ · qoder/         #   完整适配入口(Claude / Codex / Qoder 类)
+│   ├── cursor/ · windsurf/               #   软适配,激活时复制为 .cursorrules / .windsurfrules
+│   ├── openclaw/ · clawdbot/             #   兼容适配
+│   └── ...其余 19 个宿主                 #   完整路径表见 HOST_COMPATIBILITY.md
 │
 ├── bin/test-generator.js                 # ⌨️ npm CLI 入口(activate / environments)
 ├── lib/activation.js                     # 🔁 宿主激活逻辑与目标目录解析
 │
-├── docs/                                 # 🧭 内部文档中心(不进包)
-│   ├── architecture/                     #   架构设计
-│   ├── assets/diagrams/                  #   📊 架构 / 流程图 SVG(README 引用)
+├── docs/                                 # 🧭 文档中心 + 项目网站(不进包)
+│   ├── architecture/                     #   架构设计(含 agent-division/ 多 Agent 划分)
+│   ├── assets/diagrams/ · assets/logo/   #   📊 架构 / 流程图 SVG、项目 logo
+│   ├── changelog/                        #   历史变更记录
 │   ├── development/                      #   开发指南
 │   ├── operations/                       #   打包与发布
-│   └── quality/                          #   质量与测试计划
+│   ├── quality/                          #   质量与测试计划
+│   ├── site/                             #   🌐 站点源码与构建器(build.py)
+│   └── index.html · agents.html          #   🚀 站点产物,Pages 直接发布 /docs 目录
 │
 ├── test/                                 # ✅ Node 单测 + Python 审计测试(不进包)
 │
 ├── devtools/                             # 🧪 开发与发布工具(不进包)
 │   ├── capability_audit.py               #   声明层审计(30 项)
 │   ├── skill_quality_audit.py            #   内容层审计(6 项)
+│   ├── manifest.py                       #   manifest 唯一访问层(各消费方共用)
 │   ├── sync_version.py                   #   版本单一数据源同步器
 │   ├── gen_plugin_manifests.py           #   客户端插件清单生成器
 │   └── package_skill.py                  #   Skill 打包脚本
 │
-├── .harness/                             # 🧠 AI 协作宪法 / reins / 文档护栏(不进包)
-│   └── scripts/doc_consistency_audit.py  #   结构层审计(15 项)
+├── .harness/                             # 🧠 AI 协作宪法 / reins / 评测 / 文档护栏(不进包)
+│   ├── changelogs/                       #   破坏性变更说明
+│   ├── eval/                             #   离线端到端评测(run_eval.py)
+│   ├── reins/                            #   角色约束
+│   └── scripts/doc_consistency_audit.py  #   结构层审计(20 项起,告警时按类别展开)
 │
 ├── .github/workflows/ci.yml              # ✅ CI(审计 + Python 测试 + Node 18/20/22 矩阵)
+├── .github/workflows/pages.yml           # 🌐 项目网站部署(GitHub Pages)
 │
 └── test-output/                          # 🧾 本地测试输出示例(不参与分发)
 ```
@@ -751,7 +778,7 @@ testcase-generator/
 
 ## 📄 License
 
-MIT License © 2024-2026 Test Generator Team
+[MIT License](./LICENSE) © 2024-2026 Test Generator Team
 
 ---
 

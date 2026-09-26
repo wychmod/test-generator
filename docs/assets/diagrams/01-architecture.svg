@@ -31,8 +31,8 @@
 <text x="40" y="146" font-family="'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="500" fill="#2C2C2A">宿主适配层 · adapters/</text>
 
 <rect x="40" y="158" width="640" height="64" rx="12" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
-<text x="62" y="181" font-family="'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#04342C" dominant-baseline="central">claude · codebuddy · codex · qoder · trae · openclaw（完整适配）</text>
-<text x="62" y="203" font-family="'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#085041" dominant-baseline="central">cursor · windsurf（软适配）— 仅做入口名 / 触发词 / 资源路由 / 降级说明</text>
+<text x="62" y="181" font-family="'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#04342C" dominant-baseline="central">26 个宿主入口（完整适配 22 · 兼容适配 2 · 软适配 2）</text>
+<text x="62" y="203" font-family="'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#085041" dominant-baseline="central">入口名 / 触发词 / 资源路由 / 降级说明 · 清单见 HOST_COMPATIBILITY.md</text>
 
 <path d="M360 222 L360 254" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 
@@ -81,11 +81,11 @@
 
 <rect x="259" y="550" width="202" height="58" rx="10" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
 <text x="360" y="570" font-family="'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif" font-size="13" font-weight="500" fill="#042C53" text-anchor="middle" dominant-baseline="central">test/ + .harness/</text>
-<text x="360" y="590" font-family="'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#185FA5" text-anchor="middle" dominant-baseline="central">单测 · 结构审计 · hooks</text>
+<text x="360" y="590" font-family="'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#185FA5" text-anchor="middle" dominant-baseline="central">单测 · 结构审计 · 离线评测</text>
 
 <rect x="478" y="550" width="202" height="58" rx="10" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
 <text x="579" y="570" font-family="'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif" font-size="13" font-weight="500" fill="#042C53" text-anchor="middle" dominant-baseline="central">.github/workflows</text>
-<text x="579" y="590" font-family="'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#185FA5" text-anchor="middle" dominant-baseline="central">CI 门禁</text>
+<text x="579" y="590" font-family="'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#185FA5" text-anchor="middle" dominant-baseline="central">CI 门禁 · Pages 部署</text>
 
 <path d="M360 608 L360 634" fill="none" stroke="#888780" stroke-width="1.5"/>
 <text x="360" y="652" font-family="'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#5F5E5A" text-anchor="middle" dominant-baseline="central">skill.manifest.json 贯穿全层：版本单一数据源 + 分发边界契约</text>

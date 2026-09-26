@@ -1,6 +1,6 @@
 # Testcase Generator — 文档中心
 
-本目录收纳所有非分发的内部文档。**根目录保留的 4 份 Markdown 是分发包必需**，其余说明、流程、规范都集中在此。
+本目录收纳所有非分发的文档：内部说明、流程、规范，以及**对外发布的项目网站**。**根目录保留的 4 份 Markdown 是分发包必需**，其余内容都集中在此。
 
 ## 文档地图
 
@@ -12,8 +12,11 @@
 | 宿主兼容 | [`../HOST_COMPATIBILITY.md`](../HOST_COMPATIBILITY.md) | 各宿主适配策略、Node.js 激活命令 | 必读 |
 | **打包指南** | [`operations/packaging.md`](operations/packaging.md) | 如何本地打包、产物校验 | 已搬入 |
 | 测试计划 | [`quality/test-plan.md`](quality/test-plan.md) | 评测维度、行业基准 | 已搬入 |
+| **项目网站** | [`site/build.py`](site/build.py) | GitHub Pages 站点源码与构建器 | 已上线 |
 
 > **关于根目录的 4 份 Markdown**：`SKILL.md` / `README.md` / `DISTRIBUTION.md` / `HOST_COMPATIBILITY.md` 位于仓库根目录是**有意的** —— `package.json` 的 `files` 字段、`devtools/package_skill.py` 的 `REQUIRED_ARCHIVE_MEMBERS`、`test/activation.test.js` 都硬编码了它们的根路径。请勿移动。
+>
+> `LICENSE` 同属根目录分发文件：`package.json` 的 `files`、`devtools/package_skill.py` 的入包白名单、`lib/activation.js` 的复制清单与 `DISTRIBUTION.md` 均已登记，由 `doc_consistency_audit.py` 的 `license_consistency` 项守卫，同样不要移动。
 
 ## docs/ 子目录
 
@@ -34,6 +37,13 @@
 ### `changelog/` — 变更记录
 历史版本变更、计划中的破坏性改动。
 
+### `site/` — 项目网站
+GitHub Pages 站点的源码：模板、样式与构建器。构建器从仓库真实内容
+（`skill.manifest.json` 的版本与宿主清单、`architecture/agent-division/` 的 Agent 契约、
+`prompts/` 的阶段提示词）渲染站点，因此**站点内容永远跟随仓库，不要手改产物**——
+`index.html` / `agents.html` 与 `assets/site/` 都是 `python docs/site/build.py` 的输出。
+线上地址 <https://wychmod.github.io/test-generator/>，提示词库在 `/agents.html`。
+
 ## 文档写作约定
 
 1. **中文为主**。Skill 是中文优先产品。
@@ -44,9 +54,8 @@
 
 ## 待办
 
-- [ ] `architecture/pipeline-overview.md`：六阶段流水线详解（当前只在 SKILL.md 简述）
-- [ ] `development/contributing.md`：贡献流程 + PR checklist
-- [ ] `development/adding-host-adapter.md`：新适配器开发指南
 - [ ] `development/prompts-authoring.md`：prompts 编写规范
-- [ ] `quality/quality-gates.md`：质量门禁如何运转、各阶段产物如何评分
-- [ ] `changelog/README.md`：版本变更索引
+
+> 原清单中的 `architecture/pipeline-overview.md`、`development/contributing.md`、
+> `development/adding-host-adapter.md`、`quality/quality-gates.md`、`changelog/README.md`
+> 均已落盘，已从待办移除。

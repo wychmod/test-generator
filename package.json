@@ -44,7 +44,8 @@
     "skill.manifest.json",
     "README.md",
     "DISTRIBUTION.md",
-    "HOST_COMPATIBILITY.md"
+    "HOST_COMPATIBILITY.md",
+    "LICENSE"
   ],
   "scripts": {
     "test": "node --test test/adapter-routing.test.js test/activation.test.js test/test-discovery.test.js",

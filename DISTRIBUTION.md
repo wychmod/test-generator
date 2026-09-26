@@ -42,6 +42,7 @@ Node.js/npm 产物名（npm 包名带 `@wychmod-cn/` scope）：
 | `skills/testcase-generator/scripts/prd_reader.py` | 本地 PRD / Markdown / PDF 文件读取辅助工具 |
 | `skills/testcase-generator/scripts/incremental_code_scan.py` | 增量 diff 代码行扫描、PRD 符合性分析与潜在 bug 信号辅助工具 |
 | `README.md` | 面向使用者和维护者的说明文档 |
+| `LICENSE` | MIT 许可证正文，随包分发（`.skill` / `.zip` / npm 三处都要带上） |
 | `skill.manifest.json` | 中文分发元数据与入包边界说明 |
 
 > 技能运行时内容统一位于 **`skills/testcase-generator/`**（Agent Skills 标准布局），
@@ -208,6 +209,7 @@ testcase-generator/
 - [ ] 分发包内不存在 `skills-lock.json`、旧 ZIP 或包中包。
 - [ ] 同时生成 `.skill` 与 `.zip` 两种产物，且内容一致。
 - [ ] npm 包包含 `package.json`、`bin/`、`lib/` 和 Skill 运行时资产。
+- [ ] `LICENSE` 位于分发包与 npm 包内，且与 `package.json` / `.claude-plugin/plugin.json` 声明的 MIT 一致。
 - [ ] `test-generator activate all --dry-run` 与 `test-generator activate <environment> --dry-run` 可显示正确目标目录。
 - [ ] 抽样打开包内 Markdown，确认中文内容未乱码。
 
