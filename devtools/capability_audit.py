@@ -116,6 +116,8 @@ def check_required_paths() -> List[CheckResult]:
         "knowledge_base_usage": skill_path("references/knowledge-base-usage.md"),
         "prd_reader": skill_path("scripts/prd_reader.py"),
         "incremental_scan": skill_path("scripts/incremental_code_scan.py"),
+        "check_consistency": skill_path("scripts/check_consistency.py"),
+        "check_artifacts": skill_path("scripts/check_artifacts.py"),
         "config_schema": skill_path("config/testcase-config-schema.json"),
         "example_config": skill_path("config/example-config.json"),
         "distribution_doc": ROOT / "DISTRIBUTION.md",

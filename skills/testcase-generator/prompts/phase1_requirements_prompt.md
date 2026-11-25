@@ -1,6 +1,6 @@
 # Phase 1: 需求预处理引擎 (Requirements Preprocessing Engine)
 
-> **版本**: 2.3.0 | **阶段目标**: 将任意格式的原始输入转化为结构化、可测试、可追溯的需求规格
+> **版本**: 2.3.1 | **阶段目标**: 将任意格式的原始输入转化为结构化、可测试、可追溯的需求规格
 > **对应核心能力**: 可测试需求抽取、输入质量预处理
 > **输入来源**: Phase 0 (规范化输入) | **输出去向**: Phase 2 (代码分析)
 >
@@ -94,9 +94,9 @@ input_routing:
       type: NATURAL_LANGUAGE
       strategy: "应用 NLP 式需求抽取"
     
-    default:
-      type: UNKNOWN
-      strategy: "混合策略：尝试所有解析方法，取最佳结果"
+  default:
+    type: UNKNOWN
+    strategy: "混合策略：尝试所有解析方法，取最佳结果"
 ```
 
 ### 2.2 输入验证检查清单
@@ -455,7 +455,7 @@ graph TD
 
 ```markdown
 ---
-generated_by: testcase-generator v2.3.0
+generated_by: testcase-generator v2.3.1
 phase: 1
 timestamp: {ISO8601}
 source_input_summary: "{输入摘要，50字以内}"

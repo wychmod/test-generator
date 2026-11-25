@@ -2,7 +2,7 @@
   <img src="./docs/assets/logo/logo.svg" alt="Testcase Generator" width="128" height="128">
 </p>
 
-# Test Generator v2.3.0 · AI 驱动的测试用例生成 Skill
+# Test Generator v2.3.1 · AI 驱动的测试用例生成 Skill
 
 <p align="center">
   <strong>🔬 让大模型真正"写出能跑"的测试用例</strong><br>
@@ -725,6 +725,15 @@ testcase-generator/
 > 迁入 `skills/testcase-generator/`,凡硬编码过 `prompts/`、`resources/`、`templates/`、
 > `config/`、`scripts/`、`knowledge/` 根路径的外部脚本都要补上前缀。详见
 > [`.harness/changelogs/v2.3.0.md`](./.harness/changelogs/v2.3.0.md)。
+
+### v2.3.1 (2026-11-26)
+- **质量清单权重校准**:检查项权重合计由 527 校准回 500,每个 Phase 的组权重合计 = 100、每组内检查项权重和 = 组声明权重,综合评分分母固定为 `/ 100`
+- **检查项 ID 命名空间统一**:废掉两段式 `G1-1` 写法,统一为组 `G<阶段>.<组>`(点号)+ 检查项 `G<阶段>-<组>-<序号>`(两个连字符)
+- **新增 `scripts/check_consistency.py`**:文档自洽校验 —— 权重守恒、ID 唯一与命名规范、YAML 可解析、内部链接可达、章节编号连续,支持 `--strict` 接入 CI
+- **新增 `scripts/check_artifacts.py`**:用例产物验收门禁 —— 唯一用例数口径、必填字段完备、安全类 CWE 标注、不可执行项禁伪装 PASS/FAIL,支持 `--self-test` 与 `--baseline` 棘轮
+- **提示词修复**:Phase 3/4/5 补齐缺失的 `§5` 并重排编号;Phase 0 正则改单引号、Phase 1 YAML 缩进修正、Phase 4 百分比字面量加引号
+- **模板 YAML 修复**:`testcase_template.md` 两处非法 YAML(引号未闭合、裸 `%`),4 个 YAML 块现已全部可解析
+- **增量扫描边界声明**:`incremental_code_scan.py` 明写 4 条文本规则的盲区、`needs_review` 是正常输出,密钥与裸 `except` 规则扩展
 
 ### v2.3.0 (2026-09)
 - **Agent Skills 标准布局**:技能内容迁入 `skills/testcase-generator/`,客户端自动发现,不再依赖自定义激活流程

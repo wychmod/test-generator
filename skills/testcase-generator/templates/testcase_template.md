@@ -1,21 +1,21 @@
-﻿# 测试用例模板 v2.3.0 (生产级)
+﻿# 测试用例模板 v2.3.1 (生产级)
 
-> **模板版本**: 2.3.0 | **标准**: ISO/IEC/IEEE 29119-3:2021 + ISTQB + Agile hybrid | **用途**: Phase 5 用例生成输出
+> **模板版本**: 2.3.1 | **标准**: ISO/IEC/IEEE 29119-3:2021 + ISTQB + Agile hybrid | **用途**: Phase 5 用例生成输出
 
 ---
 
 ```markdown
 ---
 document_type: "testcase"
-template_version: "2.3.0"
-generated_by: "testcase-generator v2.3.0"
+template_version: "2.3.1"
+generated_by: "testcase-generator v2.3.1"
 metadata:
   testcase_id: "TC-[PHASE]-[MOD]-[NNN]"
   version: "1.0"
   status: "Draft"  # Draft / Reviewed / Approved / Deprecated / Obsolete
   created: "{YYYY-MM-DDTHH:mm:ssZ}"
   last_modified: "{YYYY-MM-DDTHH:mm:ssZ}"
-  author: "AI Generator v2.3.0"
+  author: "AI Generator v2.3.1"
   reviewer: ""
   approver: ""
   automation:
@@ -39,7 +39,7 @@ traceability:
 change_history:
   - version: "1.0"
     date: "{date}"
-    author: "AI Generator v2.3.0"
+    author: "AI Generator v2.3.1"
     change: "Initial creation from Phase 4 test model"
 ---
 
@@ -71,7 +71,7 @@ Tags: [module-name], [feature], [priority-P0], [type-functional],
 
 | 角色 | 姓名/团队 | 联系方式 |
 |------|---------|---------|
-| 用例设计者 | AI Generator v2.3.0 | — |
+| 用例设计者 | AI Generator v2.3.1 | — |
 | 用例审核人 | [待分配] | — |
 | 自动化实现者 | [待分配] | — |
 | 测试执行者 | [待分配] | — |
@@ -141,7 +141,8 @@ DATA-[NNN]: # 示例：用户数据
     password: "[hashed or plain for testing]"
     status: "active"  # 必须是 active
     role: "regular_user"
-    created_at: "{{ now }} registration_data:
+    created_at: "{{ now }}"
+    registration_data:
       method: "email_verification"
       verified: true
     preferences:
@@ -310,7 +311,7 @@ post_state_verification:
   data_changes:
     - table: "[table_name]"
       operation: "INSERT/UPDATE/DELETE"
-      record_count_delta: "+1" / "-N" / 0
+      record_count_delta: "+1"  # 允许值：+1 / -N / 0
       specific_changes:
         "[field]": "[new_value]"  # 从 old → new
         
@@ -537,9 +538,9 @@ jobs:
 
 | 版本 | 日期 | 作者 | 变更类型 | 变更描述 | 影响评估 | 审批 |
 |------|------|------|---------|---------|---------|------|
-| 1.0 | YYYY-MM-DD | AI Generator v2.3.0 | Creation | Initial creation | — | — |
+| 1.0 | YYYY-MM-DD | AI Generator v2.3.1 | Creation | Initial creation | — | — |
 
 ---
 
-*本模板由 testcase-generator v2.3.0 生成。*
+*本模板由 testcase-generator v2.3.1 生成。*
 *遵循 ISO/IEC/IEEE 29119-3:2021 / ISTQB 标准。*

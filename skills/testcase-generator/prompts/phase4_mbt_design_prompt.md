@@ -1,6 +1,6 @@
 # Phase 4: MBT 设计引擎 (Model-Based Testing Design Engine)
 
-> **版本**: 2.3.0 | **阶段目标**：将业务模型转化为可直接驱动用例生成的测试模型，定义覆盖准则和路径策略
+> **版本**: 2.3.1 | **阶段目标**：将业务模型转化为可直接驱动用例生成的测试模型，定义覆盖准则和路径策略
 > **对应核心能力**: MBT 导向测试设计
 > **输入来源**: Phase 1-3 全部产物 | **输出去向**: Phase 5 (用例生成)
 >
@@ -303,14 +303,14 @@ stateDiagram-v2
 coverage_targets:
   primary:
     criterion: "{根据项目特征选择的级别}"
-    target_percentage: {N}%
+    target_percentage: "{N}%"
   
   requirements:
-    target: 100%
+    target: "100%"
     method: "每条REQ至少被一条PATH覆盖"
     
   boundaries:
-    target: 100%
+    target: "100%"
     method: "每个BVA边界值出现在至少一个TC中"
     
   defects:
@@ -318,11 +318,11 @@ coverage_targets:
     method: "每个DEF有一条专门的反向测试"
     
   states:
-    target: {N}%
+    target: "{N}%"
     method: "状态覆盖百分比"
     
   transitions:
-    target: {N}%
+    target: "{N}%"
     method: "转换触发百分比"
 ```
 
@@ -417,14 +417,14 @@ coverage_targets:
 | `01_test_model_specification.md` | 测试对象 + 变量 + 操作定义 |
 | `02_state_transition_graph.md` | 完整转换规格 + Mermaid图 + 路径列表 |
 | `03_coverage_criteria.md` | 覆盖准则 + 最小测试集 + 覆盖追踪 |
-| `04_mutation_testing_strategy.md` | 变异测试策略 + 变异算子（v2.1，见 §6） |
-| `05_error_guessing_checklist.md` | 错误猜测法检查清单（v2.1，见 §7） |
+| `04_mutation_testing_strategy.md` | 变异测试策略 + 变异算子（v2.1，见 §5） |
+| `05_error_guessing_checklist.md` | 错误猜测法检查清单（v2.1，见 §6） |
 
 ### 文件头元数据
 
 ```markdown
 ---
-generated_by: testcase-generator v2.3.0
+generated_by: testcase-generator v2.3.1
 phase: 4
 timestamp: {ISO8601}
 total_test_objects: N
@@ -482,13 +482,13 @@ version: 1.0
 
 ---
 
-## 6. [v2.1 新增] 变异测试策略 (Mutation Testing Strategy)
+## 5. [v2.1 新增] 变异测试策略 (Mutation Testing Strategy)
 
 > **产物归属**：本节内容写入 `04_mutation_testing_strategy.md`。
 
 > **新增原因**：传统的路径/状态覆盖只证明"代码被执行了"，不能证明"测试逻辑是正确的"。变异测试通过**注入缺陷**来验证测试套件的**缺陷检测能力**。
 
-### 6.1 变异算子 (Mutation Operators)
+### 5.1 变异算子 (Mutation Operators)
 
 ```markdown
 ## 变异算子配置
@@ -515,7 +515,7 @@ version: 1.0
   4. 总变异体数量 = Σ(每个函数的变异位置数)
 ```
 
-### 6.2 变异测试执行流程
+### 5.2 变异测试执行流程
 ```
 变异测试流程:
   ┌─────────────┐
@@ -540,7 +540,7 @@ version: 1.0
   └─────────────┘
 ```
 
-### 6.3 变异评分与质量判断
+### 5.3 变异评分与质量判断
 
 ```markdown
 ## 变异测试报告
@@ -562,13 +562,13 @@ version: 1.0
 
 ---
 
-## 7. [v2.1 新增] 错误猜测法集成 (Error Guessing)
+## 6. [v2.1 新增] 错误猜测法集成 (Error Guessing)
 
 > **产物归属**：本节内容写入 `05_error_guessing_checklist.md`。
 
 > **新增原因**：错误猜测法是经验丰富的测试专家基于**直觉和经验**推测"哪里可能出错"，这是 AI 最需要系统化的领域之一。
 
-### 7.1 错误猜测分类体系
+### 6.1 错误猜测分类体系
 
 ```markdown
 ## 错误猜测法检查清单 (Error Guessing Checklist)

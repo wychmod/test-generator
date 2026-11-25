@@ -1,6 +1,6 @@
 # Phase 5: 用例生成引擎 (Test Case Generation Engine)
 
-> **版本**: 2.3.0 | **阶段目标**：基于测试模型生成完整、可执行、高质量、可追溯的测试用例集
+> **版本**: 2.3.1 | **阶段目标**：基于测试模型生成完整、可执行、高质量、可追溯的测试用例集
 > **对应核心能力**: 结构化测试用例生成、追溯矩阵与质量门禁
 > **输入来源**: Phase 1-4 全部产物 | **输出**: 最终交付物
 >
@@ -111,7 +111,7 @@ metadata:
   version: "1.0"
   status: "Draft"  # Draft / Reviewed / Approved / Deprecated
   created: "{date}"
-  author: "AI Generator v2.3.0"
+  author: "AI Generator v2.3.1"
   reviewer: ""
   last_modified: ""
   automation_ready: Yes / Partial / No / N/A
@@ -260,7 +260,7 @@ reverse_traceability:  # 从需求追溯到用例（在最终矩阵中体现）
 **变更记录**
 | 版本 | 日期 | 作者 | 变更内容 |
 |------|------|------|---------|
-| 1.0 | {date} | AI Generator v2.3.0 | 初始创建 |
+| 1.0 | {date} | AI Generator v2.3.1 | 初始创建 |
 ```
 
 ---
@@ -548,15 +548,15 @@ def test_tc_auth_login_001_valid_credentials():
 | `01_testcase_collection.md` | 完整测试用例集（每条用例含完整信息） | 直接用于测试执行 |
 | `02_test_suite_summary.md` | 统计摘要 + 分布报告 + 执行计划 | 项目管理和规划 |
 | `03_traceability_matrix.md` | 双向追溯矩阵 + 缺口分析 | 合规审计和质量保证 |
-| `04_chaos_engineering_scenarios.md` | 混沌工程场景（v2.1，见 §6） | 韧性验证与故障注入 |
-| `05_test_data_strategy.md` | 测试数据工厂、样例数据、清洗策略（v2.1，见 §7） | 测试数据可复用性 |
+| `04_chaos_engineering_scenarios.md` | 混沌工程场景（v2.1，见 §5） | 韧性验证与故障注入 |
+| `05_test_data_strategy.md` | 测试数据工厂、样例数据、清洗策略（v2.1，见 §6） | 测试数据可复用性 |
 | `quality_report.md` | 全流水线质量评分汇总（全局产物，横跨 Phase 0-5） | 交付放行判定 |
 
 ### 文件头元数据
 
 ```markdown
 ---
-generated_by: testcase-generator v2.3.0
+generated_by: testcase-generator v2.3.1
 phase: 5
 timestamp: {ISO8601}
 total_testcases: N
@@ -617,13 +617,13 @@ version: 1.0
 
 ---
 
-## 6. [v2.1 新增] 混沌工程场景 (Chaos Engineering)
+## 5. [v2.1 新增] 混沌工程场景 (Chaos Engineering)
 
 > **新增原因**：系统在"完美环境"下通过测试不等于在生产环境中可靠。混沌工程主动注入故障，验证系统的**弹性 (Resilience)**。
 >
 > **产物归属**：本节内容写入 `04_chaos_engineering_scenarios.md`。
 
-### 6.1 混沌实验设计
+### 5.1 混沌实验设计
 
 ```markdown
 ## 混沌工程测试套件
@@ -671,13 +671,13 @@ version: 1.0
 
 ---
 
-## 7. [v2.1 新增] 测试数据工厂模式 (Test Data Factory)
+## 6. [v2.1 新增] 测试数据工厂模式 (Test Data Factory)
 
 > **新增原因**：测试数据的**质量直接决定测试的有效性**。数据工厂提供结构化的、可复用的、高质量的测试数据管理。
 >
 > **产物归属**：本节内容写入 `05_test_data_strategy.md`。
 
-### 7.1 数据构建器模式
+### 6.1 数据构建器模式
 
 ```markdown
 ## 测试数据工厂 (Test Data Factory)
@@ -729,7 +729,7 @@ class UserVariants:
     SUSPENDED_USER = TestUserDataBuilder().as_suspended().build()
 ```
 
-### 7.2 数据关系约束规则
+### 6.2 数据关系约束规则
 ```
 R1: 订单必须有对应的用户 (order.user_id → user.id)
 R2: 订单项必须属于存在的订单 (order_item.order_id → order.id)  
@@ -740,11 +740,11 @@ R6: 删除主数据时需先清理关联数据（或cascade）
 R7: 时间戳必须合理（不在未来）
 ```
 
-### 7.3 敏感数据处理规则
+### 6.3 敏感数据处理规则
 | 数据类别 | 处理方式 | 测试后处理 |
 |---------|---------|-----------|
 | 真实密码哈希 | bcrypt/argon2 加密存储 | 不还原 |
 | 真实手机号 | 脱敏: 138****5678 | 删除 |
-| �实邮箱 | 脱敏: t***@***.com | 删除 |
+| 真实邮箱 | 脱敏: t***@***.com | 删除 |
 | 支付卡号 | 脱敏: ****-****-****-**** | 删除 |
 ```

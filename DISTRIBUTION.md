@@ -41,6 +41,8 @@ Node.js/npm 产物名（npm 包名带 `@wychmod-cn/` scope）：
 | `skills/testcase-generator/templates/` | 需求、状态图、测试用例等标准输出模板 |
 | `skills/testcase-generator/scripts/prd_reader.py` | 本地 PRD / Markdown / PDF 文件读取辅助工具 |
 | `skills/testcase-generator/scripts/incremental_code_scan.py` | 增量 diff 代码行扫描、PRD 符合性分析与潜在 bug 信号辅助工具 |
+| `skills/testcase-generator/scripts/check_consistency.py` | 文档自洽性校验：权重守恒、检查项 ID 唯一性与命名规范、YAML 可解析、内部链接可达、章节编号连续 |
+| `skills/testcase-generator/scripts/check_artifacts.py` | 用例产物验收门禁：唯一用例数、必填字段完备、安全类 CWE 标注、不可执行项禁伪装 PASS/FAIL（内置自检与基线棘轮） |
 | `README.md` | 面向使用者和维护者的说明文档 |
 | `LICENSE` | MIT 许可证正文，随包分发（`.skill` / `.zip` / npm 三处都要带上） |
 | `skill.manifest.json` | 中文分发元数据与入包边界说明 |
@@ -175,7 +177,9 @@ testcase-generator/
 │       │   └── testcase_template.md
 │       ├── scripts/
 │       │   ├── prd_reader.py
-│       │   └── incremental_code_scan.py
+│       │   ├── incremental_code_scan.py
+│       │   ├── check_consistency.py
+│       │   └── check_artifacts.py
 │       └── knowledge/
 │           ├── README.md
 │           ├── llm-ingest-template.md

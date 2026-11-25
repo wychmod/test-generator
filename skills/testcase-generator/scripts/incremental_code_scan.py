@@ -6,6 +6,22 @@ extracts added lines, maps those lines to PRD requirement candidates by
 token overlap, and flags obvious bug-risk patterns. It produces structured
 context for the Phase 2 prompt; it is not a replacement for full static
 analysis.
+
+## 能力边界（v2.3.1 起显式声明）
+
+**规则扫描（potential_bugs）**：基于 4 条正则规则，只识别**文本模式**，
+不能识别语义缺陷。已知盲区举例：
+  - 验签失败后未 return 而继续执行（控制流缺陷）
+  - 缺少幂等校验、缺少事务边界
+  - 金额使用 float 累加
+  - 权限校验缺失或顺序错误
+这些必须由 Phase 2 的语义分析补充，不得以"脚本未报错"作为无缺陷结论。
+
+**PRD 符合性（prd_needs_review_lines）**：按英文/中文 token 重合度做启发式匹配，
+不是语义判定。中文 PRD 与代码的术语差异较大时，绝大多数行会落到 `needs_review`，
+这是**正常输出而非失败**——它表示"需要人工或模型判断"，不是"不符合 PRD"。
+
+结论：本脚本用于**缩小人工审查范围**，不用于出具合规判定。
 """
 
 from __future__ import annotations
@@ -82,7 +98,13 @@ BUG_RULES = [
         "severity": "critical",
         "category": "security",
         "pattern": re.compile(
-            r"(?i)\b(api[_-]?key|secret|token|password|passwd)\b\s*[:=]\s*['\"][^'\"]{6,}['\"]"
+            r"(?i)"
+            # 变量名以 secret/api_key/token/password/... 结尾或包含，如 MERCHANT_KEY、DB_PASSWD
+            r"(?:\b[\w.]*(?:api[_-]?key|secret|token|password|passwd|credential|private[_-]?key)\b"
+            r"|\b\w*_KEY\b|\bKEY_\w+\b)"
+            r"\s*[:=]\s*['\"][^'\"]{6,}['\"]"
+            # 常见的云/支付厂商密钥前缀
+            r"|['\"](?:sk_live_|sk_test_|AKIA|ghp_)[A-Za-z0-9_\-]{8,}['\"]"
         ),
         "message": "Added line appears to hardcode a credential or secret.",
     },
@@ -90,8 +112,8 @@ BUG_RULES = [
         "rule_id": "BARE_EXCEPT",
         "severity": "major",
         "category": "reliability",
-        "pattern": re.compile(r"^\s*except\s*:\s*(?:#.*)?$"),
-        "message": "Bare except can hide unrelated runtime failures.",
+        "pattern": re.compile(r"^\s*except\s*(?:Exception|BaseException|Throwable)?\s*(?:as\s+\w+)?\s*:\s*(?:#.*)?$"),
+        "message": "Bare or over-broad except can hide unrelated runtime failures.",
     },
     {
         "rule_id": "DYNAMIC_EVAL",
@@ -158,6 +180,23 @@ def parse_unified_diff(diff_text: str) -> List[Dict[str, Any]]:
             new_line = None
             continue
 
+        # 兼容缺少 `diff --git` 头的 unified diff / patch：
+        # 遇到 `--- a/x` 或 `+++ b/x` 时自行开辟文件分片，避免静默返回 0 变更。
+        if current is None and (raw_line.startswith("--- ") or raw_line.startswith("+++ ")):
+            target = raw_line[4:].strip()
+            if target != "/dev/null":
+                current = {
+                    "path": normalize_path(target),
+                    "status": "modified",
+                    "added_lines": [],
+                    "deleted_lines": [],
+                    "hunks": [],
+                }
+                files.append(current)
+                old_line = None
+                new_line = None
+                if raw_line.startswith("--- "):
+                    continue
         if current is None:
             continue
 

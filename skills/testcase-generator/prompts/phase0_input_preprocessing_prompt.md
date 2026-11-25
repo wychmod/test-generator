@@ -1,6 +1,6 @@
 # Phase 0: 输入预处理引擎 (Input Preprocessing Engine)
 
-> **版本**: 2.3.0 | **阶段目标**: 接收并验证所有原始输入，执行格式规范化、质量评估和路由决策，为后续阶段提供标准化的输入数据
+> **版本**: 2.3.1 | **阶段目标**: 接收并验证所有原始输入，执行格式规范化、质量评估和路由决策，为后续阶段提供标准化的输入数据
 > **对应核心能力**: 输入质量预处理
 > **输入来源**: 用户原始输入 (文件/文本/代码) | **输出去向**: Phase 1 (需求预处理)
 
@@ -211,32 +211,32 @@ sensitive_data_detection:
   patterns:
     # 个人身份信息 (PII)
   - name: email_address
-    pattern: "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
+    pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
     category: PII
     action: mask_partial  # test***@example.com
     
   - name: phone_number
-    pattern: "1[3-9]\\d{9}|\\d{3}-?\\d{4}-?\\d{4}"
+    pattern: '1[3-9]\d{9}|\d{3}-?\d{4}-?\d{4}'
     category: PII
     action: mask_partial  # 138****5678
     
   - name: ip_address
-    pattern: "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}"
+    pattern: '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
     category: infrastructure
     action: mask_partial  # 192.168.*.*
     
   - name: url_with_credentials
-    pattern: "https?://[^\\s]+:[^\\s]+@[^\\s]+"
+    pattern: 'https?://[^\s]+:[^\s]+@[^\s]+'
     category: credential
     action: mask_full  # https://user:***@host
     
   - name: api_key
-    pattern: "(?:api[_-]?key|apikey|secret[_-]?key)[\"':=\\s]+[^\s'\",;\\)]{20,}"
+    pattern: '(?:api[_-]?key|apikey|secret[_-]?key)[\"'':=\s]+[^\s''\",;\)]{20,}'
     category: credential
     action: mask_full  # api_key="***"
     
   - name: password_in_text
-    pattern: "(?:password|passwd|pwd)[\"':=\\s]+[^\s'\";\\)]+"
+    pattern: '(?:password|passwd|pwd)[\"'':=\s]+[^\s''\";\)]+'
     category: credential
     action: mask_full
 
@@ -272,7 +272,7 @@ sensitive_data_detection:
 
 ```markdown
 ---
-generated_by: testcase-generator v2.3.0
+generated_by: testcase-generator v2.3.1
 phase: 0
 timestamp: {ISO8601}
 input_source: {来源描述}
@@ -356,7 +356,7 @@ estimated_processing_time: {估算的后续处理时间}
 
 ```markdown
 ---
-generated_by: testcase-generator v2.3.0
+generated_by: testcase-generator v2.3.1
 phase: 0
 timestamp: {ISO8601}
 total_suggestions: {N}
@@ -398,7 +398,7 @@ version: 1.0
 
 ```markdown
 ---
-generated_by: testcase-generator v2.3.0
+generated_by: testcase-generator v2.3.1
 phase: 0
 timestamp: {ISO8601}
 blocker_count: {N}

@@ -1,7 +1,7 @@
 ---
 name: testcase-generator
-version: 2.3.0
-description: 从需求文档、PRD、API 规范、源代码、缺陷修复上下文或功能描述中生成结构化、可追溯、可执行的软件测试用例与测试设计产物。当用户提出生成、扩展、评审、标准化、优化或审计测试用例、测试场景、测试点清单、MBT 导向测试设计结果或测试文档时使用。已为 26 个主流 AI 宿主提供完整或软适配入口（宿主清单与各自路径见分发包根目录的 `HOST_COMPATIBILITY.md`，此处不再逐一枚举，以免宿主扩充时本字段滞后）。v2.2.0 起支持可选的本地 `knowledge/` 知识库（术语表 / 项目规范 / 历史用例）的触发式检索，以及通过大模型自动从 PDF / Markdown / TXT / 图片 / 粘贴文本中录入知识条目（详见仓库 `docs/architecture/knowledge-base.md`）。
+version: 2.3.1
+description: 从需求文档、PRD、API 规范、源代码、缺陷修复上下文或功能描述中生成结构化、可追溯、可执行的软件测试用例与测试设计产物。当用户提出生成、扩展、评审、标准化、优化或审计测试用例、测试场景、测试点清单、MBT 导向测试设计结果或测试文档时使用。已为 26 个主流 AI 宿主提供完整或软适配入口（宿主清单与各自路径见分发包根目录的 `HOST_COMPATIBILITY.md`，此处不再逐一枚举，以免宿主扩充时本字段滞后）。v2.2.0 起支持可选的本地 `knowledge/` 知识库（术语表 / 项目规范 / 历史用例）的触发式检索，以及通过大模型自动从 PDF / Markdown / TXT / 图片 / 粘贴文本中录入知识条目（详见仓库 `docs/architecture/knowledge-base.md`）；v2.3.1 起随包分发 `check_consistency.py` 与 `check_artifacts.py` 两道可执行校验门禁。
 ---
 
 # Testcase Generator
@@ -136,3 +136,5 @@ description: 从需求文档、PRD、API 规范、源代码、缺陷修复上下
 
 - `scripts/prd_reader.py` —— Markdown / PDF 解析（**可选依赖**；宿主不能执行脚本时降级为纯文本分析）
 - `scripts/incremental_code_scan.py` —— git diff / patch / PR 与 PRD 联合分析：提取新增代码行、判断是否符合 PRD、识别潜在 bug 风险
+- `scripts/check_consistency.py` —— 文档自洽性校验：权重守恒、检查项 ID 唯一性与命名规范、YAML 代码块可解析、内部链接可达。发版前执行（加 `--strict` 可在 CI 中作为硬门禁）
+- `scripts/check_artifacts.py` —— 用例产物验收：区分用例定义与索引/追溯引用并给出唯一用例数、必填字段完备性、安全类用例 CWE 标注、不可执行项必须显式 `SKIP/TBD` 不得伪装 PASS/FAIL。支持 `--self-test`（内置正反例）与 `--baseline`（棘轮式防退化）。**仅检查文本结构，不判断预期是否正确，也不能替代实际执行**
