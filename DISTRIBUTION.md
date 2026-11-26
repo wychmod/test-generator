@@ -129,6 +129,8 @@ dist/workbuddy/mbt-testcase-generator.zip
 | `testcase-generator.zip` | 兼容打包产物，避免包中包 |
 | `testcase-generator.skill` | 标准打包产物，避免包中包 |
 | `skills/testcase-generator/knowledge/index.json` | 本地知识库索引产物（`build_index.py` 本地构建），不进包 |
+| `media/` | 宣传片等媒体资产（仓库展示用，非 Skill 运行时资产） |
+| `releases/` | 已构建并入库的成品包（WorkBuddy 市场 zip 等），避免包中包 |
 
 ## 开发工具处理
 

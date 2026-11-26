@@ -152,7 +152,9 @@
     ".zencoder/**",
     ".openclaw/**",
     ".clawdbot/**",
-    ".clinerules/**"
+    ".clinerules/**",
+    "media/**",
+    "releases/**"
   ],
   "推荐打包产物": "testcase-generator.skill",
   "兼容打包产物": "testcase-generator.zip",

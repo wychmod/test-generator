@@ -60,8 +60,10 @@ python devtools/build_workbuddy_package.py
 
 - 以下目录**全部已 gitignore**，由 `test-generator activate` 生成：`.claude/` `.codebuddy/` `.agents/` `.cursor/` `.qoder/` `.trae/` `.windsurf/` `.openclaw/` `node_modules/`。不要手工编辑，不要强制提交。
 - **`skills/` 不是镜像目录，而是 canonical 技能树，必须被跟踪。** 不要把它加回 `.gitignore`，也不要把它写进 manifest 的 `分发排除` 或 `package_skill.py` 的禁入规则 —— 那样会直接丢掉整个技能。
-- `.skill` / `.zip` 是打包产物（包中包），不要提交。
-- `test-output/` 是本地验证产物，不要提交。
+- `.skill` / `.zip` 是打包产物（包中包），不要提交。**例外**：`releases/` 是刻意入库的成品包目录
+  （WorkBuddy 市场 zip），用于 GitHub 直接下载；`dist/` 仍是构建目录，不入库。
+- `test-output/` 是本地验证产物，不要提交。**例外**：成品宣传片已转存到 `media/promo/` 入库，
+  不要再从 `test-output/` 直接提交。
 - **不要删除 `.workbuddy/`** —— 里面是项目记忆与工作日志。
 - 不要手工编辑 `skills/testcase-generator/knowledge/index.json`（由 `build_index.py` 生成，且不入包）。
 
