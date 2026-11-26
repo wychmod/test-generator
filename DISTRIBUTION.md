@@ -27,6 +27,22 @@ Node.js/npm 产物名（npm 包名带 `@wychmod-cn/` scope）：
 > 如果宿主平台支持标准 Skill 包，优先使用 `.skill`；仅在宿主平台只接受 ZIP 时再使用 `.zip`。
 > npm 产物用于提供 `test-generator activate all` 和 `test-generator activate <environment>` 激活命令，不改变 `.skill` / `.zip` 的入包边界。
 
+WorkBuddy 技能市场上架包（**第三条通道**，由 `devtools/build_workbuddy_package.py` 生成）：
+
+```text
+dist/workbuddy/mbt-testcase-generator.zip
+```
+
+> 它遵循开放平台规则而非本仓库的入包边界：解压后第一层必须是技能目录、目录最多两层、
+> `SKILL.md` 需要平台 frontmatter（`display_name` / `description_zh` 等），因此
+> `adapters/`、`docs/`、`skill.manifest.json` 一律不进；`knowledge/sources/*.md` 与
+> `knowledge/scripts/*.py` 会扁平化到 `knowledge/` 与 `scripts/`。
+>
+> **包内 `name` 与仓库目录名不同**：市场要求 `name` 全局唯一，`testcase-generator`
+> 已被占用，故市场包用 `mbt-testcase-generator`（展示名「MBT 测试用例生成器」）。
+> 仓库内 `skills/testcase-generator/` 保持不变 —— 它是 canonical 路径，被 manifest、
+> adapters 与审计脚本共同依赖。
+
 ## 必须入包
 
 以下文件和目录属于 Skill 运行时资产，必须进入分发包。
