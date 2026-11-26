@@ -10,6 +10,7 @@
 </p>
 
 <p align="center">
+  <a href="#workbuddy"><strong>WorkBuddy 推荐</strong></a> ·
   <a href="#-why"><strong>Why</strong></a> ·
   <a href="#-what"><strong>What</strong></a> ·
   <a href="#-how"><strong>How</strong></a> ·
@@ -49,6 +50,41 @@
   <code>testing-tool</code> ·
   <code>skill</code>
 </p>
+
+---
+
+<a id="workbuddy"></a>
+
+## 🌟 已上架 WorkBuddy · 两种使用方式
+
+<table>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <img src="./docs/assets/expert/testcase-generator.png" alt="WorkBuddy 专家「测试用例生成器」头像" width="112" height="112">
+      <h3>WorkBuddy 专家 · 测试用例生成器</h3>
+      <p><strong>测试用例生成与 MBT 测试设计专家</strong></p>
+      <p>直接召唤一位懂测试设计的专家，适合从 PRD、API 或代码变更出发，完成用例生成、质量评审与双向追溯。</p>
+      <p>
+        <a href="https://www.workbuddy.cn/work/"><strong>打开 WorkBuddy ↗</strong></a><br>
+        在左侧「专家」搜索 <code>测试用例生成器</code>
+      </p>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <img src="./docs/assets/logo/logo.svg" alt="MBT 测试用例生成器技能包" width="112" height="112">
+      <h3>WorkBuddy 技能 · MBT 测试用例生成器</h3>
+      <p><strong>把六阶段 MBT 流水线装进你的 AI 工作台</strong></p>
+      <p>适合跨项目复用同一套测试方法：七项核心能力、质量门禁、追溯矩阵、本地知识库与两道可执行校验脚本。</p>
+      <p>
+        <a href="https://www.workbuddy.cn/work/"><strong>打开 WorkBuddy ↗</strong></a><br>
+        在左侧「技能」搜索 <code>MBT 测试用例生成器</code><br>
+        <a href="https://github.com/wychmod/test-generator/releases/tag/v2.3.1">其他宿主？下载通用 Agent Skill ↗</a>
+      </p>
+    </td>
+  </tr>
+</table>
+
+> **怎么选**：想立即对话、让专家带着你做，选「专家」；想把方法沉淀为自己的可复用能力，选「技能」。
+> 两者底层共享同一套六阶段测试设计方法。使用 Claude Code、Codex 等其他宿主时，请查看下方的多宿主安装方式。
 
 ---
 

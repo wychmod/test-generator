@@ -37,6 +37,7 @@ ASSET_SOURCES = [
     (SITE_DIR / "assets", Path("assets") / "site", None),
     (ROOT / "docs" / "assets" / "diagrams", Path("assets") / "diagrams", (".svg", ".png")),
     (ROOT / "docs" / "assets" / "logo", Path("assets") / "logo", (".svg", ".png")),
+    (ROOT / "docs" / "assets" / "expert", Path("assets") / "expert", (".png",)),
 ]
 
 # ---------------------------------------------------------------- 文档登记
