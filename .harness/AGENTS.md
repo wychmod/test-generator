@@ -9,7 +9,7 @@
 
 ## 1. 项目是什么
 
-`testcase-generator` 是一个**生产级 AI 测试用例生成 Skill**，当前版本以 `skill.manifest.json` 的"版本"字段为准（写作时 **v2.3.0**）。
+`testcase-generator` 是一个**生产级 AI 测试用例生成 Skill**，当前版本以 `skill.manifest.json` 的"版本"字段为准。
 
 - 它是一个 Skill 包（不是普通库），技能树位于 **`skills/testcase-generator/`**（Agent Skills 标准布局），以其中的 `SKILL.md` 作为中文主入口，根目录 `skill.manifest.json` 作为统一分发与宿主路由元数据。
 - 核心方法论是 **MBT（Model-Based Testing）+ 六阶段流水线**：

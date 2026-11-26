@@ -77,8 +77,8 @@ python .harness/eval/run_eval.py
 
 | Check | Status | Detail |
 | --- | --- | --- |
-| version_alignment | pass | 三处版本号一致：2.3.0 |
-| changelog_exists | pass | v2.3.0 的正式 changelog 已回填（.harness/changelogs/v2.3.0.md） |
+| version_alignment | pass | 三处版本号一致：2.3.1 |
+| changelog_exists | pass | v2.3.1 的正式 changelog 已回填（.harness/changelogs/v2.3.1.md） |
 | harness_host_count | pass | .harness/ 中宿主数声称均与 ENVIRONMENTS 一致（26 个） |
 | ... | ... | ... |
 

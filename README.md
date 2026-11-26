@@ -141,7 +141,12 @@ C ≥ 70 / D < 70,B 及以上需先修复 Warning)。阈值不内置递增,需�
 - **文档中心**:新增 `docs/`,集中维护架构、开发、发布、质量与 changelog 文档,根目录只保留分发必需入口
 - **激活体验优化**:npm CLI 支持 `activate all`,并保留 `activate <environment>`、`-g`、`--dry-run` 等单平台能力
 
-### 🧱 v2.3.0 新增能力(当前版本)
+### 🧱 v2.3.1 新增能力(当前版本)
+- **两道可执行校验门禁**:新增 `skills/testcase-generator/scripts/check_consistency.py`(文档自洽:权重守恒、检查项 ID 唯一与命名规范、YAML 可解析、内部链接可达、章节编号连续,支持 `--strict`)与 `check_artifacts.py`(用例产物验收:唯一用例数口径、必填字段完备、安全类 CWE 标注、不可执行项禁伪装 PASS/FAIL,支持 `--self-test` 与 `--baseline` 棘轮)
+- **质量清单权重校准**:检查项权重合计由 527 校准回 500,每个 Phase 的组权重合计 = 100、每组内检查项权重和 = 组声明权重,综合评分分母固定为 `/ 100`
+- **检查项 ID 命名空间统一**:废掉两段式 `G1-1` 写法,统一为组 `G<阶段>.<组>`(点号)+ 检查项 `G<阶段>-<组>-<序号>`(两个连字符)
+
+### 🏗 v2.3.0 新增能力
 - **Agent Skills 标准布局**:技能内容迁入 `skills/testcase-generator/`,客户端可**自动发现**,不再依赖自定义激活流程;仓库根只保留分发元数据、适配层与开发工具
 - **原生插件安装通路**:新增 `.claude-plugin/plugin.json` + `marketplace.json`,Claude Code 可一行 marketplace 安装,取代"先 `npm i` 再 `activate`"两步通路
 - **版本单一数据源**:`skill.manifest.json` 的"版本"是唯一来源,`devtools/sync_version.py --write` 回写全部身份标记;插件清单同样由 `devtools/gen_plugin_manifests.py` **生成**,不再手工维护

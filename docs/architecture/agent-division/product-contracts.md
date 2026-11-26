@@ -138,7 +138,7 @@ v2.1 引入的增强能力占 `04`-`05`。这个规律在六个阶段一致：
 
 ```yaml
 ---
-generated_by: testcase-generator v2.3.0
+generated_by: testcase-generator v2.3.1
 phase: <0-5>
 timestamp: {ISO8601}
 status: draft / reviewed

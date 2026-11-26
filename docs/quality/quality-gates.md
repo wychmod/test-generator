@@ -240,7 +240,7 @@ Item_Pass_Status = 1.0 (Pass)
 ```markdown
 ---
 report_type: "quality_assurance_report"
-generator: "testcase-generator v2.3.0"
+generator: "testcase-generator v2.3.1"
 project: "[Project Name]"
 date: "{YYYY-MM-DD}"
 overall_score: {N}/{100}

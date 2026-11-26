@@ -8,7 +8,7 @@
 
 ## 这是什么
 
-`testcase-generator` 是一个 **Agent Skill 包**（不是普通库）：技能内容位于 **`skills/testcase-generator/`**（Agent Skills 标准布局，客户端可自动发现），`SKILL.md` 是中文主入口，`skill.manifest.json` 同时承担分发边界与版本契约。它为 8 个 AI 宿主提供触发式测试用例生成能力。
+`testcase-generator` 是一个 **Agent Skill 包**（不是普通库）：技能内容位于 **`skills/testcase-generator/`**（Agent Skills 标准布局，客户端可自动发现），`SKILL.md` 是中文主入口，`skill.manifest.json` 同时承担分发边界与版本契约。它为 26 个 AI 宿主提供触发式测试用例生成能力。
 
 ---
 
@@ -34,6 +34,9 @@ npm run test:python
 
 # 发布前
 python devtools/package_skill.py
+
+# 要上架 WorkBuddy 技能市场时（生成 dist/workbuddy/mbt-testcase-generator.zip）
+python devtools/build_workbuddy_package.py
 ```
 
 前三项已在 CI 中作为 required check，本地也应先跑绿再提交。

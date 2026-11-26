@@ -45,12 +45,12 @@
 
 ## 例子
 
-仓库当前已回填 `v2.1.0.md`、`v2.2.0.md`（已发布，2026-06-15）、
-`v2.3.0.md` 与 `v2.3.1.md`（当前版本，质量体系自洽修复）。
+仓库当前已回填 `v2.1.0.md`、`v2.2.0.md`（2026-06-15）、
+`v2.3.0.md`（内容已收口，`status` 仍为 `draft`）与 `v2.3.1.md`（当前版本，
+质量体系自洽修复，`status: stable`，2026-11-26）。
 
-`v2.3.0.md` 的内容已经收口，`status` 仍为 `draft` —— 只差发布动作
-（`npm publish` + GitHub Release）。发布当日把 `status` 改为 `stable`
-并补 `released` 日期即可。`v2.3.1.md` 已标记为 `stable`。
+`v2.3.0.md` 只差发布动作（`npm publish` + GitHub Release）。发布当日把
+`status` 改为 `stable` 并补 `released` 日期即可。`v2.3.1.md` 已标记为 `stable`。
 
 下一版的工作基线是 `v2.4.0-TEMPLATE.md`。如果想看更早的历史，请参考
 `README.md` 的「版本历史」章节。
