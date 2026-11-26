@@ -430,6 +430,10 @@ table.ref td code { color: var(--cyan); font-size: .8rem; }
 @media (max-width: 768px) {
   section { padding: 64px 0; }
   .publish-grid { grid-template-columns: 1fr; }
+  #quickstart .quick-grid > * { min-width: 0; }
+  #quickstart .cmd-list, #quickstart .cmd-item { min-width: 0; }
+  #quickstart .cmd-item code { min-width: 0; }
+  #quickstart .quick-grid > .reveal { overflow-x: auto; }
   .hero { padding: 72px 0 64px; }
   .nav-links {
     display: none; position: absolute; top: 64px; left: 0; right: 0;
